@@ -9,8 +9,6 @@ Game::Game()
 	: mWindow(sf::VideoMode(1280, 1024), "SFML Application", sf::Style::Close)
 	, _textureHolder()
 	, _player(new Player())
-	, _alien1(new Alien())
-	, _alien2(new Alien())
 	, mFont()
 	, mStatisticsText()
 	, mStatisticsUpdateTime()
@@ -19,9 +17,7 @@ Game::Game()
 	_textureHolder.load(Textures::Player1, "Media/Textures/Eagle.png");
 	_textureHolder.load(Textures::Player2, "Media/Textures/Raptor.png");
 
-	_player->initialize(sf::Vector2f(100, 100), _textureHolder.get(Textures::Player1), sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::S, sf::Keyboard::W, mWindow.getSize());
-	_alien1->initialize(sf::Vector2f(1000, 100), _textureHolder.get(Textures::Player2), mWindow.getSize(), true);
-	_alien2->initialize(sf::Vector2f(1000, 800), _textureHolder.get(Textures::Player2), mWindow.getSize(), false);
+	_player->initialize(sf::Vector2f(100, 100), _textureHolder.get(Textures::Player1), sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::S, sf::Keyboard::W, sf::Keyboard::Space, mWindow.getSize());
 	
 	mFont.loadFromFile("Media/Sansation.ttf");
 	mStatisticsText.setFont(mFont);
@@ -55,7 +51,7 @@ void Game::processEvents()
 	sf::Event event;
 	while (mWindow.pollEvent(event))
 	{
-		handlePlayerInput();
+		handleInput();
 
 		switch (event.type)
 		{
@@ -69,8 +65,6 @@ void Game::processEvents()
 void Game::update(sf::Time elapsedTime)
 {
 	_player->update(elapsedTime.asSeconds());
-	_alien1->update(elapsedTime.asSeconds(), _player->position());
-	_alien2->update(elapsedTime.asSeconds(), _player->position());
 }
 
 void Game::render()
@@ -78,8 +72,6 @@ void Game::render()
 	mWindow.clear();	
 
 	mWindow.draw(*_player);
-	mWindow.draw(*_alien1);
-	mWindow.draw(*_alien2);
 
 	mWindow.draw(mStatisticsText);
 	mWindow.display();
@@ -101,7 +93,10 @@ void Game::updateStatistics(sf::Time elapsedTime)
 	}
 }
 
-void Game::handlePlayerInput()
+void Game::handleInput()
 {	
-	_player->readInput();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+		{
+			mWindow.close();
+		}
 }

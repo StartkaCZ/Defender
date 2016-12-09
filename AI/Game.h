@@ -3,8 +3,14 @@
 
 #include "ResourceHolder.h"
 #include "ResourceIdentifiers.h"
+
 #include "Player.h"
-#include "Alien.h"
+#include "Abductor.h"
+#include "Mutant.h"
+#include "AlienNest.h"
+#include "Astronaut.h"
+#include "Meteor.h"
+#include "PowerUp.h"
 
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -23,7 +29,7 @@ private:
 	void					render();
 
 	void					updateStatistics(sf::Time elapsedTime);
-	void					handlePlayerInput();
+	void					handleInput();
 
 
 private:
@@ -39,8 +45,6 @@ private:
 
 	TextureHolder			_textureHolder;
 	std::unique_ptr<Player>	_player;
-	std::unique_ptr<Alien>	_alien1;
-	std::unique_ptr<Alien>	_alien2;
 };
 
 #endif // BOOK_GAME_HPP

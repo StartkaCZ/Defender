@@ -138,15 +138,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Alien.cpp" />
+    <ClCompile Include="Abductor.cpp" />
+    <ClCompile Include="AlienNest.cpp" />
+    <ClCompile Include="Astronaut.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Meteor.cpp" />
+    <ClCompile Include="Mutant.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PowerUp.cpp" />
+    <ClCompile Include="Projectile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Alien.h" />
+    <ClInclude Include="Abductor.h" />
+    <ClInclude Include="AlienNest.h" />
+    <ClInclude Include="Astronaut.h" />
+    <ClInclude Include="ConstHolder.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Meteor.h" />
+    <ClInclude Include="Mutant.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="PowerUp.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="ResourceIdentifiers.h" />
     <ClInclude Include="StringHelpers.h" />

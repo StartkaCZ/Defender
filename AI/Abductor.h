@@ -1,15 +1,19 @@
-#ifndef ALIEN_H
-#define ALIEN_H
+#ifndef Abductor_H
+#define Abductor_H
 
-#include <SFML/Graphics.hpp>
+#include "GameObject.h"
 
-class Alien : public sf::Drawable, private sf::NonCopyable, private sf::Transformable
+class Abductor : public GameObject
 {
 public:
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2u screenSize, bool flee);
+							Abductor();
+							~Abductor();
+
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2u screenSize);
 	void					update(float dt, sf::Vector2f playerPosition);
 
 private:
+	/*
 	void					flee(float dt);
 	void					seek(float dt);
 
@@ -20,12 +24,10 @@ private:
 	float					lenght(const sf::Vector2f &a);
 	float					distance(sf::Vector2f a, sf::Vector2f b);
 	float					getNewOrientation(const sf::Vector2f &source);
-
-	virtual void			draw(sf::RenderTarget& target, sf::RenderStates states) const;
+	*/
 
 
 private:
-	sf::Sprite				_sprite;
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 
@@ -36,14 +38,6 @@ private:
 	float					_timeToTarget;
 
 	bool					_flee;
-
-	sf::Keyboard::Key		_left;
-	sf::Keyboard::Key		_right;
-	sf::Keyboard::Key		_down;
-	sf::Keyboard::Key		_up;
-
-	const float				SPEED = 200.0f;
-	const float				PI = 3.141592;
 };
 
-#endif // ALIEN_H
+#endif // Abductor_H

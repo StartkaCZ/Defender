@@ -1,12 +1,12 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <SFML/Graphics.hpp>
+#include "GameObject.h"
 
-class Player : public sf::Drawable, private sf::NonCopyable, private sf::Transformable
+class Player : public GameObject
 {
 public:
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Keyboard::Key left, sf::Keyboard::Key right, sf::Keyboard::Key down, sf::Keyboard::Key up, sf::Vector2u screenSize);
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Keyboard::Key left, sf::Keyboard::Key right, sf::Keyboard::Key down, sf::Keyboard::Key up, sf::Keyboard::Key shoot, sf::Vector2u screenSize);
 	void					update(float dt);
 	void					readInput();
 
@@ -15,25 +15,29 @@ public:
 
 private:
 	virtual void			draw(sf::RenderTarget& target, sf::RenderStates states) const;
-	void					orientate(bool left);
 
+	void					CheckBorder();
+	
+	void					MoveLeft();
+	void					MoveRight();
+	void					MoveUp();
+	void					MoveDown();
+
+	void					Decelerate();
+	void					StopVerticalMovement();
+
+	void					Shoot();
 
 private:
-	sf::Sprite				_sprite;
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
-
-	float					_speed;
-	float					_orientation;
+	sf::Vector2f			_size;
 
 	sf::Keyboard::Key		_left;
 	sf::Keyboard::Key		_right;
 	sf::Keyboard::Key		_down;
 	sf::Keyboard::Key		_up;
-
-	const float				ROTATION = 3.0f;
-	const float				SPEED = 500.0f;
-	const float				PI = 3.141592;
+	sf::Keyboard::Key		_shoot;
 };
 
 #endif // PLAYER_H

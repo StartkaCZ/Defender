@@ -1,78 +1,155 @@
 #include "Player.h"
 
-void Player::initialize(sf::Vector2f position, sf::Texture &texture, sf::Keyboard::Key left, sf::Keyboard::Key right, sf::Keyboard::Key down, sf::Keyboard::Key up, sf::Vector2u screenSize)
+#include "ConstHolder.h"
+
+void Player::initialize(sf::Vector2f position, sf::Texture &texture, sf::Keyboard::Key left, sf::Keyboard::Key right, sf::Keyboard::Key down, sf::Keyboard::Key up, sf::Keyboard::Key shoot, sf::Vector2u screenSize)
 {
+	GameObject::initialize(position, texture);
+
+	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height);
+
 	_left = left;
 	_right = right;
 	_down = down;
 	_up = up;
+	_shoot = shoot;
 
 	_screenSize = screenSize;
-
-	_sprite = sf::Sprite();
-	_sprite.setTexture(texture);
-	setPosition(position);
-
-	_speed = SPEED;
-	
-	_velocity = sf::Vector2f(rand() % 3 - 1, rand() % 3 - 1);
-
-	while (_velocity.x == 0 && _velocity.y == 0)
-	{
-		_velocity = sf::Vector2f(rand() % 3 - 1, rand() % 3 - 1);
-	}
-
-	_sprite.setOrigin(texture.getSize().x * 0.5f, texture.getSize().y * 0.5f);
-	_orientation = atan2(_velocity.y, _velocity.x) * 180 / PI;
-	setRotation(_orientation);
-	_velocity = sf::Vector2f(cos(_orientation * PI / 180), sin(_orientation * PI / 180));
+	_velocity = sf::Vector2f(0, 0);
 }
 
 void Player::update(float dt)
 {
-	move(_velocity * _speed * dt);
-	setRotation(_orientation);
+	readInput();
 
-	if (getPosition().x > _screenSize.x)
-		setPosition(0, getPosition().y);
-	else if (getPosition().y > _screenSize.y)
-		setPosition(getPosition().x, 0);
+	CheckBorder();
 
+	move(_velocity * dt);
+}
+
+void Player::CheckBorder()
+{
 	if (getPosition().x < 0)
 		setPosition(_screenSize.x, getPosition().y);
-	else if (getPosition().y < 0)
-		setPosition(getPosition().x, _screenSize.y);
+	else if (getPosition().x > _screenSize.x)
+		setPosition(0, getPosition().y);
 }
 
 void Player::readInput()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		_speed += 25.0f;
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		_speed -= 25.0f;
+	if (sf::Keyboard::isKeyPressed(_left))
+		MoveLeft();
+	else if (sf::Keyboard::isKeyPressed(_right))
+		MoveRight();
+	else
+		Decelerate();
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		orientate(true);
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		orientate(false);
+	if (sf::Keyboard::isKeyPressed(_down))
+		MoveDown();
+	else if (sf::Keyboard::isKeyPressed(_up))
+		MoveUp();
+	else
+		StopVerticalMovement();
+
+	if (sf::Keyboard::isKeyPressed(_shoot))
+		Shoot();
 }
+#pragma region Inputs
+
+void Player::MoveLeft()
+{
+	if (_velocity.x > 0)
+	{
+		_velocity.x = 0;
+	}
+
+	if (_velocity.x > -PLAYER_MAX_SPEED)
+	{
+		_velocity.x -= PLAYER_ACCELERATION;
+	}
+	else
+	{
+		_velocity.x = -PLAYER_MAX_SPEED;
+	}
+}
+void Player::MoveRight()
+{
+	if (_velocity.x < 0)
+	{
+		_velocity.x = 0;
+	}
+
+	if (_velocity.x < PLAYER_MAX_SPEED)
+	{
+		_velocity.x += PLAYER_ACCELERATION;
+	}
+	else
+	{
+		_velocity.x = PLAYER_MAX_SPEED;
+	}
+}
+void Player::Decelerate()
+{
+	if (_velocity.x > 0)
+	{
+		_velocity.x -= PLAYER_DECCELERATION;
+
+		if (_velocity.x < 0)
+		{
+			_velocity.x = 0;
+		}
+	}
+	else if (_velocity.x < 0)
+	{
+		_velocity.x += PLAYER_DECCELERATION;
+
+		if (_velocity.x > 0)
+		{
+			_velocity.x = 0;
+		}
+	}
+}
+
+void Player::MoveDown()
+{
+	if (getPosition().y + _size.y < _screenSize.y)
+	{
+		_velocity.y = +PLAYER_VERTICAL_SPEED;
+	}
+	else
+	{
+		StopVerticalMovement();
+	}
+}
+void Player::MoveUp()
+{
+	if (getPosition().y - _size.y > 0)
+	{
+		_velocity.y = -PLAYER_VERTICAL_SPEED;
+	}
+	else
+	{
+		StopVerticalMovement();
+	}
+}
+void Player::StopVerticalMovement()
+{
+	_velocity.y = 0;
+}
+
+void Player::Shoot()
+{
+
+}
+
+#pragma endregion
+
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	// Apply transform of current node
 	states.transform *= getTransform();
 	target.draw(_sprite, states);
-}
-
-void Player::orientate(bool left)
-{
-	if (left)
-		_orientation -= ROTATION;
-	else
-		_orientation += ROTATION;
-
-	_velocity = sf::Vector2f(cos(_orientation * PI / 180), sin(_orientation * PI / 180));
-	setRotation(_orientation);
 }
 
 
