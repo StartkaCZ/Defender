@@ -1,44 +1,51 @@
 #include "Game.h"
 #include "StringHelpers.h"
 
-
-const float Game::PlayerSpeed = 100.f;
-const sf::Time Game::TimePerFrame = sf::seconds(1.f/60.f);
+#include "ConstHolder.h"
 
 Game::Game()
-	: mWindow(sf::VideoMode(1280, 1024), "SFML Application", sf::Style::Close)
+	: _window(sf::VideoMode(800, 600), "Defender", sf::Style::Close)
+	, _worldView(_window.getDefaultView())
+	, _worldBounds(0.f, 0.f, _worldView.getSize().x * SCREEN_TIME_SIZE, _worldView.getSize().y)
 	, _textureHolder()
 	, _player(new Player())
-	, mFont()
-	, mStatisticsText()
-	, mStatisticsUpdateTime()
-	, mStatisticsNumFrames(0)
+	, _statisticsText()
+	, _statisticsUpdateTime()
+	, _statisticsNumFrames(0)
+	, _score(0)
 {
-	_textureHolder.load(Textures::Player1, "Media/Textures/Eagle.png");
-	_textureHolder.load(Textures::Player2, "Media/Textures/Raptor.png");
+	loadContent();
 
-	_player->initialize(sf::Vector2f(100, 100), _textureHolder.get(Textures::Player1), sf::Keyboard::A, sf::Keyboard::D, sf::Keyboard::S, sf::Keyboard::W, sf::Keyboard::Space, mWindow.getSize());
-	
-	mFont.loadFromFile("Media/Sansation.ttf");
-	mStatisticsText.setFont(mFont);
-	mStatisticsText.setPosition(5.f, 5.f);
-	mStatisticsText.setCharacterSize(10);
+	_player->initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
+	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldBounds.height * 0.5f));
+
+	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
+	_statisticsText.setPosition(5.f, 5.f);
+	_statisticsText.setCharacterSize(10);
+}
+
+void Game::loadContent()
+{
+	_textureHolder.load(Textures::ID::Player, "Media/Textures/Eagle.png");
+	_textureHolder.load(Textures::ID::Abdusctor, "Media/Textures/Raptor.png");
+
+	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
 }
 
 void Game::run()
 {
 	sf::Clock clock;
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
-	while (mWindow.isOpen())
+	while (_window.isOpen())
 	{
 		sf::Time elapsedTime = clock.restart();
 		timeSinceLastUpdate += elapsedTime;
-		while (timeSinceLastUpdate > TimePerFrame)
+		while (timeSinceLastUpdate > TIME_PER_FRAME)
 		{
-			timeSinceLastUpdate -= TimePerFrame;
+			timeSinceLastUpdate -= TIME_PER_FRAME;
 
 			processEvents();
-			update(TimePerFrame);
+			update(TIME_PER_FRAME);
 		}
 
 		updateStatistics(elapsedTime);
@@ -49,14 +56,14 @@ void Game::run()
 void Game::processEvents()
 {
 	sf::Event event;
-	while (mWindow.pollEvent(event))
+	while (_window.pollEvent(event))
 	{
 		handleInput();
 
 		switch (event.type)
 		{
 			case sf::Event::Closed:
-				mWindow.close();
+				_window.close();
 				break;
 		}
 	}
@@ -65,38 +72,43 @@ void Game::processEvents()
 void Game::update(sf::Time elapsedTime)
 {
 	_player->update(elapsedTime.asSeconds());
+	_score++;
+
+	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldView.getCenter().y));
 }
 
 void Game::render()
 {
-	mWindow.clear();	
+	_window.clear();	
 
-	mWindow.draw(*_player);
+	_window.setView(_worldView);
+	_window.draw(*_player);
 
-	mWindow.draw(mStatisticsText);
-	mWindow.display();
+	_window.draw(_statisticsText);
+	_window.display();
 }
 
 void Game::updateStatistics(sf::Time elapsedTime)
 {
-	mStatisticsUpdateTime += elapsedTime;
-	mStatisticsNumFrames += 1;
+	_statisticsUpdateTime += elapsedTime;
+	_statisticsNumFrames += 1;
 
-	if (mStatisticsUpdateTime >= sf::seconds(1.0f))
+	if (_statisticsUpdateTime >= sf::seconds(1.0f))
 	{
-		mStatisticsText.setString(
-			"Frames / Second = " + toString(mStatisticsNumFrames) + "\n" +
-			"Time / Update = " + toString(mStatisticsUpdateTime.asMicroseconds() / mStatisticsNumFrames) + "us");
-							 
-		mStatisticsUpdateTime -= sf::seconds(1.0f);
-		mStatisticsNumFrames = 0;
+		_statisticsText.setString(
+			"Frames / Second = " + toString(_statisticsNumFrames) + "\n" +
+			"Time / Update = " + toString(_statisticsUpdateTime.asMicroseconds() / _statisticsNumFrames) + "us\n" + 
+			"Score = " + toString(_score));
+		
+		_statisticsUpdateTime -= sf::seconds(1.0f);
+		_statisticsNumFrames = 0;
 	}
 }
 
 void Game::handleInput()
 {	
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-		{
-			mWindow.close();
-		}
+	{
+		_window.close();
+	}
 }

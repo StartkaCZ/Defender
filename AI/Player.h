@@ -6,7 +6,9 @@
 class Player : public GameObject
 {
 public:
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Keyboard::Key left, sf::Keyboard::Key right, sf::Keyboard::Key down, sf::Keyboard::Key up, sf::Keyboard::Key shoot, sf::Vector2u screenSize);
+							Player();
+
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
 	void					update(float dt);
 	void					readInput();
 
@@ -15,6 +17,10 @@ public:
 
 private:
 	virtual void			draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+	void					FireRateTimer(float dt);
+	void					NukeTimer(float dt);
+	void					SuperJumpTimer(float dt);
 
 	void					CheckBorder();
 	
@@ -27,17 +33,24 @@ private:
 	void					StopVerticalMovement();
 
 	void					Shoot();
+	void					Nuke();
+	void					SuperJump();
 
 private:
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 	sf::Vector2f			_size;
 
-	sf::Keyboard::Key		_left;
-	sf::Keyboard::Key		_right;
-	sf::Keyboard::Key		_down;
-	sf::Keyboard::Key		_up;
-	sf::Keyboard::Key		_shoot;
+	float					_fireRateTimer;
+	float					_nukeTimer;
+	float					_superJumpTimer;
+
+	int						_nukeCount;
+	int						_superJumpCount;
+
+	bool					_canFire;
+	bool					_canNuke;
+	bool					_canSuperJump;
 };
 
 #endif // PLAYER_H

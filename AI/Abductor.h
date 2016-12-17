@@ -9,7 +9,7 @@ public:
 							Abductor();
 							~Abductor();
 
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2u screenSize);
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
 	void					update(float dt, sf::Vector2f playerPosition);
 
 private:

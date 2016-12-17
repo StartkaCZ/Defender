@@ -6,14 +6,29 @@
 namespace sf
 {
 	class Texture;
+	class Font;
 }
 
 namespace Textures
 {
-	enum ID
+	enum class ID
 	{
-		Player1,
-		Player2,
+		Player,
+		Abdusctor,
+		AlienNest,
+		Astronaut,
+		Mutant,
+		Meteor,
+		PowerUp,
+		Projectile,
+	};
+}
+
+namespace Fonts
+{
+	enum class ID
+	{
+		Normal,
 	};
 }
 
@@ -22,5 +37,6 @@ template <typename Resource, typename Identifier>
 class ResourceHolder;
 
 typedef ResourceHolder<sf::Texture, Textures::ID> TextureHolder;
+typedef ResourceHolder<sf::Font, Fonts::ID> FontHolder;
 
 #endif // RESOURCEIDENTIFIERS_H

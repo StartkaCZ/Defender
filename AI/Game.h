@@ -19,11 +19,12 @@
 class Game : private sf::NonCopyable
 {
 public:
-	Game();
+							Game();
 	void					run();
 
 
 private:
+	void					loadContent();
 	void					processEvents();
 	void					update(sf::Time elapsedTime);
 	void					render();
@@ -33,18 +34,21 @@ private:
 
 
 private:
-	static const float		PlayerSpeed;
-	static const sf::Time	TimePerFrame;
+	sf::RenderWindow		_window;
+	sf::View				_worldView;
+	sf::FloatRect			_worldBounds;
 
-	sf::RenderWindow		mWindow;
-	sf::Texture				mTexture;
-	sf::Font				mFont;
-	sf::Text				mStatisticsText;
-	sf::Time				mStatisticsUpdateTime;
-	std::size_t				mStatisticsNumFrames;
+	sf::Text				_statisticsText;
+	sf::Time				_statisticsUpdateTime;
+	std::size_t				_statisticsNumFrames;
 
 	TextureHolder			_textureHolder;
+	FontHolder				_fontHolder;
 	std::unique_ptr<Player>	_player;
+
+	int						_score;
+
+	const sf::Time			TIME_PER_FRAME = sf::seconds(1.f / 60.f);
 };
 
 #endif // BOOK_GAME_HPP
