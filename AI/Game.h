@@ -11,6 +11,7 @@
 #include "Astronaut.h"
 #include "Meteor.h"
 #include "PowerUp.h"
+#include "Projectile.h"
 
 #include <SFML/Graphics.hpp>
 #include <memory>
@@ -45,6 +46,7 @@ private:
 	TextureHolder			_textureHolder;
 	FontHolder				_fontHolder;
 	std::unique_ptr<Player>	_player;
+	std::vector<Projectile*>_projectiles;
 
 	int						_score;
 

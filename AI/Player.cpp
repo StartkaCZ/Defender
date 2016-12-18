@@ -3,7 +3,7 @@
 #include "ConstHolder.h"
 
 
-Player::Player()
+Player::Player(std::vector<Projectile*>& projectiles)
 	: _fireRateTimer(0)
 	, _nukeTimer(0)
 	, _superJumpTimer(0)
@@ -13,6 +13,7 @@ Player::Player()
 	, _canFire(true)
 	, _canNuke(true)
 	, _canSuperJump(true)
+	, _projectiles(projectiles)
 {
 
 }
@@ -209,7 +210,10 @@ void Player::Shoot()
 {
 	if (_canFire)
 	{
+		Projectile* lazer = new Projectile();
+		//lazer->initialize();
 
+		_projectiles.push_back(lazer);
 		_canFire = false;
 	}
 }

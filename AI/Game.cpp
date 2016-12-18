@@ -8,7 +8,8 @@ Game::Game()
 	, _worldView(_window.getDefaultView())
 	, _worldBounds(0.f, 0.f, _worldView.getSize().x * SCREEN_TIME_SIZE, _worldView.getSize().y)
 	, _textureHolder()
-	, _player(new Player())
+	, _player(nullptr)
+	, _projectiles(std::vector<Projectile*>())
 	, _statisticsText()
 	, _statisticsUpdateTime()
 	, _statisticsNumFrames(0)
@@ -16,6 +17,7 @@ Game::Game()
 {
 	loadContent();
 
+	_player = std::unique_ptr<Player>(new Player(_projectiles));
 	_player->initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
 	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldBounds.height * 0.5f));
 
@@ -36,6 +38,7 @@ void Game::run()
 {
 	sf::Clock clock;
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
 	while (_window.isOpen())
 	{
 		sf::Time elapsedTime = clock.restart();
@@ -74,6 +77,11 @@ void Game::update(sf::Time elapsedTime)
 	_player->update(elapsedTime.asSeconds());
 	_score++;
 
+	for (int i = 0; i < _projectiles.size(); i++)
+	{
+		_projectiles[i]->Update(elapsedTime.asSeconds());
+	}
+
 	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldView.getCenter().y));
 }
 
@@ -82,6 +90,12 @@ void Game::render()
 	_window.clear();	
 
 	_window.setView(_worldView);
+
+	for (int i = 0; i < _projectiles.size(); i++)
+	{
+		_window.draw(*_projectiles[i]);
+	}
+
 	_window.draw(*_player);
 
 	_window.draw(_statisticsText);

@@ -2,11 +2,12 @@
 #define PLAYER_H
 
 #include "GameObject.h"
+#include "Projectile.h"
 
 class Player : public GameObject
 {
 public:
-							Player();
+							Player(std::vector<Projectile*>& projectiles);
 
 	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
 	void					update(float dt);
@@ -40,6 +41,8 @@ private:
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 	sf::Vector2f			_size;
+
+	std::vector<Projectile*>&_projectiles;
 
 	float					_fireRateTimer;
 	float					_nukeTimer;
