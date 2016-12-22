@@ -33,6 +33,8 @@ private:
 	void					updateStatistics(sf::Time elapsedTime);
 	void					handleInput();
 
+private:
+	void					NukeReleased();
 
 private:
 	sf::RenderWindow		_window;
@@ -45,8 +47,10 @@ private:
 
 	TextureHolder			_textureHolder;
 	FontHolder				_fontHolder;
+
 	std::unique_ptr<Player>	_player;
 	std::vector<Projectile*>_projectiles;
+	std::vector<Meteor*>	_obstacles;
 
 	int						_score;
 

@@ -10,6 +10,7 @@ Game::Game()
 	, _textureHolder()
 	, _player(nullptr)
 	, _projectiles(std::vector<Projectile*>())
+	, _obstacles(std::vector<Meteor*>())
 	, _statisticsText()
 	, _statisticsUpdateTime()
 	, _statisticsNumFrames(0)
@@ -17,8 +18,17 @@ Game::Game()
 {
 	loadContent();
 
+	while (_obstacles.size() < MAX_METEORS)
+	{
+		Meteor* meteor = new Meteor();
+
+		meteor->Initialize(_textureHolder.get(Textures::ID::Meteor), _worldBounds);
+
+		_obstacles.push_back(meteor);
+	}
+
 	_player = std::unique_ptr<Player>(new Player(_projectiles));
-	_player->initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
+	_player->initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _textureHolder.get(Textures::ID::PlayerLazer), _worldBounds);
 	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldBounds.height * 0.5f));
 
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
@@ -29,7 +39,10 @@ Game::Game()
 void Game::loadContent()
 {
 	_textureHolder.load(Textures::ID::Player, "Media/Textures/Eagle.png");
+	_textureHolder.load(Textures::ID::PlayerLazer, "Media/Textures/Eagle.png");
+
 	_textureHolder.load(Textures::ID::Abdusctor, "Media/Textures/Raptor.png");
+	_textureHolder.load(Textures::ID::Meteor, "Media/Textures/Raptor.png");
 
 	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
 }
@@ -75,7 +88,18 @@ void Game::processEvents()
 void Game::update(sf::Time elapsedTime)
 {
 	_player->update(elapsedTime.asSeconds());
+	if (_player->hasNuked())
+	{
+		NukeReleased();
+		_player->nukingOver();
+	}
+
 	_score++;
+
+	for (int i = 0; i < _obstacles.size(); i++)
+	{
+		_obstacles[i]->Update(elapsedTime.asSeconds());
+	}
 
 	for (int i = 0; i < _projectiles.size(); i++)
 	{
@@ -85,11 +109,22 @@ void Game::update(sf::Time elapsedTime)
 	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldView.getCenter().y));
 }
 
+void Game::NukeReleased()
+{
+
+}
+
 void Game::render()
 {
 	_window.clear();	
 
 	_window.setView(_worldView);
+
+
+	for (int i = 0; i < _obstacles.size(); i++)
+	{
+		_window.draw(*_obstacles[i]);
+	}
 
 	for (int i = 0; i < _projectiles.size(); i++)
 	{

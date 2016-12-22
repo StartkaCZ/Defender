@@ -13,14 +13,18 @@ Player::Player(std::vector<Projectile*>& projectiles)
 	, _canFire(true)
 	, _canNuke(true)
 	, _canSuperJump(true)
+	, _movingLeft(false)
 	, _projectiles(projectiles)
+	, _lifes(PLAYER_MAX_LIVES)
 {
 
 }
 
-void Player::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
+void Player::initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize)
 {
-	GameObject::initialize(position, texture);
+	GameObject::initialize(position, texture, ObjectType::Player);
+
+	_lazerTexture = lazerTexture;
 
 	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height);
 
@@ -126,9 +130,11 @@ void Player::readInput()
 
 void Player::MoveLeft()
 {
-	if (_velocity.x > 0)
+	if (!_movingLeft)
 	{
 		_velocity.x = 0;
+		_movingLeft = true;
+		setScale(-getScale().x, getScale().y);
 	}
 
 	if (_velocity.x > -PLAYER_MAX_SPEED)
@@ -142,9 +148,11 @@ void Player::MoveLeft()
 }
 void Player::MoveRight()
 {
-	if (_velocity.x < 0)
+	if (_movingLeft)
 	{
 		_velocity.x = 0;
+		_movingLeft = false;
+		setScale(-getScale().x, getScale().y);
 	}
 
 	if (_velocity.x < PLAYER_MAX_SPEED)
@@ -211,7 +219,17 @@ void Player::Shoot()
 	if (_canFire)
 	{
 		Projectile* lazer = new Projectile();
-		//lazer->initialize();
+		
+		if (_movingLeft)
+		{
+			sf::Vector2f position = sf::Vector2f(getPosition().x - _size.x, getPosition().y);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(-1, 0), ObjectType::PlayerLazer);
+		}
+		else
+		{
+			sf::Vector2f position = sf::Vector2f(getPosition().x + _size.x, getPosition().y);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), ObjectType::PlayerLazer);
+		}
 
 		_projectiles.push_back(lazer);
 		_canFire = false;
@@ -222,7 +240,7 @@ void Player::Nuke()
 {
 	if (_canNuke && _nukeCount > 0)
 	{
-
+		_hasNuked = true;
 		_nukeCount--;
 		_canNuke = false;
 	}
@@ -252,8 +270,18 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(_sprite, states);
 }
 
+void Player::nukingOver()
+{
+	_hasNuked = true;
+}
+
 
 sf::Vector2f Player::position()
 {
 	return getPosition();
+}
+
+bool Player::hasNuked()
+{
+	return _hasNuked;
 }

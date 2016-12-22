@@ -9,11 +9,15 @@ class Player : public GameObject
 public:
 							Player(std::vector<Projectile*>& projectiles);
 
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize);
 	void					update(float dt);
 	void					readInput();
 
+	void					nukingOver();
+
 	sf::Vector2f			position();
+
+	bool					hasNuked();
 
 
 private:
@@ -38,6 +42,8 @@ private:
 	void					SuperJump();
 
 private:
+	sf::Texture				_lazerTexture;
+
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 	sf::Vector2f			_size;
@@ -50,10 +56,14 @@ private:
 
 	int						_nukeCount;
 	int						_superJumpCount;
+	int						_lifes;
 
 	bool					_canFire;
 	bool					_canNuke;
 	bool					_canSuperJump;
+
+	bool					_hasNuked;
+	bool					_movingLeft;
 };
 
 #endif // PLAYER_H

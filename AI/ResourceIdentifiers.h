@@ -20,7 +20,7 @@ namespace Textures
 		Mutant,
 		Meteor,
 		PowerUp,
-		Projectile,
+		PlayerLazer,
 	};
 }
 

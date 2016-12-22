@@ -11,11 +11,13 @@ GameObject::~GameObject()
 {
 }
 
-void GameObject::initialize(sf::Vector2f position, sf::Texture &texture)
+void GameObject::initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type)
 {
 	_sprite = sf::Sprite();
 	_sprite.setTexture(texture);
 	_sprite.setOrigin(texture.getSize().x * 0.5f, texture.getSize().y * 0.5f);
+
+	_type = type;
 
 	setPosition(position);
 }
