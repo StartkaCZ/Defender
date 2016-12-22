@@ -14,27 +14,26 @@ Player::Player(std::vector<Projectile*>& projectiles)
 	, _canNuke(true)
 	, _canSuperJump(true)
 	, _movingLeft(false)
+	, _hasNuked(false)
 	, _projectiles(projectiles)
 	, _lifes(PLAYER_MAX_LIVES)
 {
 
 }
 
-void Player::initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize)
+void Player::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Player);
 
 	_lazerTexture = lazerTexture;
 
-	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height);
-
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 }
 
 
-void Player::update(float dt)
+void Player::Update(float dt)
 {
-	readInput();
+	ReadInput();
 	CheckBorder();
 
 	FireRateTimer(dt);
@@ -103,7 +102,7 @@ void Player::CheckBorder()
 		setPosition(0, getPosition().y);
 }
 
-void Player::readInput()
+void Player::ReadInput()
 {
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		MoveLeft();
@@ -223,12 +222,12 @@ void Player::Shoot()
 		if (_movingLeft)
 		{
 			sf::Vector2f position = sf::Vector2f(getPosition().x - _size.x, getPosition().y);
-			lazer->initialize(position, _lazerTexture, sf::Vector2f(-1, 0), ObjectType::PlayerLazer);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(-1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
 		}
 		else
 		{
 			sf::Vector2f position = sf::Vector2f(getPosition().x + _size.x, getPosition().y);
-			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), ObjectType::PlayerLazer);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
 		}
 
 		_projectiles.push_back(lazer);
@@ -263,23 +262,29 @@ void Player::SuperJump()
 #pragma endregion
 
 
-void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const
-{
-	// Apply transform of current node
-	states.transform *= getTransform();
-	target.draw(_sprite, states);
-}
-
-void Player::nukingOver()
+void Player::NukingOver()
 {
 	_hasNuked = true;
 }
 
-
-sf::Vector2f Player::position()
+void Player::CollectedPowerUp(ObjectType powerUp)
 {
-	return getPosition();
+	switch (powerUp)
+	{
+	case ObjectType::PowerUp_SuperJump:
+		_superJumpCount++;
+		break;
+
+	default:
+		break;
+	}
+
 }
+void Player::TakenDamage()
+{
+	_lifes--;
+}
+
 
 bool Player::hasNuked()
 {

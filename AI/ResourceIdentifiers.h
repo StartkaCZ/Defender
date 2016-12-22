@@ -18,9 +18,9 @@ namespace Textures
 		AlienNest,
 		Astronaut,
 		Mutant,
-		Meteor,
-		PowerUp,
-		PlayerLazer,
+		Obstacle_Meteor,
+		PowerUp_SuperJump,
+		Projectile_PlayerLazer,
 	};
 }
 

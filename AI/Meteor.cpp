@@ -14,9 +14,8 @@ Meteor::~Meteor()
 void Meteor::Initialize(sf::Texture &texture, sf::FloatRect screenSize)
 {
 	sf::Vector2f position = sf::Vector2f(0,0);
-	GameObject::initialize(position, texture, ObjectType::Meteor);
+	GameObject::initialize(position, texture, ObjectType::Obstacle_Meteor);
 
-	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height);
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 
 	Restart();
@@ -46,4 +45,16 @@ void Meteor::Restart()
 	setPosition(x, y);
 
 	_velocity = sf::Vector2f(((rand() % 20 - 10)* 0.1f), (rand() % 5 + 6) * 0.1f) * METEOR_FALL_SPEED;
+
+	_isAlive = true;
+}
+
+void Meteor::Die()
+{
+	_isAlive = false;
+}
+
+bool Meteor::getAlive() const
+{
+	return _isAlive;
 }

@@ -5,7 +5,17 @@
 class PowerUp : public GameObject
 {
 public:
-	PowerUp();
-	~PowerUp();
+					PowerUp();
+					~PowerUp();
+
+	void			Initialize(sf::Texture &texture, ObjectType type, sf::FloatRect screenRectangle);
+	void			Update(float dt);
+
+	void			Die();
+
+	bool			getAlive() const;
+
+private:
+	bool			_isAlive;
 };
 

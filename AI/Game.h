@@ -14,7 +14,6 @@
 #include "Projectile.h"
 
 #include <SFML/Graphics.hpp>
-#include <memory>
 
 
 class Game : private sf::NonCopyable
@@ -48,9 +47,10 @@ private:
 	TextureHolder			_textureHolder;
 	FontHolder				_fontHolder;
 
-	std::unique_ptr<Player>	_player;
+	Player*					_player;
 	std::vector<Projectile*>_projectiles;
-	std::vector<Meteor*>	_obstacles;
+	std::vector<Meteor*>	_meteors;
+	std::vector<PowerUp*>	_powerUps;
 
 	int						_score;
 

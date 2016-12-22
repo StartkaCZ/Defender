@@ -2,6 +2,7 @@
 #include "StringHelpers.h"
 
 #include "ConstHolder.h"
+#include "CollisionManager.h"
 
 Game::Game()
 	: _window(sf::VideoMode(800, 600), "Defender", sf::Style::Close)
@@ -10,7 +11,8 @@ Game::Game()
 	, _textureHolder()
 	, _player(nullptr)
 	, _projectiles(std::vector<Projectile*>())
-	, _obstacles(std::vector<Meteor*>())
+	, _meteors(std::vector<Meteor*>())
+	, _powerUps(std::vector<PowerUp*>())
 	, _statisticsText()
 	, _statisticsUpdateTime()
 	, _statisticsNumFrames(0)
@@ -18,18 +20,27 @@ Game::Game()
 {
 	loadContent();
 
-	while (_obstacles.size() < MAX_METEORS)
+	while (_meteors.size() < MAX_METEORS)
 	{
 		Meteor* meteor = new Meteor();
 
-		meteor->Initialize(_textureHolder.get(Textures::ID::Meteor), _worldBounds);
+		meteor->Initialize(_textureHolder.get(Textures::ID::Obstacle_Meteor), _worldBounds);
 
-		_obstacles.push_back(meteor);
+		_meteors.push_back(meteor);
 	}
 
-	_player = std::unique_ptr<Player>(new Player(_projectiles));
-	_player->initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _textureHolder.get(Textures::ID::PlayerLazer), _worldBounds);
-	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldBounds.height * 0.5f));
+	while (_powerUps.size() < MAX_POWER_UPS)
+	{
+		PowerUp* powerUp = new PowerUp();
+
+		powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
+
+		_powerUps.push_back(powerUp);
+	}
+
+	_player = new Player(_projectiles);
+	_player->Initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _textureHolder.get(Textures::ID::Projectile_PlayerLazer), _worldBounds);
+	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldBounds.height * 0.5f));
 
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
 	_statisticsText.setPosition(5.f, 5.f);
@@ -39,10 +50,11 @@ Game::Game()
 void Game::loadContent()
 {
 	_textureHolder.load(Textures::ID::Player, "Media/Textures/Eagle.png");
-	_textureHolder.load(Textures::ID::PlayerLazer, "Media/Textures/Eagle.png");
+	_textureHolder.load(Textures::ID::Projectile_PlayerLazer, "Media/Textures/Eagle.png");
+	_textureHolder.load(Textures::ID::PowerUp_SuperJump, "Media/Textures/Eagle.png");
 
 	_textureHolder.load(Textures::ID::Abdusctor, "Media/Textures/Raptor.png");
-	_textureHolder.load(Textures::ID::Meteor, "Media/Textures/Raptor.png");
+	_textureHolder.load(Textures::ID::Obstacle_Meteor, "Media/Textures/Raptor.png");
 
 	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
 }
@@ -87,26 +99,58 @@ void Game::processEvents()
 
 void Game::update(sf::Time elapsedTime)
 {
-	_player->update(elapsedTime.asSeconds());
+	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _powerUps, _meteors);
+
+	_player->Update(elapsedTime.asSeconds());
 	if (_player->hasNuked())
 	{
 		NukeReleased();
-		_player->nukingOver();
+		_player->NukingOver();
 	}
 
 	_score++;
 
-	for (int i = 0; i < _obstacles.size(); i++)
+	for (int i = 0; i < _meteors.size(); i++)
 	{
-		_obstacles[i]->Update(elapsedTime.asSeconds());
+		if (_meteors[i]->getAlive())
+		{
+			_meteors[i]->Update(elapsedTime.asSeconds());
+		}
+		else
+		{
+			_meteors[i]->Restart();
+		}
 	}
 
 	for (int i = 0; i < _projectiles.size(); i++)
 	{
-		_projectiles[i]->Update(elapsedTime.asSeconds());
+		if (_projectiles[i]->getAlive())
+		{
+			_projectiles[i]->Update(elapsedTime.asSeconds());
+		}
+		else
+		{
+			delete _projectiles[i];
+			_projectiles.erase(_projectiles.begin() + i);
+			i--;
+		}
 	}
 
-	_worldView.setCenter(sf::Vector2f(_player->position().x, _worldView.getCenter().y));
+	for (int i = 0; i < _powerUps.size(); i++)
+	{
+		if (_powerUps[i]->getAlive())
+		{
+			_powerUps[i]->Update(elapsedTime.asSeconds());
+		}
+		else
+		{
+			delete _powerUps[i];
+			_powerUps.erase(_powerUps.begin() + i);
+			i--;
+		}
+	}
+
+	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
 }
 
 void Game::NukeReleased()
@@ -121,14 +165,19 @@ void Game::render()
 	_window.setView(_worldView);
 
 
-	for (int i = 0; i < _obstacles.size(); i++)
+	for (int i = 0; i < _meteors.size(); i++)
 	{
-		_window.draw(*_obstacles[i]);
+		_window.draw(*_meteors[i]);
 	}
 
 	for (int i = 0; i < _projectiles.size(); i++)
 	{
 		_window.draw(*_projectiles[i]);
+	}
+
+	for (int i = 0; i < _powerUps.size(); i++)
+	{
+		_window.draw(*_powerUps[i]);
 	}
 
 	_window.draw(*_player);

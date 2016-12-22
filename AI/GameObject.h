@@ -12,11 +12,12 @@ enum class ObjectType
 	Mutant,
 	AlienNest,
 	//obstacles
-	Meteor,
+	Obstacle_Meteor,
 	//power ups
-	PowerUp,
+	PowerUp_SuperJump,
 	//Projectiles
-	PlayerLazer,
+	Projetile_PlayerLazer,
+	Nest_Interceptor,
 };
 
 class GameObject : public sf::Drawable, protected sf::NonCopyable, protected sf::Transformable
@@ -25,6 +26,10 @@ public:
 							GameObject();
 	virtual					~GameObject();
 
+	sf::Vector2f			getPosition() const;
+	sf::Vector2f			getSize() const;
+	ObjectType				getType() const;
+
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);
 
@@ -32,6 +37,7 @@ protected:
 	virtual void			draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 protected:
+	sf::Vector2f			_size;
 	sf::Sprite				_sprite;
 	ObjectType				_type;
 };
