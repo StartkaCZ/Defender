@@ -17,7 +17,7 @@ enum class ObjectType
 	PowerUp_SuperJump,
 	//Projectiles
 	Projetile_PlayerLazer,
-	Nest_Interceptor,
+	Projetile_Interceptor,
 };
 
 class GameObject : public sf::Drawable, protected sf::NonCopyable, protected sf::Transformable

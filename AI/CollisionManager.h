@@ -4,6 +4,7 @@
 #include "PowerUp.h"
 #include "Meteor.h"
 #include "Projectile.h"
+#include "Interceptor.h"
 
 #include <vector>
 
@@ -15,9 +16,10 @@ public:
 	CollisionManager();
 	~CollisionManager();
 
-	void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors);
+	void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors);
 
 	void CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors);
+	void CheckInterceptorCollision(Player*& player, std::vector<Interceptor*>& interceptor, std::vector<Meteor*>& meteors);
 	void CheckMeteorCollision(Player*& player, std::vector<Meteor*>& meteors);
 
 	void CheckPlayerToPowerUpsCollision(Player*& player, std::vector<PowerUp*>& powerUps);

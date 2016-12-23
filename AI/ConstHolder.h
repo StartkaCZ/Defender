@@ -36,7 +36,7 @@ const float MUTANT_DECCELERATION = 5.0f;
 const float METEOR_FALL_SPEED = 400.0f;
 
 const float	PI = 3.141592;
-const float SCREEN_TIME_SIZE = 9.0f;
+const float SCREEN_TIME_SIZE = 3.0f;// 9.0f;
 
 const int	MAX_METEORS = SCREEN_TIME_SIZE;
 const int	MAX_POWER_UPS = 1;

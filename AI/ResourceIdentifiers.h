@@ -14,13 +14,14 @@ namespace Textures
 	enum class ID
 	{
 		Player,
-		Abdusctor,
+		Abductor,
 		AlienNest,
 		Astronaut,
 		Mutant,
 		Obstacle_Meteor,
 		PowerUp_SuperJump,
 		Projectile_PlayerLazer,
+		Projectile_Interceptor,
 	};
 }
 

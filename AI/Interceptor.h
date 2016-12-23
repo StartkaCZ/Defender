@@ -15,5 +15,6 @@ public:
 
 private:
 	int&	_parentRocketCounter;
+	float	_timeToLive;
 };
 

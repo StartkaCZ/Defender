@@ -3,14 +3,15 @@
 #include "GameObject.h"
 #include "Projectile.h"
 #include "Abductor.h"
+#include "Interceptor.h"
 
 class AlienNest : public GameObject
 {
 public:
-							AlienNest(std::vector<Projectile*>& projectiles, std::vector<Abductor*>& abductors);
+							AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors);
 							~AlienNest();
 
-	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::Texture &abductorTexture, sf::FloatRect screenSize);
+	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &interceptorTexture, sf::Texture &abductorTexture, sf::FloatRect screenSize);
 	void					Update(float dt, sf::Vector2f playerPosition);
 
 	void					TakenDamage();
@@ -28,18 +29,18 @@ private:
 	void					Evade();
 	void					CheckBorder();
 
-	void					Shoot();
+	void					Shoot(sf::Vector2f playerPosition);
 	void					SpawnAbductor();
 
 private:
-	sf::Texture				_lazerTexture;
+	sf::Texture				_interceptorTexture;
 	sf::Texture				_abductorTexture;
 
 	sf::Vector2f			_targetPosition;
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 
-	std::vector<Projectile*>&_projectiles;
+	std::vector<Interceptor*>&_interceptors;
 	std::vector<Abductor*>&	 _abductors;
 
 	float					_fireRateTimer;

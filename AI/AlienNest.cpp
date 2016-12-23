@@ -3,8 +3,8 @@
 #include "ConstHolder.h"
 
 
-AlienNest::AlienNest(std::vector<Projectile*>& projectiles, std::vector<Abductor*>& abductors)
-	: _projectiles(projectiles)
+AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors)
+	: _interceptors(interceptors)
 	, _abductors(_abductors)
 	, _lifes(2)
 	, _isAlive(false)
@@ -21,14 +21,16 @@ AlienNest::~AlienNest()
 {
 }
 
-void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::Texture &abductorTexture, sf::FloatRect screenSize)
+void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &interceptorTexture, sf::Texture &abductorTexture, sf::FloatRect screenSize)
 {
-	GameObject::initialize(position, texture, ObjectType::Player);
+	GameObject::initialize(position, texture, ObjectType::AlienNest);
 
-	_lazerTexture = lazerTexture;
+	_interceptorTexture = interceptorTexture;
 	_abductorTexture = abductorTexture;
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
+
+	_isAlive = true;
 }
 void AlienNest::Update(float dt, sf::Vector2f playerPosition)
 {
@@ -46,7 +48,7 @@ void AlienNest::UpdateStatus(sf::Vector2f playerPosition)
 
 	if (distanceFromPlayer < NEST_DISTANCE_TO_FIRE)
 	{
-		Shoot();
+		Shoot(playerPosition);
 		_wondering = false;
 	}
 	else if (distanceFromPlayer < NEST_DISTANCE_TO_EVADE)
@@ -113,16 +115,16 @@ void AlienNest::SpawnTimer(float dt)
 	}
 }
 
-void AlienNest::Shoot()
+void AlienNest::Shoot(sf::Vector2f playerPosition)
 {
 	if (_canFire)
 	{
-		Projectile* intercepor = new Projectile();
+		Interceptor* intercepor = new Interceptor(_rocketsAlive);
 
 		sf::Vector2f position = sf::Vector2f(getPosition().x + _size.x, getPosition().y);
-		intercepor->initialize(position, _lazerTexture, sf::Vector2f(1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
+		intercepor->initialize(position, _interceptorTexture, playerPosition, _screenSize);
 
-		_projectiles.push_back(intercepor);
+		_interceptors.push_back(intercepor);
 		_canFire = false;
 	}
 }

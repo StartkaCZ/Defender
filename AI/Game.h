@@ -12,6 +12,7 @@
 #include "Meteor.h"
 #include "PowerUp.h"
 #include "Projectile.h"
+#include "Interceptor.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -49,8 +50,11 @@ private:
 
 	Player*					_player;
 	std::vector<Projectile*>_projectiles;
+	std::vector<Interceptor*>_interceptors;
 	std::vector<Meteor*>	_meteors;
 	std::vector<PowerUp*>	_powerUps;
+	std::vector<AlienNest*>	_nests;
+	std::vector<Abductor*>	_abductors;
 
 	int						_score;
 

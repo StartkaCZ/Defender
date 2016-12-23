@@ -22,9 +22,10 @@ CollisionManager::~CollisionManager()
 }
 
 
-void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors)
+void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors)
 {
 	CheckProjectileCollision(player, projectiles, meteors);
+	CheckInterceptorCollision(player, interceptors, meteors);
 
 	CheckMeteorCollision(player, meteors);
 	CheckPlayerToPowerUpsCollision(player, powerUps);
@@ -34,36 +35,63 @@ void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Pro
 {
 	for (int i = 0; i < projectiles.size(); i++)
 	{
-		bool checkFurther = true;
+		if (projectiles[i]->getType() == ObjectType::Projetile_PlayerLazer)
+		{//check player projectile to enemy collision
 
-		for (int j = 0; j < meteors.size(); j++)
-		{
-			if (Collided(projectiles[i]->getPosition(), projectiles[i]->getSize(), meteors[j]->getPosition(), meteors[j]->getSize()))
+		}
+		else if (projectiles[i]->getType() == ObjectType::Projetile_Interceptor)
+		{//check enemy projectile to player collision
+			if (Collided(player->getPosition(), player->getSize(), projectiles[i]->getPosition(), projectiles[i]->getSize()))
 			{
-				checkFurther = false;
+				player->TakenDamage();
 				projectiles[i]->Die();
-				i++;
-				break;
 			}
 		}
-
-		if (checkFurther)
-		{//if this bullet hasn't hit the obstacle, check against other objects
-			if (projectiles[i]->getType() == ObjectType::Projetile_PlayerLazer)
-			{//check player projectile to enemy collision
-				
-			}
-			else
-			{//check enemy projectile to player collision
-				if (Collided(player->getPosition(), player->getSize(), projectiles[i]->getPosition(), projectiles[i]->getSize()))
+		else
+		{
+			for (int j = 0; j < meteors.size(); j++)
+			{
+				if (Collided(projectiles[i]->getPosition(), projectiles[i]->getSize(), meteors[j]->getPosition(), meteors[j]->getSize()))
 				{
-					player->TakenDamage();
 					projectiles[i]->Die();
+					i++;
+					break;
+				}
+			}
+		}	
+	}
+}
+void CollisionManager::CheckInterceptorCollision(Player*& player, std::vector<Interceptor*>& interceptor, std::vector<Meteor*>& meteors)
+{
+	for (int i = 0; i < interceptor.size(); i++)
+	{
+		if (interceptor[i]->getType() == ObjectType::Projetile_PlayerLazer)
+		{//check player projectile to enemy collision
+
+		}
+		else if (interceptor[i]->getType() == ObjectType::Projetile_Interceptor)
+		{//check enemy projectile to player collision
+			if (Collided(player->getPosition(), player->getSize(), interceptor[i]->getPosition(), interceptor[i]->getSize()))
+			{
+				player->TakenDamage();
+				interceptor[i]->Die();
+			}
+		}
+		else
+		{
+			for (int j = 0; j < meteors.size(); j++)
+			{
+				if (Collided(interceptor[i]->getPosition(), interceptor[i]->getSize(), meteors[j]->getPosition(), meteors[j]->getSize()))
+				{
+					interceptor[i]->Die();
+					i++;
+					break;
 				}
 			}
 		}
 	}
 }
+
 void CollisionManager::CheckMeteorCollision(Player*& player, std::vector<Meteor*>& meteors)
 {
 	for (int i = 0; i < meteors.size(); i++)
