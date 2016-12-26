@@ -22,22 +22,29 @@ CollisionManager::~CollisionManager()
 }
 
 
-void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors)
+void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
 {
-	CheckProjectileCollision(player, projectiles, meteors);
+	CheckProjectileCollision(player, projectiles, meteors, nests);
 	CheckInterceptorCollision(player, interceptors, meteors);
 
 	CheckMeteorCollision(player, meteors);
 	CheckPlayerToPowerUpsCollision(player, powerUps);
 }
 
-void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors)
+void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
 {
 	for (int i = 0; i < projectiles.size(); i++)
 	{
 		if (projectiles[i]->getType() == ObjectType::Projetile_PlayerLazer)
 		{//check player projectile to enemy collision
-
+			for (int j = 0; j < nests.size(); j++)
+			{
+				if (Collided(nests[j]->getPosition(), nests[j]->getSize(), projectiles[i]->getPosition(), projectiles[i]->getSize()))
+				{
+					nests[j]->TakenDamage();
+					projectiles[i]->Die();
+				}
+			}
 		}
 		else if (projectiles[i]->getType() == ObjectType::Projetile_Interceptor)
 		{//check enemy projectile to player collision

@@ -60,31 +60,4 @@ void Abductor::arrival(float dt)
 		setRotation(_orientation);
 	}	
 }
-
-float Abductor::getNewOrientation(const sf::Vector2f &source)
-{
-	return atan2(source.y, source.x) * 180 / PI;
-}
-
-float Abductor::lenght(const sf::Vector2f &a)
-{
-	float lenght = sqrt((a.x * a.x) + (a.y * a.y));
-	return lenght;
-}
-
-float Abductor::distance(sf::Vector2f a, sf::Vector2f b)
-{
-	sf::Vector2f difference = a - b;
-	float distance = sqrt((difference.x * difference.x) + (difference.y * difference.y));
-	
-	return distance;
-}
-
-void Abductor::normalize(sf::Vector2f &source)
-{
-	float length = sqrt((source.x * source.x) + (source.y * source.y));
-
-	if (length != 0 && length != 1)
-		source = sf::Vector2f(source.x / length, source.y / length);
-}
 */

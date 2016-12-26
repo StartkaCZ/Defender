@@ -43,6 +43,8 @@ void Interceptor::CalculateVelocity(sf::Vector2f playerPosition)
 	Vector2Calculator::Normalize(target);
 
 	_velocity = target * NEST_INTERCEPTOR_MISSILE_MAX_SPEED;
+
+	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
 }
 
 void Interceptor::Die()

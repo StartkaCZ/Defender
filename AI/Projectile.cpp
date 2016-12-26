@@ -18,6 +18,8 @@ void Projectile::initialize(sf::Vector2f position, sf::Texture &texture, sf::Vec
 	_screenSize = screenSize;
 	_velocity = direction * PLAYER_LAZER_SPEED;
 
+	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
+
 	_isAlive = true;
 }
 

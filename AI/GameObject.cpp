@@ -17,7 +17,7 @@ void GameObject::initialize(sf::Vector2f position, sf::Texture &texture, ObjectT
 	_sprite.setTexture(texture);
 	_sprite.setOrigin(texture.getSize().x * 0.5f, texture.getSize().y * 0.5f);
 
-	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height);
+	_size = sf::Vector2f(_sprite.getTextureRect().width, _sprite.getTextureRect().height)*0.5f;
 
 	_type = type;
 

@@ -3,8 +3,9 @@
 #include "ConstHolder.h"
 
 
-Player::Player(std::vector<Projectile*>& projectiles)
-	: _fireRateTimer(0)
+Player::Player(std::vector<Projectile*>& projectiles, sf::Texture &lazerTexture)
+	: _lazerTexture(lazerTexture)
+	, _fireRateTimer(0)
 	, _nukeTimer(0)
 	, _superJumpTimer(0)
 	, _velocity(sf::Vector2f(0, 0))
@@ -21,11 +22,9 @@ Player::Player(std::vector<Projectile*>& projectiles)
 
 }
 
-void Player::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize)
+void Player::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Player);
-
-	_lazerTexture = lazerTexture;
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 }
@@ -97,9 +96,13 @@ void Player::SuperJumpTimer(float dt)
 void Player::CheckBorder()
 {
 	if (getPosition().x < 0)
+	{
 		setPosition(_screenSize.x, getPosition().y);
+	}
 	else if (getPosition().x > _screenSize.x)
+	{
 		setPosition(0, getPosition().y);
+	}
 }
 
 void Player::ReadInput()
@@ -187,7 +190,7 @@ void Player::Decelerate()
 
 void Player::MoveDown()
 {
-	if (getPosition().y + _size.y < _screenSize.y * PLAYER_OFFSET_FROM_GROUND)
+	if (getPosition().y + _size.y * 2.5f < _screenSize.y * PLAYER_OFFSET_FROM_GROUND)
 	{
 		_velocity.y = +PLAYER_VERTICAL_SPEED;
 	}

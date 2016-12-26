@@ -3,10 +3,12 @@
 #include "ConstHolder.h"
 
 
-AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors)
-	: _interceptors(interceptors)
-	, _abductors(_abductors)
-	, _lifes(2)
+AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture)
+	: _interceptorTexture(interceptorTexture)
+	, _abductorTexture(abductorTexture)
+	, _interceptors(interceptors)
+	, _abductors(abductors)
+	, _lifes(NEST_MAX_HEALTH)
 	, _isAlive(false)
 	, _canFire(true)
 	, _wondering(true)
@@ -21,13 +23,11 @@ AlienNest::~AlienNest()
 {
 }
 
-void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &interceptorTexture, sf::Texture &abductorTexture, sf::FloatRect screenSize)
+void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::AlienNest);
 
-	_interceptorTexture = interceptorTexture;
-	_abductorTexture = abductorTexture;
-
+	_targetPosition = position;
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 
 	_isAlive = true;
@@ -40,6 +40,8 @@ void AlienNest::Update(float dt, sf::Vector2f playerPosition)
 	SpawnTimer(dt);
 
 	Move(dt);
+
+	CheckBorder();
 }
 
 void AlienNest::UpdateStatus(sf::Vector2f playerPosition)
@@ -59,29 +61,35 @@ void AlienNest::UpdateStatus(sf::Vector2f playerPosition)
 	{
 		_wondering = true;
 	}
+
+	_targetPosition = playerPosition;
 }
 
 void AlienNest::Move(float dt)
 {
-
-
 	if (_wondering)
 	{
-		Wonder();
+		Wonder(dt);
 	}
 	else
 	{
-		Evade();
+		Evade(dt);
 	}
 }
 
-void AlienNest::Wonder()
+void AlienNest::Wonder(float dt)
 {
+	_velocity = _targetPosition - getPosition();
+	Vector2Calculator::Normalize(_velocity);
 
+	move(_velocity * NEST_MAX_SPEED * dt);
 }
-void AlienNest::Evade()
+void AlienNest::Evade(float dt)
 {
+	_velocity = getPosition() - _targetPosition;
+	Vector2Calculator::Normalize(_velocity);
 
+	move(_velocity * NEST_MAX_SPEED * dt);
 }
 
 void AlienNest::FireRateTimer(float dt)
@@ -101,17 +109,14 @@ void AlienNest::FireRateTimer(float dt)
 }
 void AlienNest::SpawnTimer(float dt)
 {
-	if (!_canSpawnAbductor)
+	if (_spawnTimer > NEST_SPAWN_RATE)
 	{
-		if (_spawnTimer > NEST_SPAWN_RATE)
-		{
-			_canSpawnAbductor = true;
-			_spawnTimer = 0;
-		}
-		else
-		{
-			_spawnTimer += dt;
-		}
+		SpawnAbductor();
+		_spawnTimer = 0;
+	}
+	else
+	{
+		_spawnTimer += dt;
 	}
 }
 
@@ -121,7 +126,10 @@ void AlienNest::Shoot(sf::Vector2f playerPosition)
 	{
 		Interceptor* intercepor = new Interceptor(_rocketsAlive);
 
-		sf::Vector2f position = sf::Vector2f(getPosition().x + _size.x, getPosition().y);
+		sf::Vector2f direction = playerPosition - getPosition();
+		Vector2Calculator::Normalize(direction);
+
+		sf::Vector2f position = getPosition() + direction * Vector2Calculator::Lenght(_size) * 0.5f;
 		intercepor->initialize(position, _interceptorTexture, playerPosition, _screenSize);
 
 		_interceptors.push_back(intercepor);
@@ -130,7 +138,14 @@ void AlienNest::Shoot(sf::Vector2f playerPosition)
 }
 void AlienNest::SpawnAbductor()
 {
-	
+	if (_abductors.size() < NEST_MAX_ABDUCTORS_SPAWN_COUNT)
+	{
+		Abductor* abductor = new Abductor();
+
+		abductor->initialize(getPosition(), _abductorTexture, sf::FloatRect(0, 0, _screenSize.x, _screenSize.y));
+
+		_abductors.push_back(abductor);
+	}
 }
 
 void AlienNest::CheckBorder()
@@ -144,6 +159,19 @@ void AlienNest::CheckBorder()
 	else if (getPosition().x > _screenSize.x)
 	{
 		setPosition(0, getPosition().y);
+		//Wonder Again
+
+	}
+
+	if (getPosition().y < _size.y)
+	{
+		setPosition(getPosition().x, _size.y);
+		//Wonder Again
+
+	}
+	else if (getPosition().y > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
+	{
+		setPosition(getPosition().x, _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y);
 		//Wonder Again
 
 	}

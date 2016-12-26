@@ -7,9 +7,9 @@
 class Player : public GameObject
 {
 public:
-							Player(std::vector<Projectile*>& projectiles);
+							Player(std::vector<Projectile*>& projectiles, sf::Texture &lazerTexture);
 
-	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::Texture &lazerTexture, sf::FloatRect screenSize);
+	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
 	void					Update(float dt);
 	void					ReadInput();
 
@@ -41,8 +41,8 @@ private:
 	void					SuperJump();
 
 private:
-	sf::Texture				_lazerTexture;
-
+	sf::Texture&			_lazerTexture;
+	
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 

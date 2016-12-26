@@ -46,6 +46,8 @@ void Meteor::Restart()
 
 	_velocity = sf::Vector2f(((rand() % 20 - 10)* 0.1f), (rand() % 5 + 6) * 0.1f) * METEOR_FALL_SPEED;
 
+	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
+
 	_isAlive = true;
 }
 

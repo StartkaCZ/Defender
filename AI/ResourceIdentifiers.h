@@ -22,6 +22,9 @@ namespace Textures
 		PowerUp_SuperJump,
 		Projectile_PlayerLazer,
 		Projectile_Interceptor,
+
+		Background,
+		Foreground,
 	};
 }
 

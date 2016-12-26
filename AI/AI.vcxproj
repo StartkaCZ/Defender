@@ -151,6 +151,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="Region.cpp" />
     <ClCompile Include="Vector2Calculator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="Region.h" />
     <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="ResourceIdentifiers.h" />
     <ClInclude Include="StringHelpers.h" />
