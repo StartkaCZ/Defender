@@ -23,6 +23,8 @@ Game::Game()
 	, _score(0)
 {
 	loadContent();
+	_astronauts = new Astronaut();
+	_astronauts->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
 	/*
 	while (_meteors.size() < MAX_METEORS)
 	{
@@ -156,6 +158,8 @@ void Game::update(sf::Time elapsedTime)
 	UpdateAlienNests(elapsedTime);
 	UpdateAbductors(elapsedTime);
 
+	UpdateAstronauts(elapsedTime);
+
 	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
 }
 
@@ -255,7 +259,10 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 		}*/
 	}
 }
-
+void Game::UpdateAstronauts(sf::Time elapsedTime)
+{
+	_astronauts->update(elapsedTime.asSeconds());
+}
 #pragma endregion
 
 
@@ -286,7 +293,7 @@ void Game::render()
 	DrawInterceptors();
 
 	_window.draw(*_player);
-
+	DrawAstronauts();
 	_window.draw(_statisticsText);
 	_window.display();
 }
@@ -335,7 +342,12 @@ void Game::DrawAbductors()
 		_window.draw(*_abductors[i]);
 	}
 }
-
+void Game::DrawAstronauts()
+{
+	
+		_window.draw(*_astronauts);
+	
+}
 #pragma endregion
 
 
