@@ -1,43 +1,79 @@
 #ifndef Abductor_H
 #define Abductor_H
 
+
 #include "GameObject.h"
+#include "Pvector.h"
+#include <vector>
+#include <stdlib.h>
+#include <iostream>
+
+#include <string>
+#include <math.h>
+#include "SFML/Graphics.hpp"
+using namespace std;
+
 
 class Abductor : public GameObject
 {
 public:
-							Abductor();
-							~Abductor();
-
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
-	void					update(float dt, sf::Vector2f playerPosition);
-
-private:
-	/*
-	void					flee(float dt);
-	void					seek(float dt);
-
-	void					arrival(float dt);
-
-	void					normalize(sf::Vector2f &vector);
-	
-	float					lenght(const sf::Vector2f &a);
-	float					distance(sf::Vector2f a, sf::Vector2f b);
-	float					getNewOrientation(const sf::Vector2f &source);
-	*/
-
-
-private:
-	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
+	bool predator;
+	Pvector location;
+	Pvector velocity;
+	Pvector acceleration;
+	float maxSpeed;
+	float maxForce;
+	Abductor();
 
-	sf::Vector2f			_targetPosition;
-
-	float					_speed;
-	float					_orientation;
-	float					_timeToTarget;
-
-	bool					_flee;
+	Abductor(float x, float y)
+	{
+		acceleration = Pvector(0, 0);
+		velocity = Pvector(rand() % 3 - 2, rand() % 3 - 2); // Allows for range of -2 -> 2
+		location = Pvector(x, y);
+		maxSpeed = 3.5;
+		maxForce = 0.5;
+	}
+	Abductor(float x, float y, bool predCheck)
+	{
+		predator = predCheck;
+		if (predCheck == true) {
+			maxSpeed = 7.5;
+			maxForce = 0.5;
+			velocity = Pvector(rand() % 3 - 1, rand() % 3 - 1);
+		}
+		else {
+			maxSpeed = 3.5;
+			maxForce = 0.5;
+			velocity = Pvector(rand() % 3 - 2, rand() % 3 - 2); // Allows for range of -2 -> 2
+		}
+		acceleration = Pvector(0, 0);
+		location = Pvector(x, y);
+	}
+	void initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect);
+	void update(float dt, sf::Vector2f playerPosition);
+	/*
+	Destructors are commented out for now. g++ throws errors if they are included.
+	If compiling on Visual Studio, however, no errors are thrown.
+	//Destructor
+	Boid::~Boid()
+	{
+	//cout << "Boid is being deleted by destructor!" << endl;
+	}
+	*/
+	void applyForce(Pvector force);
+	// Three Laws that boids follow
+	Pvector Separation(vector<Abductor*> &Boids);
+	Pvector Alignment(vector<Abductor*> &Boids);
+	Pvector Cohesion(vector<Abductor*> &Boids);
+	//Functions involving SFML and visualisation linking
+	Pvector seek(Pvector v);
+	void run(vector <Abductor*> &v);
+	void update();
+	void flock(vector <Abductor*> &v);
+	void borders();
+	float angle(Pvector v);
+	void swarm(vector <Abductor*> &v);
 };
 
 #endif // Abductor_H

@@ -72,6 +72,10 @@ Game::Game()
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10);
+
+
+	
+
 }
 
 void Game::loadContent()
@@ -247,16 +251,17 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _abductors.size(); i++)
 	{
-		/*if (_abductors[i]->getAlive())
-		{
-		_abductors[i]->Update(elapsedTime.asSeconds());
-		}
-		else
-		{
-		delete _abductors[i];
-		_abductors.erase(_abductors.begin() + i);
-		i--;
-		}*/
+		_abductors[i]->run(_abductors);
+		//if (|_abductors[i]->getAlive())
+		//{
+		//_abductors[i]->Update(elapsedTime.asSeconds());
+		//}
+		//else
+		//{
+		//delete _abductors[i];
+		//_abductors.erase(_abductors.begin() + i);
+		//i--;
+		//}
 	}
 }
 void Game::UpdateAstronauts(sf::Time elapsedTime)
@@ -294,6 +299,7 @@ void Game::render()
 
 	_window.draw(*_player);
 	DrawAstronauts();
+	flock.draw(_window);
 	_window.draw(_statisticsText);
 	_window.display();
 }

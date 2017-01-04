@@ -9,6 +9,7 @@
 #include "Mutant.h"
 #include "AlienNest.h"
 #include "Astronaut.h"
+#include "Flock.h"
 #include "Meteor.h"
 #include "PowerUp.h"
 #include "Projectile.h"
@@ -75,6 +76,9 @@ private:
 	std::vector<PowerUp*>	_powerUps;
 	std::vector<AlienNest*>	_nests;
 	std::vector<Abductor*>	_abductors;
+	//Create flock, vector of shapes, and initialize boids
+	Flock flock;
+
 	std::vector<Region*>	_regions;
 
 	int						_score;

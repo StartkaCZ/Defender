@@ -1,35 +1,20 @@
-#include "Abductor.h"
-/*
-Abductor::Abductor()
-{
-}
+// This file defines the boid class. This includes the attributes found in
+// boids -- speed, location on the board, acceleration, etc.
+#include <iostream>
+#include <vector>
+#include <string>
+#include <math.h>
+#include "SFML/Graphics.hpp"
+#include "Boid.h"
 
+// Global Variables for borders()
+// desktopTemp gets screen resolution of PC running the program
+sf::VideoMode desktopTemp = sf::VideoMode::getDesktopMode(); 
+const int window_height = desktopTemp.height;
+const int window_width = desktopTemp.width;
 
-Abductor::~Abductor()
-{
-}*/
-Abductor::Abductor() 
-{
-
-}
-void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
-{
-	GameObject::initialize(position, texture, ObjectType::Abductor);
-
-	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
-	acceleration = Pvector(0, 0);
-	velocity = Pvector(rand() % 3 - 2, rand() % 3 - 2); // Allows for range of -2 -> 2
-	maxSpeed = 3.5;
-	maxForce = 0.5;
-	location =  Pvector(position.x, position.y);
-}
-
-void Abductor::update(float dt, sf::Vector2f playerPosition)
-{
-
-}
-
-
+#define w_height window_height
+#define w_width window_width
 #define PI 3.141592635
 
 using namespace std;
@@ -39,18 +24,18 @@ using namespace std;
 // =============================================== //
 
 // Adds force Pvector to current force Pvector
-void Abductor::applyForce(Pvector force)
+void Boid::applyForce(Pvector force)
 {
 	acceleration.addVector(force);
 }
 
 // Function that checks and modifies the distance
 // of a boid if it breaks the law of separation.
-Pvector Abductor::Separation(vector<Abductor*> &boids)
+Pvector Boid::Separation(vector<Boid> boids)
 {
 	// If the boid we're looking at is a predator, do not run the separation
 	// algorithm
-
+	
 	// Distance of field of vision for separation between boids
 	float desiredseparation = 20;
 
@@ -60,12 +45,12 @@ Pvector Abductor::Separation(vector<Abductor*> &boids)
 	for (int i = 0; i < boids.size(); i++)
 	{
 		// Calculate distance from current boid to boid we're looking at
-		float d = location.distance(boids[i]->location);
+		float d = location.distance(boids[i].location);
 		// If this is a fellow boid and it's too close, move away from it
 		if ((d > 0) && (d < desiredseparation))
 		{
-			Pvector diff(0, 0);
-			diff = diff.subTwoVector(location, boids[i]->location);
+			Pvector diff(0,0);
+			diff = diff.subTwoVector(location, boids[i].location); 
 			diff.normalize();
 			diff.divScalar(d);      // Weight by distance
 			steer.addVector(diff);
@@ -73,21 +58,21 @@ Pvector Abductor::Separation(vector<Abductor*> &boids)
 		}
 		// If current boid is a predator and the boid we're looking at is also
 		// a predator, then separate only slightly 
-		if ((d > 0) && (d < desiredseparation) && predator == true && boids[i]->predator == true)
+		if ((d > 0) && (d < desiredseparation) && predator == true && boids[i].predator == true)
 		{
 			Pvector pred2pred(0, 0);
-			pred2pred = pred2pred.subTwoVector(location, boids[i]->location);
+			pred2pred = pred2pred.subTwoVector(location, boids[i].location);
 			pred2pred.normalize();
 			pred2pred.divScalar(d);
 			steer.addVector(pred2pred);
 			count++;
-		}
+		} 
 		// If current boid is not a predator, but the boid we're looking at is
 		// a predator, then create a large separation Pvector
-		else if ((d > 0) && (d < desiredseparation + 70) && boids[i]->predator == true)
+		else if ((d > 0) && (d < desiredseparation+70) && boids[i].predator == true)
 		{
 			Pvector pred(0, 0);
-			pred = pred.subTwoVector(location, boids[i]->location);
+			pred = pred.subTwoVector(location, boids[i].location);
 			pred.mulScalar(900);
 			steer.addVector(pred);
 			count++;
@@ -96,7 +81,7 @@ Pvector Abductor::Separation(vector<Abductor*> &boids)
 	// Adds average difference of location to acceleration
 	if (count > 0)
 		steer.divScalar((float)count);
-	if (steer.magnitude() > 0)
+	if (steer.magnitude() > 0) 
 	{
 		// Steering = Desired - Velocity
 		steer.normalize();
@@ -110,7 +95,7 @@ Pvector Abductor::Separation(vector<Abductor*> &boids)
 // Alignment calculates the average velocity in the field of view and 
 // manipulates the velocity of the Boid passed as parameter to adjust to that
 // of nearby boids.
-Pvector Abductor::Alignment(vector<Abductor*> &Boids)
+Pvector Boid::Alignment(vector<Boid> Boids)
 {
 	// If the boid we're looking at is a predator, do not run the alignment
 	// algorithm
@@ -118,14 +103,14 @@ Pvector Abductor::Alignment(vector<Abductor*> &Boids)
 	//	return Pvector(0,0);
 	float neighbordist = 50;
 
-	Pvector sum(0, 0);
+	Pvector sum(0, 0);	
 	int count = 0;
 	for (int i = 0; i < Boids.size(); i++)
 	{
-		float d = location.distance(Boids[i]->location);
+		float d = location.distance(Boids[i].location);
 		if ((d > 0) && (d < neighbordist)) // 0 < d < 50
 		{
-			sum.addVector(Boids[i]->velocity);
+			sum.addVector(Boids[i].velocity);
 			count++;
 		}
 	}
@@ -135,13 +120,12 @@ Pvector Abductor::Alignment(vector<Abductor*> &Boids)
 		sum.divScalar((float)count);// Divide sum by the number of close boids (average of velocity)
 		sum.normalize();	   		// Turn sum into a unit vector, and
 		sum.mulScalar(maxSpeed);    // Multiply by maxSpeed
-									// Steer = Desired - Velocity
-		Pvector steer;
+		// Steer = Desired - Velocity
+		Pvector steer; 
 		steer = steer.subTwoVector(sum, velocity); //sum = desired(average)  
 		steer.limit(maxForce);
 		return steer;
-	}
-	else {
+	} else {
 		Pvector temp(0, 0);
 		return temp;
 	}
@@ -149,7 +133,7 @@ Pvector Abductor::Alignment(vector<Abductor*> &Boids)
 
 // Cohesion finds the average location of nearby boids and manipulates the 
 // steering force to move in that direction.
-Pvector Abductor::Cohesion(vector<Abductor*> &Boids)
+Pvector Boid::Cohesion(vector<Boid> Boids)
 {
 	// If the boid we're looking at is a predator, do not run the cohesion
 	// algorithm
@@ -158,14 +142,14 @@ Pvector Abductor::Cohesion(vector<Abductor*> &Boids)
 
 	float neighbordist = 50;
 
-	Pvector sum(0, 0);
+	Pvector sum(0, 0);	
 	int count = 0;
 	for (int i = 0; i < Boids.size(); i++)
 	{
-		float d = location.distance(Boids[i]->location);
+		float d = location.distance(Boids[i].location);
 		if ((d > 0) && (d < neighbordist))
 		{
-			sum.addVector(Boids[i]->location);
+			sum.addVector(Boids[i].location);
 			count++;
 		}
 	}
@@ -173,20 +157,19 @@ Pvector Abductor::Cohesion(vector<Abductor*> &Boids)
 	{
 		sum.divScalar(count);
 		return seek(sum);
-	}
-	else {
-		Pvector temp(0, 0);
+	} else {
+		Pvector temp(0,0);
 		return temp;
 	}
 }
 
 // Seek function limits the maxSpeed, finds necessary steering force and
 // normalizes the vectors.
-Pvector Abductor::seek(Pvector v)
+Pvector Boid::seek(Pvector v)
 {
 	Pvector desired;
 	desired.subVector(v);  // A vector pointing from the location to the target
-						   // Normalize desired and scale to maximum speed
+	// Normalize desired and scale to maximum speed
 	desired.normalize();
 	desired.mulScalar(maxSpeed);
 	// Steering = Desired minus Velocity
@@ -197,7 +180,7 @@ Pvector Abductor::seek(Pvector v)
 
 //Update modifies velocity, location, and resets acceleration with values that
 //are given by the three laws.
-void Abductor::update()
+void Boid::update()
 {
 	//To make the slow down not as abrupt
 	acceleration.mulScalar(.4);
@@ -208,14 +191,12 @@ void Abductor::update()
 	location.addVector(velocity);
 	// Reset accelertion to 0 each cycle
 	acceleration.mulScalar(0);
-
-	setPosition(sf::Vector2f(location.x, location.y));
 }
 
 //Run runs flock on the flock of boids for each boid.
 //Which applies the three rules, modifies accordingly, updates data, checks is data is
 //out of range, fixes that for SFML, and renders it on the window.
-void Abductor::run(vector <Abductor*> &v)
+void Boid::run(vector <Boid> v)
 {
 	flock(v);
 	update();
@@ -224,7 +205,7 @@ void Abductor::run(vector <Abductor*> &v)
 
 //Applies all three laws for the flock of boids and modifies to keep them from
 //breaking the laws.
-void Abductor::flock(vector<Abductor*> &v)
+void Boid::flock(vector<Boid> v) 
 {
 	Pvector sep = Separation(v);
 	Pvector ali = Alignment(v);
@@ -240,84 +221,38 @@ void Abductor::flock(vector<Abductor*> &v)
 }
 
 // Checks if boids go out of the window and if so, wraps them around to the other side.
-void Abductor::borders()
+void Boid::borders()
 {
-	if (location.x < 0) location.x += _screenSize.x;
-	if (location.y < 0) location.y += _screenSize.y;
-	if (location.x > 1000) location.x -= _screenSize.x;
-	if (location.y > 1000) location.y -= _screenSize.y;
+	if (location.x < 0) location.x += w_width; 
+	if (location.y < 0) location.y += w_height;
+	if (location.x > 1000) location.x -= w_width;
+	if (location.y > 1000) location.y -= w_height;
 }
 
 // Calculates the angle for the velocity of a boid which allows the visual 
 // image to rotate in the direction that it is going in.
-float Abductor::angle(Pvector v)
+float Boid::angle(Pvector v)
 {
 	// From the definition of the dot product
 	float angle = (float)(atan2(v.x, -v.y) * 180 / PI);
 	return angle;
 }
 
-void Abductor::swarm(vector <Abductor*> &v)
+void Boid::swarm(vector <Boid> v)
 {
-	/*		Lenard-Jones Potential function
-	Vector R = me.position - you.position
-	Real D = R.magnitude()
-	Real U = -A / pow(D, N) + B / pow(D, M)
-	R.normalise()
-	force = force + R*U
-	*/
+/*		Lenard-Jones Potential function
+			Vector R = me.position - you.position
+			Real D = R.magnitude()
+			Real U = -A / pow(D, N) + B / pow(D, M)
+			R.normalise()
+			force = force + R*U
+*/
 	Pvector	R;
 	Pvector sum(0, 0);
 
-	// Your code here..
+// Your code here..
 
 	applyForce(sum);
 	update();
 	borders();
 }
-
-
-
-/*
-void Abductor::flee(float dt)
-{
-_velocity = getPosition() - _targetPosition;
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
-}
-void Abductor::seek(float dt)
-{
-_velocity = _targetPosition - getPosition();
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
-}
-
-void Abductor::arrival(float dt)
-{
-_velocity = _targetPosition - getPosition();
-float velocityLenght = lenght(_velocity);
-
-if (velocityLenght > 0)
-{
-float speed = _speed / _timeToTarget;
-
-if (speed > _speed)
-speed = _speed;
-
-normalize(_velocity);
-
-move(_velocity * speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
-}
-}
-*/
-
-// This file defines the boid class. This includes the attributes found in
-// boids -- speed, location on the board, acceleration, etc.
