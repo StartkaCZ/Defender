@@ -23,8 +23,13 @@ Game::Game()
 	, _score(0)
 {
 	loadContent();
-	_astronauts = new Astronaut();
-	_astronauts->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
+	while (_astronauts.size() < 2)
+	{
+		Astronaut* astronaut = new Astronaut();
+		astronaut->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
+
+		_astronauts.push_back(astronaut);
+	}
 	/*
 	while (_meteors.size() < MAX_METEORS)
 	{
@@ -251,7 +256,10 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _abductors.size(); i++)
 	{
-		_abductors[i]->run(_abductors);
+		for (int j = 0; j < _astronauts.size(); j++)
+		{
+			_abductors[i]->run(_abductors,_astronauts[j]);
+		}
 		//if (|_abductors[i]->getAlive())
 		//{
 		//_abductors[i]->Update(elapsedTime.asSeconds());
@@ -266,7 +274,10 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 }
 void Game::UpdateAstronauts(sf::Time elapsedTime)
 {
-	_astronauts->update(elapsedTime.asSeconds());
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		_astronauts[i]->update(elapsedTime.asSeconds());
+	}
 }
 #pragma endregion
 
@@ -350,9 +361,10 @@ void Game::DrawAbductors()
 }
 void Game::DrawAstronauts()
 {
-	
-		_window.draw(*_astronauts);
-	
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		_window.draw(*_astronauts[i]);
+	}
 }
 #pragma endregion
 

@@ -8,10 +8,7 @@ Abductor::Abductor()
 Abductor::~Abductor()
 {
 }*/
-Abductor::Abductor() 
-{
 
-}
 void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Abductor);
@@ -215,9 +212,40 @@ void Abductor::update()
 //Run runs flock on the flock of boids for each boid.
 //Which applies the three rules, modifies accordingly, updates data, checks is data is
 //out of range, fixes that for SFML, and renders it on the window.
-void Abductor::run(vector <Abductor*> &v)
+void Abductor::run(vector <Abductor*> &v, Astronaut* astro)
 {
-	flock(v);
+	
+	switch (_state)
+	{
+	case Abductor::state::flock:
+	{
+		flock(v);
+		
+		Pvector targetPos = Pvector(astro->getPosition().x, astro->getPosition().y);
+		Pvector currentPos = Pvector(getPosition().x, getPosition().y);
+		Pvector ab =  targetPos - currentPos;
+		if (ab.magnitude() < 1000) {
+			_state = state::attack;
+			_target = astro;
+		}
+		
+		break;
+	}
+	case Abductor::state::attack:
+	{
+		Pvector targetPos = Pvector(_target->getPosition().x, _target->getPosition().y);
+		Pvector currentPos = Pvector(getPosition().x, getPosition().y);
+		Pvector ab = targetPos - currentPos;
+		ab.normalize();
+		velocity = ab * 3.5f;
+		break;
+	}
+	case Abductor::state::flee:
+		break;
+	default:
+		break;
+	}
+	
 	update();
 	borders();
 }

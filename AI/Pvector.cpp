@@ -163,3 +163,17 @@ Pvector Pvector::copy(Pvector v)
 
 	return copy;
 }
+
+Pvector& Pvector::operator-(Pvector arg)
+{
+	float tmpX = x - arg.x;
+	float tmpY = y - arg.y;
+	return Pvector{ tmpX, tmpY };
+}
+
+Pvector& Pvector::operator*(float arg)
+{
+	float tmpX = x * arg;
+	float tmpY = y * arg;
+	return Pvector{ tmpX, tmpY };
+}

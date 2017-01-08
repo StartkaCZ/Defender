@@ -63,6 +63,9 @@ public:
 	void normalize();
 
 	Pvector copy(Pvector v);	
+
+	Pvector& operator-(Pvector arg);
+	Pvector& operator*(float arg);
 };
 
 #endif

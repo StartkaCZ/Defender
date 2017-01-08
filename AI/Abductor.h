@@ -2,31 +2,46 @@
 #define Abductor_H
 
 
-#include "GameObject.h"
-#include "Pvector.h"
+
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
-
 #include <string>
 #include <math.h>
+
+#include "GameObject.h"
+#include "Pvector.h"
 #include "SFML/Graphics.hpp"
+#include "Astronaut.h"
+
 using namespace std;
 
 
 class Abductor : public GameObject
 {
+private:
+
+	Astronaut* _target;
 public:
-	sf::Vector2u			_screenSize;
+
+	enum class state
+	{
+		flock,
+		attack,
+		flee
+	};
+	state _state;
+
+	sf::Vector2u _screenSize;
 	bool predator;
 	Pvector location;
 	Pvector velocity;
 	Pvector acceleration;
 	float maxSpeed;
 	float maxForce;
-	Abductor();
 
-	Abductor(float x, float y)
+	Abductor() {};
+	Abductor( float x, float y) : _target(NULL), _state(state::flock)
 	{
 		acceleration = Pvector(0, 0);
 		velocity = Pvector(rand() % 3 - 2, rand() % 3 - 2); // Allows for range of -2 -> 2
@@ -34,7 +49,7 @@ public:
 		maxSpeed = 3.5;
 		maxForce = 0.5;
 	}
-	Abductor(float x, float y, bool predCheck)
+	Abductor(float x, float y, bool predCheck) : _state(state::flock)
 	{
 		predator = predCheck;
 		if (predCheck == true) {
@@ -68,7 +83,7 @@ public:
 	Pvector Cohesion(vector<Abductor*> &Boids);
 	//Functions involving SFML and visualisation linking
 	Pvector seek(Pvector v);
-	void run(vector <Abductor*> &v);
+	void run(vector <Abductor*> &v, Astronaut* astro);
 	void update();
 	void flock(vector <Abductor*> &v);
 	void borders();

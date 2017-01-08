@@ -69,7 +69,7 @@ private:
 	FontHolder				_fontHolder;
 
 	Player*					_player;
-	Astronaut*				_astronauts;
+	std::vector<Astronaut*>	_astronauts;
 	std::vector<Projectile*>_projectiles;
 	std::vector<Interceptor*>_interceptors;
 	std::vector<Meteor*>	_meteors;
