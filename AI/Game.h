@@ -21,64 +21,68 @@
 class Game : private sf::NonCopyable
 {
 public:
-							Game();
-	void					run();
+								Game();
+	void						run();
 
 
 private:
-	void					loadContent();
-	void					processEvents();
-	void					update(sf::Time elapsedTime);
-	void					render();
+	void						loadContent();
+	void						processEvents();
+	void						update(sf::Time elapsedTime);
+	void						render();
 
-	void					updateStatistics(sf::Time elapsedTime);
-	void					handleInput();
-
-private:
-	void					UpdateProjectiles(sf::Time elapsedTime);
-	void					UpdateInterceptors(sf::Time elapsedTime);
-	void					UpdateMeteors(sf::Time elapsedTime);
-	void					UpdatePowerUps(sf::Time elapsedTime);
-	void					UpdateAlienNests(sf::Time elapsedTime);
-	void					UpdateAbductors(sf::Time elapsedTime);
-	//void					UpdateMutants(sf::Time elapsedTime);
-	//void					UpdateAstronauts(sf::Time elapsedTime);
-
-	void					NukeReleased();
-
-	void					DrawProjectiles();
-	void					DrawInterceptors();
-	void					DrawMeteors();
-	void					DrawPowerUps();
-	void					DrawAlienNests();
-	void					DrawAbductors();
-	//void					DrawMutants();
-	//void					DrawAstronauts();
+	void						updateStatistics(sf::Time elapsedTime);
+	void						handleInput();
 
 private:
-	sf::RenderWindow		_window;
-	sf::View				_worldView;
-	sf::FloatRect			_worldBounds;
+	void						UpdateProjectiles(sf::Time elapsedTime);
+	void						UpdateInterceptors(sf::Time elapsedTime);
+	void						UpdateMeteors(sf::Time elapsedTime);
+	void						UpdatePowerUps(sf::Time elapsedTime);
+	void						UpdateAlienNests(sf::Time elapsedTime);
+	void						UpdateAbductors(sf::Time elapsedTime);
+	//void						UpdateMutants(sf::Time elapsedTime);
+	//void						UpdateAstronauts(sf::Time elapsedTime);
 
-	sf::Text				_statisticsText;
-	sf::Time				_statisticsUpdateTime;
-	std::size_t				_statisticsNumFrames;
+	void						SetupRegion(GameObject* gameObject);
+	void						UpdateGameObjectBasedOnRegion(GameObject* gameObject);
+	void						RemoveObjectFromRegion(GameObject* gameObject);
 
-	TextureHolder			_textureHolder;
-	FontHolder				_fontHolder;
+	void						NukeReleased();
 
-	Player*					_player;
-	std::vector<Projectile*>_projectiles;
-	std::vector<Interceptor*>_interceptors;
-	std::vector<Meteor*>	_meteors;
-	std::vector<PowerUp*>	_powerUps;
-	std::vector<AlienNest*>	_nests;
-	std::vector<Abductor*>	_abductors;
-	std::vector<Region*>	_regions;
+	void						DrawProjectiles();
+	void						DrawInterceptors();
+	void						DrawMeteors();
+	void						DrawPowerUps();
+	void						DrawAlienNests();
+	void						DrawAbductors();
+	//void						DrawMutants();
+	//void						DrawAstronauts();
 
-	int						_score;
+private:
+	sf::RenderWindow			_window;
+	sf::View					_worldView;
+	sf::FloatRect				_worldBounds;
 
-	const sf::Time			TIME_PER_FRAME = sf::seconds(1.f / 60.f);
+	sf::Text					_statisticsText;
+	sf::Time					_statisticsUpdateTime;
+	std::size_t					_statisticsNumFrames;
+
+	TextureHolder				_textureHolder;
+	FontHolder					_fontHolder;
+
+	Player*						_player;
+	std::vector<Projectile*>	_projectiles;
+	std::vector<Interceptor*>	_interceptors;
+	std::vector<Meteor*>		_meteors;
+	std::vector<PowerUp*>		_powerUps;
+	std::vector<AlienNest*>		_nests;
+	std::vector<Abductor*>		_abductors;
+	std::vector<Region*>		_regions;
+
+	int							_score;
+
+	const sf::Time				TIME_PER_FRAME = sf::seconds(1.f / 60.f);
 };
 
 #endif // BOOK_GAME_HPP

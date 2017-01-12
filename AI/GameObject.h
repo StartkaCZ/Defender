@@ -26,9 +26,18 @@ public:
 							GameObject();
 	virtual					~GameObject();
 
+	void					SetRegion(int region);
+	int						RegionCheck(int position);
+
+	void					TeleportRight(sf::Vector2f rightEdge);
+	void					TeleportLeft(sf::Vector2f leftEdge);
+
+	void					TeleportByAmount(sf::Vector2f amount);
+
 	sf::Vector2f			getPosition() const;
 	sf::Vector2f			getSize() const;
 	ObjectType				getType() const;
+	int						getRegion() const;
 
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);
@@ -40,5 +49,7 @@ protected:
 	sf::Vector2f			_size;
 	sf::Sprite				_sprite;
 	ObjectType				_type;
+	
+	int						_region;
 };
 

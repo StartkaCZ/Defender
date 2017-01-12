@@ -2,7 +2,6 @@
 #include "Vector2Calculator.h"
 #include "ConstHolder.h"
 
-
 AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture)
 	: _interceptorTexture(interceptorTexture)
 	, _abductorTexture(abductorTexture)
@@ -131,6 +130,7 @@ void AlienNest::Shoot(sf::Vector2f playerPosition)
 
 		sf::Vector2f position = getPosition() + direction * Vector2Calculator::Lenght(_size) * 0.5f;
 		intercepor->initialize(position, _interceptorTexture, playerPosition, _screenSize);
+		intercepor->SetRegion(_region);
 
 		_interceptors.push_back(intercepor);
 		_canFire = false;
@@ -143,6 +143,7 @@ void AlienNest::SpawnAbductor()
 		Abductor* abductor = new Abductor();
 
 		abductor->initialize(getPosition(), _abductorTexture, sf::FloatRect(0, 0, _screenSize.x, _screenSize.y));
+		abductor->SetRegion(_region);
 
 		_abductors.push_back(abductor);
 	}

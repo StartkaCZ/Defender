@@ -23,6 +23,16 @@ Game::Game()
 	, _score(0)
 {
 	loadContent();
+
+	for (int i = 0; _regions.size() < SCREEN_TIME_SIZE; i++)
+	{
+		Region* region = new Region();
+
+		region->Initialize(sf::Vector2f(i * _worldView.getSize().x, 0), _textureHolder.get(Textures::ID::Background), _textureHolder.get(Textures::ID::Foreground));
+
+		_regions.push_back(region);
+	}
+
 	/*
 	while (_meteors.size() < MAX_METEORS)
 	{
@@ -51,20 +61,15 @@ Game::Game()
 
 		nest->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::AlienNest), _worldBounds);
 
+		SetupRegion(nest);
+
 		_nests.push_back(nest);
-	}
-
-	for (int i = 0; _regions.size() < SCREEN_TIME_SIZE; i++)
-	{
-		Region* region = new Region();
-
-		region->Initialize(sf::Vector2f(i * _worldView.getSize().x, 0), _textureHolder.get(Textures::ID::Background), _textureHolder.get(Textures::ID::Foreground));
-
-		_regions.push_back(region);
 	}
 
 	_player = new Player(_projectiles, _textureHolder.get(Textures::ID::Projectile_PlayerLazer));
 	_player->Initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
+	SetupRegion(_player);
+	
 	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldBounds.height * 0.5f));
 
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
@@ -95,6 +100,17 @@ void Game::loadContent()
 	_textureHolder.load(Textures::ID::Foreground, "Media/Textures/Foreground.png");
 
 	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
+}
+
+void Game::SetupRegion(GameObject* gameObject)
+{
+	for (int i = 0; i < _regions.size(); i++)
+	{
+		if (_regions[i]->Contained(gameObject->getPosition()) == 0)
+		{
+			gameObject->SetRegion(i);
+		}
+	}
 }
 
 void Game::run()
@@ -140,6 +156,7 @@ void Game::update(sf::Time elapsedTime)
 	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
 
 	_player->Update(elapsedTime.asSeconds());
+	UpdateGameObjectBasedOnRegion(_player);
 	if (_player->hasNuked())
 	{
 		NukeReleased();
@@ -156,7 +173,18 @@ void Game::update(sf::Time elapsedTime)
 	UpdateAlienNests(elapsedTime);
 	UpdateAbductors(elapsedTime);
 
-	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
+	if (_player->getPosition().x < _regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f)
+	{
+		_worldView.setCenter(sf::Vector2f(_regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
+	}
+	else if (_player->getPosition().x > _regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f)
+	{
+		_worldView.setCenter(sf::Vector2f(_regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
+	}
+	else
+	{
+		_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
+	}
 }
 
 #pragma region UpdateMethods
@@ -168,6 +196,8 @@ void Game::UpdateProjectiles(sf::Time elapsedTime)
 		if (_projectiles[i]->getAlive())
 		{
 			_projectiles[i]->Update(elapsedTime.asSeconds());
+			UpdateGameObjectBasedOnRegion(_projectiles[i]);
+
 		}
 		else
 		{
@@ -184,6 +214,7 @@ void Game::UpdateInterceptors(sf::Time elapsedTime)
 		if (_interceptors[i]->getAlive())
 		{
 			_interceptors[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			UpdateGameObjectBasedOnRegion(_interceptors[i]);
 		}
 		else
 		{
@@ -200,6 +231,7 @@ void Game::UpdateMeteors(sf::Time elapsedTime)
 		if (_meteors[i]->getAlive())
 		{
 			_meteors[i]->Update(elapsedTime.asSeconds());
+			UpdateGameObjectBasedOnRegion(_meteors[i]);
 		}
 		else
 		{
@@ -214,6 +246,7 @@ void Game::UpdatePowerUps(sf::Time elapsedTime)
 		if (_powerUps[i]->getAlive())
 		{
 			_powerUps[i]->Update(elapsedTime.asSeconds());
+			UpdateGameObjectBasedOnRegion(_powerUps[i]);
 		}
 		else
 		{
@@ -229,7 +262,8 @@ void Game::UpdateAlienNests(sf::Time elapsedTime)
 	{
 		if (_nests[i]->getAlive())
 		{
-			_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			//_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			UpdateGameObjectBasedOnRegion(_nests[i]);
 		}
 		else
 		{
@@ -254,6 +288,36 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 		i--;
 		}*/
 	}
+}
+
+void Game::UpdateGameObjectBasedOnRegion(GameObject* gameObject)
+{
+	int contained = _regions[gameObject->getRegion()]->Contained(gameObject->getPosition());
+
+	if (contained != 0)
+	{
+		_regions[gameObject->getRegion()]->RemoveGameObject(gameObject);
+	}
+
+
+	int teleport = gameObject->RegionCheck(contained);
+
+	if (teleport == 1)
+	{
+		gameObject->TeleportLeft(_regions[_regions.size() - 1]->getPosition() + _regions[_regions.size() - 1]->getSize());
+	}
+	else if (teleport == -1)
+	{
+		gameObject->TeleportRight(_regions[_regions.size() - 1]->getPosition() + _regions[_regions.size() - 1]->getSize());
+	}
+
+
+	_regions[gameObject->getRegion()]->AddGameObject(gameObject);
+}
+
+void Game::RemoveObjectFromRegion(GameObject* gameObject)
+{
+	_regions[gameObject->getRegion()]->RemoveGameObject(gameObject);
 }
 
 #pragma endregion

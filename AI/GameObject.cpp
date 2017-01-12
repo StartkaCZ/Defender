@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-
+#include "ConstHolder.h"
 
 GameObject::GameObject()
 {
@@ -31,6 +31,50 @@ void GameObject::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(_sprite, states);
 }
 
+void GameObject::SetRegion(int region)
+{
+	_region = region;
+}
+
+///<summary>
+///Returns 1 if the position is ahead of the region.
+///Returns 0 if the position is contained within the region.
+///Returns -1 if the position is behind the region.
+///</summary>
+int GameObject::RegionCheck(int position)
+{
+	_region += position;
+
+	if (_region < 0)
+	{
+		return -1;
+	}
+	else if (_region > SCREEN_TIME_SIZE-1)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void GameObject::TeleportRight(sf::Vector2f rightEdge)
+{
+	_region = SCREEN_TIME_SIZE - 1;
+	setPosition(rightEdge.x - getPosition().x, getPosition().y);
+}
+void GameObject::TeleportLeft(sf::Vector2f leftEdge)
+{
+	_region = 0;
+	setPosition(getPosition().x - leftEdge.x, getPosition().y);
+}
+
+void GameObject::TeleportByAmount(sf::Vector2f amount)
+{
+	move(amount);
+}
+
 sf::Vector2f GameObject::getPosition() const
 {
 	return Transformable::getPosition();
@@ -43,4 +87,9 @@ sf::Vector2f GameObject::getSize() const
 ObjectType GameObject::getType() const
 {
 	return _type;
+}
+
+int GameObject::getRegion() const
+{
+	return _region;
 }

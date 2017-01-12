@@ -95,14 +95,16 @@ void Player::SuperJumpTimer(float dt)
 //FOR TESTING
 void Player::CheckBorder()
 {
-	if (getPosition().x < 0)
+	/*if (getPosition().x < 0)
 	{
 		setPosition(_screenSize.x, getPosition().y);
+		_region = SCREEN_TIME_SIZE-1;
 	}
 	else if (getPosition().x > _screenSize.x)
 	{
 		setPosition(0, getPosition().y);
-	}
+		_region = 0;
+	}*/
 }
 
 void Player::ReadInput()
@@ -233,6 +235,7 @@ void Player::Shoot()
 			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
 		}
 
+		lazer->SetRegion(_region);
 		_projectiles.push_back(lazer);
 		_canFire = false;
 	}
