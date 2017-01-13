@@ -9,6 +9,7 @@ const float	PLAYER_NUKE_TIMER = 60.0f;
 const float	PLAYER_SUPER_JUMP_TIMER = 5.0f;
 const float PLAYER_OFFSET_FROM_GROUND = 0.8f;
 const float PLAYER_MAX_LIVES = 3;
+const float PLAYER_LAZER_LIFE = 2.0f;
 
 const float PLAYER_LAZER_SPEED = PLAYER_MAX_SPEED*1.5f;
 

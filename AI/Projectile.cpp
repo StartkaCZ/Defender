@@ -11,7 +11,7 @@ Projectile::~Projectile()
 {
 }
 
-void Projectile::initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2f direction, sf::Vector2u screenSize, ObjectType type)
+void Projectile::initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2f direction, sf::Vector2u screenSize, ObjectType type, float timeToLive)
 {
 	GameObject::initialize(position, texture, type);
 
@@ -20,24 +20,25 @@ void Projectile::initialize(sf::Vector2f position, sf::Texture &texture, sf::Vec
 
 	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
 
+	_timeToLive = timeToLive;
+
 	_isAlive = true;
 }
 
 void Projectile::Update(float dt)
 {
-	move(_velocity * dt);
+	if (_timeToLive > 0)
+	{
+		_timeToLive -= dt;
 
-	BorderCheck();
-}
-
-void Projectile::BorderCheck()
-{
-	if (getPosition().x + _size.x < 0 || getPosition().x - _size.x > _screenSize.x ||
-		getPosition().y - _size.y > _screenSize.y)
+		move(_velocity * dt);
+	}
+	else
 	{
 		Die();
 	}
 }
+
 
 void Projectile::Die()
 {

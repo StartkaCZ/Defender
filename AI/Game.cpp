@@ -262,7 +262,7 @@ void Game::UpdateAlienNests(sf::Time elapsedTime)
 	{
 		if (_nests[i]->getAlive())
 		{
-			//_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
 			UpdateGameObjectBasedOnRegion(_nests[i]);
 		}
 		else

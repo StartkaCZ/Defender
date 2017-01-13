@@ -30,6 +30,8 @@ private:
 	void					Wonder(float dt);
 	void					Evade(float dt);
 
+	void					CalculateTargetPoint();
+
 	void					CheckBorder();
 
 	void					Shoot(sf::Vector2f playerPosition);
@@ -53,6 +55,7 @@ private:
 	int						_rocketsAlive;
 
 	bool					_wondering;
+	bool					_movingLeft;
 	bool					_isAlive;
 	bool					_canFire;
 	bool					_canSpawnAbductor;

@@ -4,7 +4,6 @@
 
 Interceptor::Interceptor(int& parentRocketCounter)
 	: _parentRocketCounter(parentRocketCounter)
-	, _timeToLive(NEST_INTERCEPTOR_MISSILE_LIFE_TIME)
 {
 }
 
@@ -18,7 +17,7 @@ void Interceptor::initialize(sf::Vector2f position, sf::Texture &texture, sf::Ve
 	
 	Vector2Calculator::Normalize(direction);
 
-	Projectile::initialize(position, texture, direction, screenSize, ObjectType::Projetile_Interceptor);
+	Projectile::initialize(position, texture, direction, screenSize, ObjectType::Projetile_Interceptor, NEST_INTERCEPTOR_MISSILE_LIFE_TIME);
 }
 
 void Interceptor::Update(float dt, sf::Vector2f playerPosition)

@@ -12,6 +12,7 @@ AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abduct
 	, _canFire(true)
 	, _wondering(true)
 	, _canSpawnAbductor(true)
+	, _movingLeft(rand() % 2 == 0)
 	, _fireRateTimer(0)
 	, _spawnTimer(0)
 {
@@ -33,7 +34,7 @@ void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Floa
 }
 void AlienNest::Update(float dt, sf::Vector2f playerPosition)
 {
-	UpdateStatus(playerPosition);
+	//UpdateStatus(playerPosition);
 
 	FireRateTimer(dt);
 	SpawnTimer(dt);
@@ -60,8 +61,6 @@ void AlienNest::UpdateStatus(sf::Vector2f playerPosition)
 	{
 		_wondering = true;
 	}
-
-	_targetPosition = playerPosition;
 }
 
 void AlienNest::Move(float dt)
@@ -78,17 +77,57 @@ void AlienNest::Move(float dt)
 
 void AlienNest::Wonder(float dt)
 {
-	_velocity = _targetPosition - getPosition();
-	Vector2Calculator::Normalize(_velocity);
+	CalculateTargetPoint();
 
 	move(_velocity * NEST_MAX_SPEED * dt);
 }
+
 void AlienNest::Evade(float dt)
 {
 	_velocity = getPosition() - _targetPosition;
 	Vector2Calculator::Normalize(_velocity);
 
 	move(_velocity * NEST_MAX_SPEED * dt);
+}
+
+void AlienNest::CalculateTargetPoint()
+{
+	if (Vector2Calculator::Distance(_targetPosition, getPosition()) < _size.x)
+	{
+		if (_movingLeft)
+		{
+			_targetPosition.x = rand() % (int)(_screenSize.x - getPosition().x - _size.x - _size.x) + 1 + getPosition().x + _size.x;
+
+			float differnce = _targetPosition.x - getPosition().x;
+			float limit = _screenSize.y * 0.1f;
+
+			if (differnce > limit)
+			{
+				_targetPosition.x = _targetPosition.x - (differnce - limit);
+			}
+		}
+		else
+		{
+			_targetPosition.x = rand() % (int)(getPosition().x - _size.x) + 1 + _size.x;
+
+			sf::Vector2f differnce = sf::Vector2f(getPosition().x - _targetPosition.x, getPosition().y - _targetPosition.y);
+			sf::Vector2f limit = sf::Vector2f(_screenSize.x * 0.01f, _screenSize.y * 0.1f);
+
+			if (differnce.x > limit.x)
+			{
+				_targetPosition.x = _targetPosition.x + (differnce.x - limit.x);
+			}
+			if (differnce.y > limit.y)
+			{
+				_targetPosition.x = _targetPosition.x + (differnce.y - limit.y);
+			}
+		}
+
+		_targetPosition.y = rand() % (int)(_screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y - _size.y) + _size.y;
+
+		_velocity = _targetPosition - getPosition();
+		Vector2Calculator::Normalize(_velocity);
+	}
 }
 
 void AlienNest::FireRateTimer(float dt)

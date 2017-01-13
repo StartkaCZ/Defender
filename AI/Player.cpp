@@ -227,12 +227,12 @@ void Player::Shoot()
 		if (_movingLeft)
 		{
 			sf::Vector2f position = sf::Vector2f(getPosition().x - _size.x, getPosition().y);
-			lazer->initialize(position, _lazerTexture, sf::Vector2f(-1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(-1, 0), _screenSize, ObjectType::Projetile_PlayerLazer, PLAYER_LAZER_LIFE);
 		}
 		else
 		{
 			sf::Vector2f position = sf::Vector2f(getPosition().x + _size.x, getPosition().y);
-			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), _screenSize, ObjectType::Projetile_PlayerLazer);
+			lazer->initialize(position, _lazerTexture, sf::Vector2f(1, 0), _screenSize, ObjectType::Projetile_PlayerLazer, PLAYER_LAZER_LIFE);
 		}
 
 		lazer->SetRegion(_region);
