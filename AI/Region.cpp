@@ -54,9 +54,12 @@ void Region::AddGameObject(GameObject*& gameObject)
 
 void Region::RemoveGameObject(GameObject*& gameObject)
 {
-	std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject);
+	std::vector<GameObject*>::iterator it = std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject);
 
-	_gameObjectsWithin.erase(std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject));
+	if (it != _gameObjectsWithin.end())
+	{
+		_gameObjectsWithin.erase(std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject));
+	}
 }
 
 bool Region::Teleport(float xPosition)

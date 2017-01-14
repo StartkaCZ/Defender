@@ -2,6 +2,8 @@
 #include "Vector2Calculator.h"
 #include "ConstHolder.h"
 
+#include <iostream>
+
 AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture)
 	: _interceptorTexture(interceptorTexture)
 	, _abductorTexture(abductorTexture)
@@ -12,9 +14,11 @@ AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abduct
 	, _canFire(true)
 	, _wondering(true)
 	, _canSpawnAbductor(true)
-	, _movingLeft(rand() % 2 == 0)
 	, _fireRateTimer(0)
 	, _spawnTimer(0)
+	, _angle(0)
+	, _keepGoingTimes(0)
+	, _wonderTimer(0)
 {
 }
 
@@ -27,108 +31,202 @@ void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Floa
 {
 	GameObject::initialize(position, texture, ObjectType::AlienNest);
 
-	_targetPosition = position;
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 
 	_isAlive = true;
+
+	if (rand() % 2 == 0)
+	{
+		_angle = 180;
+	}
+
+	Move();
 }
 void AlienNest::Update(float dt, sf::Vector2f playerPosition)
 {
-	//UpdateStatus(playerPosition);
+	UpdateBehaviour(playerPosition);
 
 	FireRateTimer(dt);
 	SpawnTimer(dt);
+	WonderTimer(dt);
 
-	Move(dt);
+	move(_velocity * NEST_MAX_SPEED * dt);
 
 	CheckBorder();
 }
 
-void AlienNest::UpdateStatus(sf::Vector2f playerPosition)
+void AlienNest::UpdateBehaviour(sf::Vector2f playerPosition)
 {
 	float distanceFromPlayer = Vector2Calculator::Distance(getPosition(), playerPosition);
 
 	if (distanceFromPlayer < NEST_DISTANCE_TO_FIRE)
 	{
 		Shoot(playerPosition);
-		_wondering = false;
 	}
-	else if (distanceFromPlayer < NEST_DISTANCE_TO_EVADE)
+
+	_wondering = distanceFromPlayer > NEST_DISTANCE_TO_EVADE;
+
+	if (!_wondering)
 	{
-		_wondering = false;
-	}
-	else
-	{
-		_wondering = true;
+		sf::Vector2f difference = playerPosition - getPosition();
+		float differenceAngle = std::atan2(difference.y, difference.x) * 180 / PI;
+
+		if (differenceAngle < 0)
+		{
+			differenceAngle += 360;
+		}
+
+		int angleBtw = abs(differenceAngle - _angle);
+
+		if(angleBtw < 90)
+		{
+			if (differenceAngle - _angle < 0)
+			{
+				_angle = differenceAngle -135;
+			}
+			else
+			{
+				_angle = differenceAngle+135;
+			}
+
+			_wonderTimer = 0;
+		}
 	}
 }
 
-void AlienNest::Move(float dt)
+void AlienNest::Move()
 {
 	if (_wondering)
 	{
-		Wonder(dt);
+		Wonder();
 	}
 	else
 	{
-		Evade(dt);
+		Evade();
 	}
-}
 
-void AlienNest::Wonder(float dt)
-{
-	CalculateTargetPoint();
-
-	move(_velocity * NEST_MAX_SPEED * dt);
-}
-
-void AlienNest::Evade(float dt)
-{
-	_velocity = getPosition() - _targetPosition;
-	Vector2Calculator::Normalize(_velocity);
-
-	move(_velocity * NEST_MAX_SPEED * dt);
-}
-
-void AlienNest::CalculateTargetPoint()
-{
-	if (Vector2Calculator::Distance(_targetPosition, getPosition()) < _size.x)
+	if (_angle > 360)
 	{
-		if (_movingLeft)
+		_angle -= 360;
+	}
+	else if (_angle < 0)
+	{
+		_angle += 360;
+	}
+
+	_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
+}
+
+void AlienNest::Wonder()
+{
+	float predictedYposition = getPosition().y + _velocity.y * _size.y*3;
+	if (predictedYposition < _size.y)
+	{
+		//setPosition(getPosition().x, _size.y);
+		if (_angle >= 270)
 		{
-			_targetPosition.x = rand() % (int)(_screenSize.x - getPosition().x - _size.x - _size.x) + 1 + getPosition().x + _size.x;
-
-			float differnce = _targetPosition.x - getPosition().x;
-			float limit = _screenSize.y * 0.1f;
-
-			if (differnce > limit)
-			{
-				_targetPosition.x = _targetPosition.x - (differnce - limit);
-			}
+			_angle += 15;
+			_goClockWise = true;
 		}
 		else
 		{
-			_targetPosition.x = rand() % (int)(getPosition().x - _size.x) + 1 + _size.x;
+			_angle -= 15;
+			_goClockWise = false;
+		}
+	}
+	else if (predictedYposition > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
+	{
+		//setPosition(getPosition().x, _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y);
 
-			sf::Vector2f differnce = sf::Vector2f(getPosition().x - _targetPosition.x, getPosition().y - _targetPosition.y);
-			sf::Vector2f limit = sf::Vector2f(_screenSize.x * 0.01f, _screenSize.y * 0.1f);
-
-			if (differnce.x > limit.x)
-			{
-				_targetPosition.x = _targetPosition.x + (differnce.x - limit.x);
-			}
-			if (differnce.y > limit.y)
-			{
-				_targetPosition.x = _targetPosition.x + (differnce.y - limit.y);
-			}
+		if (_angle >= 90)
+		{
+			_angle += 15;
+			_goClockWise = true;
+		}
+		else
+		{
+			_angle -= 15;
+			_goClockWise = false;
+		}
+	}
+	else
+	{
+		if (_keepGoingTimes == 0)
+		{
+			_goClockWise = rand() % 2 == 0;
+			_keepGoingTimes = rand() % 5 + 5;
+		}
+		else
+		{
+			_keepGoingTimes--;
 		}
 
-		_targetPosition.y = rand() % (int)(_screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y - _size.y) + _size.y;
+		int angleToAdd = rand() % 11;
 
-		_velocity = _targetPosition - getPosition();
-		Vector2Calculator::Normalize(_velocity);
+		if (!_goClockWise)
+		{
+			angleToAdd = -angleToAdd;
+		}
+
+		_angle += angleToAdd;
 	}
 }
+
+void AlienNest::Evade()
+{
+	float predictedYposition = getPosition().y + _velocity.y * _size.y * 3;
+	if (predictedYposition < _size.y)
+	{
+		//setPosition(getPosition().x, _size.y);
+		if (_angle >= 270)
+		{
+			_angle += 30;
+			_goClockWise = true;
+		}
+		else
+		{
+			_angle -= 30;
+			_goClockWise = false;
+		}
+	}
+	else if (predictedYposition > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
+	{
+		//setPosition(getPosition().x, _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y);
+
+		if (_angle >= 90)
+		{
+			_angle += 30;
+			_goClockWise = true;
+		}
+		else
+		{
+			_angle -= 30;
+			_goClockWise = false;
+		}
+	}
+	else
+	{
+		if (_keepGoingTimes == 0)
+		{
+			_goClockWise = rand() % 2 == 0;
+			_keepGoingTimes = rand() % 5 + 5;
+		}
+		else
+		{
+			_keepGoingTimes--;
+		}
+
+		int angleToAdd = 10;
+
+		if (!_goClockWise)
+		{
+			angleToAdd = -angleToAdd;
+		}
+
+		_angle += angleToAdd;
+	}
+}
+
 
 void AlienNest::FireRateTimer(float dt)
 {
@@ -155,6 +253,18 @@ void AlienNest::SpawnTimer(float dt)
 	else
 	{
 		_spawnTimer += dt;
+	}
+}
+void AlienNest::WonderTimer(float dt)
+{
+	if (_wonderTimer > 0)
+	{
+		_wonderTimer -= dt;
+	}
+	else
+	{
+		Move();
+		_wonderTimer = 0.50f;
 	}
 }
 
@@ -193,27 +303,19 @@ void AlienNest::CheckBorder()
 	if (getPosition().x < 0)
 	{
 		setPosition(_screenSize.x, getPosition().y);
-		//Wonder Again
-
 	}
 	else if (getPosition().x > _screenSize.x)
 	{
 		setPosition(0, getPosition().y);
-		//Wonder Again
-
 	}
 
 	if (getPosition().y < _size.y)
 	{
 		setPosition(getPosition().x, _size.y);
-		//Wonder Again
-
 	}
 	else if (getPosition().y > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
 	{
 		setPosition(getPosition().x, _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y);
-		//Wonder Again
-
 	}
 }
 

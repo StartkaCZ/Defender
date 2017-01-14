@@ -52,7 +52,7 @@ Game::Game()
 		_powerUps.push_back(powerUp);
 	}
 	*/
-	while (_nests.size() < 2)
+	while (_nests.size() < 1)
 	{
 		AlienNest* nest = new AlienNest(_interceptors, _abductors, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor));
 

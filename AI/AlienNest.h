@@ -22,15 +22,14 @@ public:
 private:
 	void					FireRateTimer(float dt);
 	void					SpawnTimer(float dt);
+	void					WonderTimer(float dt);
 
-	void					UpdateStatus(sf::Vector2f playerPosition);
+	void					UpdateBehaviour(sf::Vector2f playerPosition);
 
-	void					Move(float dt);
+	void					Move();
 
-	void					Wonder(float dt);
-	void					Evade(float dt);
-
-	void					CalculateTargetPoint();
+	void					Wonder();
+	void					Evade();
 
 	void					CheckBorder();
 
@@ -40,8 +39,7 @@ private:
 private:
 	sf::Texture&			_interceptorTexture;
 	sf::Texture&			_abductorTexture;
-			   
-	sf::Vector2f			_targetPosition;
+
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 
@@ -50,12 +48,15 @@ private:
 
 	float					_fireRateTimer;
 	float					_spawnTimer;
+	float					_wonderTimer;
 
+	int						_keepGoingTimes;
+	int						_angle;
 	int						_lifes;
 	int						_rocketsAlive;
 
+	bool					_goClockWise;
 	bool					_wondering;
-	bool					_movingLeft;
 	bool					_isAlive;
 	bool					_canFire;
 	bool					_canSpawnAbductor;
