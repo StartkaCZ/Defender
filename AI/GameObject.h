@@ -15,6 +15,8 @@ enum class ObjectType
 	Obstacle_Meteor,
 	//power ups
 	PowerUp_SuperJump,
+	PowerUp_Shield,
+	PowerUp_RapidFire,
 	//Projectiles
 	Projetile_PlayerLazer,
 	Projetile_Interceptor,

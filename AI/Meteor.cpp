@@ -39,8 +39,8 @@ void Meteor::BorderCheck()
 
 void Meteor::Restart()
 {
-	float x = (rand() % _screenSize.x - _size.x - _size.x) + _size.x;
-	float y = -rand() % (int)_size.y - _size.y - _size.y;
+	float x = (rand() % _screenSize.x - _size.x - _size.x - _size.x) + _size.x;
+	float y = -rand() % (int)(_size.y + _size.y) - _size.y;
 
 	setPosition(x, y);
 

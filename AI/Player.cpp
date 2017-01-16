@@ -8,6 +8,8 @@ Player::Player(std::vector<Projectile*>& projectiles, sf::Texture &lazerTexture)
 	, _fireRateTimer(0)
 	, _nukeTimer(0)
 	, _superJumpTimer(0)
+	, _shieldTimer(0)
+	, _rapidFireTimer(0)
 	, _velocity(sf::Vector2f(0, 0))
 	, _nukeCount(1)
 	, _superJumpCount(1)
@@ -16,6 +18,8 @@ Player::Player(std::vector<Projectile*>& projectiles, sf::Texture &lazerTexture)
 	, _canSuperJump(true)
 	, _movingLeft(false)
 	, _hasNuked(false)
+	, _rapidFire(false)
+	, _shieldOn(false)
 	, _projectiles(projectiles)
 	, _lifes(PLAYER_MAX_LIVES)
 {
@@ -33,11 +37,12 @@ void Player::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRe
 void Player::Update(float dt)
 {
 	ReadInput();
-	CheckBorder();
 
 	FireRateTimer(dt);
 	NukeTimer(dt);
 	SuperJumpTimer(dt);
+	ShieldTimer(dt);
+	RapidFireTimer(dt);
 
 	move(_velocity * dt);
 }
@@ -48,7 +53,14 @@ void Player::FireRateTimer(float dt)
 {
 	if (!_canFire)
 	{
-		if (_fireRateTimer > PLAYER_FIRE_RATE)
+		float fireRateLimit = PLAYER_FIRE_RATE;
+
+		if (_rapidFire)
+		{
+			fireRateLimit *= 0.25f;
+		}
+
+		if (_fireRateTimer > fireRateLimit)
 		{
 			_canFire = true;
 			_fireRateTimer = 0;
@@ -90,22 +102,37 @@ void Player::SuperJumpTimer(float dt)
 	}
 }
 
-#pragma endregion
-
-//FOR TESTING
-void Player::CheckBorder()
+void Player::ShieldTimer(float dt)
 {
-	/*if (getPosition().x < 0)
+	if (!_shieldOn)
 	{
-		setPosition(_screenSize.x, getPosition().y);
-		_region = SCREEN_TIME_SIZE-1;
+		if (_shieldTimer > 0)
+		{
+			_shieldTimer -= dt;
+		}
+		else
+		{
+			_shieldOn = false;
+		}
 	}
-	else if (getPosition().x > _screenSize.x)
-	{
-		setPosition(0, getPosition().y);
-		_region = 0;
-	}*/
 }
+
+void Player::RapidFireTimer(float dt)
+{
+	if (!_rapidFire)
+	{
+		if (_rapidFireTimer > 0)
+		{
+			_rapidFireTimer -= dt;
+		}
+		else
+		{
+			_rapidFire = false;
+		}
+	}
+}
+
+#pragma endregion
 
 void Player::ReadInput()
 {
@@ -281,6 +308,16 @@ void Player::CollectedPowerUp(ObjectType powerUp)
 		_superJumpCount++;
 		break;
 
+	case ObjectType::PowerUp_Shield:
+		_shieldOn = true;
+		_shieldTimer += PLAYER_SHIELD_TIMER;
+		break;
+
+	case ObjectType::PowerUp_RapidFire:
+		_rapidFire = true;
+		_rapidFireTimer += PLAYER_RAPID_FIRE_TIMER;
+		break;
+
 	default:
 		break;
 	}
@@ -288,7 +325,10 @@ void Player::CollectedPowerUp(ObjectType powerUp)
 }
 void Player::TakenDamage()
 {
-	_lifes--;
+	if (!_shieldOn)
+	{
+		_lifes--;
+	}
 }
 
 

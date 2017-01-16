@@ -25,8 +25,8 @@ private:
 	void					FireRateTimer(float dt);
 	void					NukeTimer(float dt);
 	void					SuperJumpTimer(float dt);
-
-	void					CheckBorder();
+	void					ShieldTimer(float dt);
+	void					RapidFireTimer(float dt);
 	
 	void					MoveLeft();
 	void					MoveRight();
@@ -51,6 +51,8 @@ private:
 	float					_fireRateTimer;
 	float					_nukeTimer;
 	float					_superJumpTimer;
+	float					_shieldTimer;
+	float					_rapidFireTimer;
 
 	int						_nukeCount;
 	int						_superJumpCount;
@@ -62,6 +64,8 @@ private:
 
 	bool					_hasNuked;
 	bool					_movingLeft;
+	bool					_rapidFire;
+	bool					_shieldOn;
 };
 
 #endif // PLAYER_H

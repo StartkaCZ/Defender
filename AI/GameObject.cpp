@@ -3,6 +3,7 @@
 #include "ConstHolder.h"
 
 GameObject::GameObject()
+	: _region(-1)
 {
 }
 

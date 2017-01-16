@@ -59,6 +59,10 @@ private:
 	//void						DrawMutants();
 	//void						DrawAstronauts();
 
+	void						DrawRadar();
+	void						DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour);
+	void						DrawCameraRectangle();
+
 private:
 	sf::RenderWindow			_window;
 	sf::View					_worldView;

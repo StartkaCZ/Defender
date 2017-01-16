@@ -33,7 +33,7 @@ Game::Game()
 		_regions.push_back(region);
 	}
 
-	/*
+	
 	while (_meteors.size() < MAX_METEORS)
 	{
 		Meteor* meteor = new Meteor();
@@ -41,8 +41,10 @@ Game::Game()
 		meteor->Initialize(_textureHolder.get(Textures::ID::Obstacle_Meteor), _worldBounds);
 
 		_meteors.push_back(meteor);
-	}
 
+		SetupRegion(meteor);
+	}
+	/*
 	while (_powerUps.size() < MAX_POWER_UPS)
 	{
 		PowerUp* powerUp = new PowerUp();
@@ -56,8 +58,8 @@ Game::Game()
 	{
 		AlienNest* nest = new AlienNest(_interceptors, _abductors, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor));
 
-		float x = (rand() % (int)_worldBounds.width - 60) + 30;
-		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 60) + 30;
+		float x = (rand() % (int)_worldBounds.width - 256) + 128;
+		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 256) + 128;
 
 		nest->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::AlienNest), _worldBounds);
 
@@ -351,6 +353,8 @@ void Game::render()
 
 	_window.draw(*_player);
 
+	DrawRadar();
+
 	_window.draw(_statisticsText);
 	_window.display();
 }
@@ -398,6 +402,73 @@ void Game::DrawAbductors()
 	{
 		_window.draw(*_abductors[i]);
 	}
+}
+
+void Game::DrawRadar()
+{
+	for (int i = 0; i < _projectiles.size(); i++)
+	{
+		DrawRectangle(_projectiles[i]->getSize(), _projectiles[i]->getPosition(), sf::Color::Yellow);
+	}
+
+	for (int i = 0; i < _interceptors.size(); i++)
+	{
+		DrawRectangle(_interceptors[i]->getSize(), _interceptors[i]->getPosition(), sf::Color::Yellow);
+	}
+
+	for (int i = 0; i < _meteors.size(); i++)
+	{
+		DrawRectangle(_meteors[i]->getSize(), _meteors[i]->getPosition(), sf::Color(100, 100, 100, 255));
+	}
+
+	for (int i = 0; i < _powerUps.size(); i++)
+	{
+		DrawRectangle(_powerUps[i]->getSize(), _powerUps[i]->getPosition(), sf::Color::Blue);
+	}
+
+	for (int i = 0; i < _nests.size(); i++)
+	{
+		DrawRectangle(_nests[i]->getSize(), _nests[i]->getPosition(), sf::Color::Red);
+	}
+
+	for (int i = 0; i < _abductors.size(); i++)
+	{
+		DrawRectangle(_abductors[i]->getSize(), _abductors[i]->getPosition(), sf::Color::Red);
+	}
+
+	DrawRectangle(_player->getSize(), _player->getPosition(), sf::Color::Green);
+	DrawCameraRectangle();
+}
+
+void Game::DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour)
+{
+	const float RADAR_HIGHT = 150.0f;
+	const float SIZE_SCALAR = 0.20f;
+
+	sf::RectangleShape rectangle = sf::RectangleShape(sf::Vector2f(size.x * SIZE_SCALAR, size.y * SIZE_SCALAR));
+	rectangle.setPosition(sf::Vector2f((position.x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, (position.y / _worldBounds.height) * RADAR_HIGHT));
+	rectangle.setOrigin(rectangle.getSize() *0.5f);
+	rectangle.setFillColor(colour);
+
+	_window.draw(rectangle);
+}
+
+void Game::DrawCameraRectangle()
+{
+	const float RADAR_HIGHT = 150.0f;
+	const float CAMERA_RECTANGLE = 2.5f + 2.5f;
+
+	sf::RectangleShape rectangle = sf::RectangleShape(sf::Vector2f(((_worldView.getSize().x / _worldBounds.width) * _worldView.getSize().x) - CAMERA_RECTANGLE, ((_worldView.getSize().y / _worldBounds.height) * RADAR_HIGHT) - CAMERA_RECTANGLE));
+
+	rectangle.setPosition(sf::Vector2f((_worldView.getCenter().x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, (_worldView.getCenter().y / _worldBounds.height) * RADAR_HIGHT));
+	rectangle.setOrigin(rectangle.getSize() *0.5f);
+
+	rectangle.setOutlineColor(sf::Color::White);
+	rectangle.setOutlineThickness(2.5f);
+
+	rectangle.setFillColor(sf::Color::Transparent);
+
+	_window.draw(rectangle);
 }
 
 #pragma endregion
