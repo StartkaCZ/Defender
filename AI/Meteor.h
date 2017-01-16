@@ -18,9 +18,6 @@ public:
 	bool			getAlive() const;
 
 private:
-	void			BorderCheck();
-
-private:
 	sf::Vector2f	_velocity;
 	sf::Vector2u	_screenSize;
 

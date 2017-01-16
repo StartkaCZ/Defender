@@ -35,6 +35,7 @@ private:
 	void						handleInput();
 
 private:
+	void						UpdatePlayer(sf::Time elapsedTime);
 	void						UpdateProjectiles(sf::Time elapsedTime);
 	void						UpdateInterceptors(sf::Time elapsedTime);
 	void						UpdateMeteors(sf::Time elapsedTime);
@@ -47,6 +48,8 @@ private:
 	void						SetupRegion(GameObject* gameObject);
 	void						UpdateGameObjectBasedOnRegion(GameObject* gameObject);
 	void						RemoveObjectFromRegion(GameObject* gameObject);
+
+	void						UpdateCamera();
 
 	void						NukeReleased();
 

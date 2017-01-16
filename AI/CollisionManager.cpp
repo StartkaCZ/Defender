@@ -1,5 +1,9 @@
 #include "CollisionManager.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
+
 CollisionManager* CollisionManager::_instance = nullptr;
 
 CollisionManager* CollisionManager::Instance()

@@ -13,6 +13,7 @@ namespace Textures
 {
 	enum class ID
 	{
+		//GameObjects
 		Player,
 		Abductor,
 		AlienNest,
@@ -23,8 +24,15 @@ namespace Textures
 		Projectile_PlayerLazer,
 		Projectile_Interceptor,
 
+		//Background
 		Background,
 		Foreground,
+
+		//Particles
+		PlayerLazer,
+		EnemyLazer,
+		Death,
+		PowerUp,
 	};
 }
 

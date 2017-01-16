@@ -24,22 +24,11 @@ void Meteor::Initialize(sf::Texture &texture, sf::FloatRect screenSize)
 void Meteor::Update(float dt)
 {
 	move(_velocity * dt);
-
-	BorderCheck();
-}
-
-void Meteor::BorderCheck()
-{
-	if (getPosition().x + _size.x < 0 || getPosition().x - _size.x > _screenSize.x ||
-		getPosition().y - _size.y > _screenSize.y)
-	{
-		Restart();
-	}
 }
 
 void Meteor::Restart()
 {
-	float x = (rand() % _screenSize.x - _size.x - _size.x - _size.x) + _size.x;
+	float x = rand() % (int)(_screenSize.x - _size.x - _size.x - _size.x - _size.x) + _size.x + _size.x;
 	float y = -rand() % (int)(_size.y + _size.y) - _size.y;
 
 	setPosition(x, y);

@@ -3,6 +3,8 @@
 
 #include "ConstHolder.h"
 #include "CollisionManager.h"
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
 
 Game::Game()
 	: _window(sf::VideoMode(800, 600), "Defender", sf::Style::Close)
@@ -77,10 +79,14 @@ Game::Game()
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10);
+
+	AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
 }
 
 void Game::loadContent()
 {
+	AudioManager::Instance()->LoadContent();
+
 	_textureHolder.load(Textures::ID::Player, "Media/Textures/Player.png");
 	_textureHolder.load(Textures::ID::Projectile_PlayerLazer, "Media/Textures/bullet.png");
 
@@ -156,16 +162,10 @@ void Game::processEvents()
 void Game::update(sf::Time elapsedTime)
 {
 	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+	AudioManager::Instance()->Update(elapsedTime.asSeconds());
+	ParticleSystemManager::Instance()->Update(elapsedTime.asSeconds());
 
-	_player->Update(elapsedTime.asSeconds());
-	UpdateGameObjectBasedOnRegion(_player);
-	if (_player->hasNuked())
-	{
-		NukeReleased();
-		_player->NukingOver();
-	}
-
-	_score++;
+	UpdatePlayer(elapsedTime);
 
 	UpdateProjectiles(elapsedTime);
 	UpdateInterceptors(elapsedTime);
@@ -175,22 +175,23 @@ void Game::update(sf::Time elapsedTime)
 	UpdateAlienNests(elapsedTime);
 	UpdateAbductors(elapsedTime);
 
-	if (_player->getPosition().x < _regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f)
-	{
-		_worldView.setCenter(sf::Vector2f(_regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
-	}
-	else if (_player->getPosition().x > _regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f)
-	{
-		_worldView.setCenter(sf::Vector2f(_regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
-	}
-	else
-	{
-		_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
-	}
+	UpdateCamera();
+
+	_score++;
 }
 
 #pragma region UpdateMethods
 
+void Game::UpdatePlayer(sf::Time elapsedTime)
+{
+	_player->Update(elapsedTime.asSeconds());
+	UpdateGameObjectBasedOnRegion(_player);
+	if (_player->hasNuked())
+	{
+		NukeReleased();
+		_player->NukingOver();
+	}
+}
 void Game::UpdateProjectiles(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _projectiles.size(); i++)
@@ -322,6 +323,22 @@ void Game::RemoveObjectFromRegion(GameObject* gameObject)
 	_regions[gameObject->getRegion()]->RemoveGameObject(gameObject);
 }
 
+void Game::UpdateCamera()
+{
+	if (_player->getPosition().x < _regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f)
+	{
+		_worldView.setCenter(sf::Vector2f(_regions[0]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
+	}
+	else if (_player->getPosition().x > _regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f)
+	{
+		_worldView.setCenter(sf::Vector2f(_regions[_regions.size() - 1]->getPosition().x + _regions[0]->getSize().x * 0.5f, _worldView.getCenter().y));
+	}
+	else
+	{
+		_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
+	}
+}
+
 #pragma endregion
 
 
@@ -353,6 +370,7 @@ void Game::render()
 
 	_window.draw(*_player);
 
+	ParticleSystemManager::Instance()->Draw(_window);
 	DrawRadar();
 
 	_window.draw(_statisticsText);
@@ -439,7 +457,6 @@ void Game::DrawRadar()
 	DrawRectangle(_player->getSize(), _player->getPosition(), sf::Color::Green);
 	DrawCameraRectangle();
 }
-
 void Game::DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour)
 {
 	const float RADAR_HIGHT = 150.0f;
@@ -452,7 +469,6 @@ void Game::DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color col
 
 	_window.draw(rectangle);
 }
-
 void Game::DrawCameraRectangle()
 {
 	const float RADAR_HIGHT = 150.0f;
