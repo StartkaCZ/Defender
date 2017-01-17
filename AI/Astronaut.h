@@ -5,12 +5,8 @@
 class Astronaut : public GameObject
 {
 private:
-	enum class state {
-		 walk,
-		 capture,
-		 fall
-	};
-	state _state;
+	enum class State;
+	State _state;
 	//action
 	int _direction;
 	int _speed;
@@ -23,17 +19,27 @@ private:
 	const int FRAME_PIXEL_HEIGHT = 100;
 	const int MAX_FRAME_WIDTH = 2;
 	const float ANIMATION_RATE = 2.0f;
+
+	bool _isAlive;
+
+	bool _isTarget;
+
 public:
-	Astronaut()
+	enum class State {
+		walk,
+		run,
+		capture,
+		fall
+	};
+	Astronaut() : _state(State::fall), _isTarget(false), _isAlive(true)
 	{
-		
 		//_sprite.setTextureRect(sf::IntRect(0, 0, FRAME_PIXEL_WIDTH, FRAME_PIXEL_HEIGHT));
 		_direction = rand() % 2;
 		if (!_direction)
 			_direction = -1;
 
 		_speed = 50 + rand() % 10;
-		_state = state::fall;
+		_state = State::fall;
 	}
 
 	void Initialize(sf::Vector2f position, sf::Texture &texture)
@@ -47,7 +53,7 @@ public:
 		sf::Vector2f position;
 		switch (_state)
 		{
-		case(state::walk):
+		case(State::walk):
 			//action
 			position = getPosition();
 			position.x += _speed * deltatime * _direction;
@@ -62,7 +68,7 @@ public:
 			}		
 			//_sprite.setTextureRect(sf::IntRect(FRAME_PIXEL_WIDTH * _currentFrame,0, FRAME_PIXEL_WIDTH, FRAME_PIXEL_HEIGHT));
 			break;
-		case(state::capture):
+		case(State::capture):
 			//_sprite.setTextureRect(sf::IntRect(FRAME_PIXEL_WIDTH * _currentFrame, 0, FRAME_PIXEL_WIDTH, FRAME_PIXEL_HEIGHT));
 			break;
 		default: // case(state::fall):
@@ -70,7 +76,7 @@ public:
 			position.y += GRAVITY * deltatime;
 			setPosition(position);
 			if (position.y > GROUND_LEVEL) {
-				_state = state::walk;
+				_state = State::walk;
 
 			}
 			break;
@@ -80,6 +86,31 @@ public:
 	{
 
 	}
+	bool getAlive()
+	{
+		return _isAlive;
+	}
 
+	void Die()
+	{
+		_isAlive = false;
+	}
+
+
+	State getState() {
+		return _state;
+	}
+	void setState(State state) {
+		_state = state;
+	}
+
+
+
+	bool getIsTarget() {
+		return _isTarget;
+	}
+	void setIsTarget(bool target) {
+		_isTarget = target;
+	}
 };
 

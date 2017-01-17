@@ -18,6 +18,7 @@ enum class ObjectType
 	//Projectiles
 	Projetile_PlayerLazer,
 	Projetile_Interceptor,
+	Projetile_Bullet
 };
 
 class GameObject : public sf::Drawable, protected sf::NonCopyable, protected sf::Transformable

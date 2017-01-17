@@ -22,13 +22,14 @@ CollisionManager::~CollisionManager()
 }
 
 
-void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
+void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors)
 {
 	CheckProjectileCollision(player, projectiles, meteors, nests);
 	CheckInterceptorCollision(player, interceptors, meteors);
 
 	CheckMeteorCollision(player, meteors);
 	CheckPlayerToPowerUpsCollision(player, powerUps);
+	CheckAbductorCollision(player, abductors);
 }
 
 void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
@@ -118,6 +119,42 @@ void CollisionManager::CheckPlayerToPowerUpsCollision(Player*& player, std::vect
 		{
 			player->CollectedPowerUp(powerUps[i]->getType());
 			powerUps[i]->Die();
+		}
+	}
+}
+
+void CollisionManager::CheckAbductorCollision(Player*& player, std::vector<Abductor*>& abductors)
+{
+	for (int i = 0; i < abductors.size(); i++)
+	{
+		if (abductors[i]->getState() == Abductor::State::seek)
+		{
+			Astronaut* astro = abductors[i]->getTarget();
+			if (astro != nullptr)
+			{
+				
+				sf::Vector2f modiflyPos = abductors[i]->getPosition();
+				sf::Vector2f modiflySize = abductors[i]->getSize() - sf::Vector2f(26,22);
+				if (modiflyPos.y + 32< astro->getPosition().y )
+				{
+					if (Collided(modiflyPos, modiflySize, astro->getPosition(), astro->getSize()))
+					{
+
+						sf::Vector2f astroPosOffset = astro->getPosition() - abductors[i]->getPosition();
+						abductors[i]->setState(Abductor::State::flee);
+						abductors[i]->setTargetPosOffset(astroPosOffset);
+
+						astro->setState(Astronaut::State::capture);
+					}
+				}
+			}
+		}
+		if (Collided(player->getPosition(), player->getSize(), abductors[i]->getPosition(), abductors[i]->getSize()))
+		{
+			player->TakenDamage();
+			//delete
+			abductors[i]->Die();
+			
 		}
 	}
 }

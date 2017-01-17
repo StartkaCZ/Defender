@@ -16,13 +16,19 @@ const float NEST_MAX_SPEED = 250.0f;
 const float NEST_DISTANCE_TO_FIRE = 300.0f;
 const float NEST_DISTANCE_TO_EVADE = 500.0f;
 const float NEST_FIRE_RATE = 2.5f;
-const float NEST_SPAWN_RATE = 5.0f;
+const float NEST_SPAWN_RATE = 1.0f; //5.0f
 const float NEST_INTERCEPTOR_MISSILE_MAX_SPEED = PLAYER_MAX_SPEED;
 const float NEST_INTERCEPTOR_MISSILE_LIFE_TIME = 10.0f;
 
 const int NEST_INTERCEPTOR_MISSILE_MAX_COUNT = 2;
 const int NEST_MAX_ABDUCTORS_SPAWN_COUNT = 20;
 const int NEST_MAX_HEALTH = 3;
+
+const int ABDUCTOR_MAX_HEALTH = 1;
+const float ABDUCTOR_DISTANCE_TO_FIRE = 350.0f;
+const float ABDUCTOR_FIRE_RATE = 2.5f;
+const float ABDUCTOR_BULLET_LIFE_TIME = 10.0f;
+const float ADBUCTOR_BULLET_SPEED = 200.0f;
 
 const float ABDUCTOR_SPEED = 5.0f;
 const float ABDUCTOR_MAX_SPEED = 5.0f;
