@@ -1,5 +1,8 @@
 #include "Player.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
 #include "ConstHolder.h"
 
 
@@ -104,7 +107,7 @@ void Player::SuperJumpTimer(float dt)
 
 void Player::ShieldTimer(float dt)
 {
-	if (!_shieldOn)
+	if (_shieldOn)
 	{
 		if (_shieldTimer > 0)
 		{
@@ -119,7 +122,7 @@ void Player::ShieldTimer(float dt)
 
 void Player::RapidFireTimer(float dt)
 {
-	if (!_rapidFire)
+	if (_rapidFire)
 	{
 		if (_rapidFireTimer > 0)
 		{
@@ -265,6 +268,8 @@ void Player::Shoot()
 		lazer->SetRegion(_region);
 		_projectiles.push_back(lazer);
 		_canFire = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
 	}
 }
 //Kills all enemies
@@ -275,6 +280,8 @@ void Player::Nuke()
 		_hasNuked = true;
 		_nukeCount--;
 		_canNuke = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::Nuked);
 	}
 }
 //Random Teleportation			
@@ -289,6 +296,8 @@ void Player::SuperJump()
 
 		_superJumpCount--;
 		_canSuperJump = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::SuperJump);
 	}
 }
 
@@ -322,6 +331,23 @@ void Player::CollectedPowerUp(ObjectType powerUp)
 		break;
 	}
 
+}
+
+void Player::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Obstacle_Meteor)// ||
+		//objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
+	{
+		TakenDamage();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleSystemManager::ParticleType::EnemyLazer);
+	}
+	else if (objectCollided->getType() == ObjectType::PowerUp_RapidFire || objectCollided->getType() == ObjectType::PowerUp_Shield || objectCollided->getType() == ObjectType::PowerUp_SuperJump)
+	{
+		CollectedPowerUp(objectCollided->getType());
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::PowerUpCollected);
+		ParticleSystemManager::Instance()->CreateParticleSystem(objectCollided->getPosition(), ParticleSystemManager::ParticleType::PowerUp);
+	}
 }
 void Player::TakenDamage()
 {

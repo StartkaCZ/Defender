@@ -23,6 +23,7 @@ Game::Game()
 	, _statisticsUpdateTime()
 	, _statisticsNumFrames(0)
 	, _score(0)
+	, _state(State::Menu)
 {
 	loadContent();
 
@@ -35,7 +36,7 @@ Game::Game()
 		_regions.push_back(region);
 	}
 
-	
+	/*
 	while (_meteors.size() < MAX_METEORS)
 	{
 		Meteor* meteor = new Meteor();
@@ -46,22 +47,28 @@ Game::Game()
 
 		SetupRegion(meteor);
 	}
-	/*
-	while (_powerUps.size() < MAX_POWER_UPS)
-	{
-		PowerUp* powerUp = new PowerUp();
+	
+	PowerUp* powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
 
-		powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_Shield), ObjectType::PowerUp_Shield, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
 
-		_powerUps.push_back(powerUp);
-	}
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_RapidFire), ObjectType::PowerUp_RapidFire, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
 	*/
 	while (_nests.size() < 1)
 	{
 		AlienNest* nest = new AlienNest(_interceptors, _abductors, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor));
 
-		float x = (rand() % (int)_worldBounds.width - 256) + 128;
-		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 256) + 128;
+		float x = rand() % (int)(_worldBounds.width - 256) + 128;
+		float y = rand() % (int)(_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 256) + 128;
 
 		nest->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::AlienNest), _worldBounds);
 
@@ -69,7 +76,7 @@ Game::Game()
 
 		_nests.push_back(nest);
 	}
-
+	
 	_player = new Player(_projectiles, _textureHolder.get(Textures::ID::Projectile_PlayerLazer));
 	_player->Initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
 	SetupRegion(_player);
@@ -80,7 +87,12 @@ Game::Game()
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10);
 
-	AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
+
+	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Menu);
+
+
+	_state = State::Game;
+	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
 }
 
 void Game::loadContent()
@@ -102,12 +114,24 @@ void Game::loadContent()
 	_textureHolder.load(Textures::ID::Obstacle_Meteor, "Media/Textures/Meteor.png");
 
 	_textureHolder.load(Textures::ID::PowerUp_SuperJump, "Media/Textures/SuperJumpPowerUp.png");
+	_textureHolder.load(Textures::ID::PowerUp_Shield, "Media/Textures/SuperJumpPowerUp.png");
+	_textureHolder.load(Textures::ID::PowerUp_RapidFire, "Media/Textures/SuperJumpPowerUp.png");
 
 	_textureHolder.load(Textures::ID::Background, "Media/Textures/Background.png");
-
 	_textureHolder.load(Textures::ID::Foreground, "Media/Textures/Foreground.png");
+	_textureHolder.load(Textures::ID::HUD, "Media/Textures/HUD.png");
+
+	_textureHolder.load(Textures::ID::Particle_PlayerLazer, "Media/Textures/ParticleDeath.png");
+	_textureHolder.load(Textures::ID::Particle_EnemyLazer, "Media/Textures/ParticleDeath.png");
+	_textureHolder.load(Textures::ID::Particle_Death, "Media/Textures/ParticleDeath.png");
+	_textureHolder.load(Textures::ID::Particle_PowerUp, "Media/Textures/ParticleDeath.png");
 
 	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
+
+	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::PlayerLazer, _textureHolder.get(Textures::ID::Particle_PlayerLazer));
+	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::EnemyLazer, _textureHolder.get(Textures::ID::Particle_EnemyLazer));
+	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::Death, _textureHolder.get(Textures::ID::Particle_Death));
+	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::PowerUp, _textureHolder.get(Textures::ID::Particle_PowerUp));
 }
 
 void Game::SetupRegion(GameObject* gameObject)
@@ -117,6 +141,9 @@ void Game::SetupRegion(GameObject* gameObject)
 		if (_regions[i]->Contained(gameObject->getPosition()) == 0)
 		{
 			gameObject->SetRegion(i);
+			_regions[gameObject->getRegion()]->AddGameObject(gameObject);
+			gameObject->InsideRegion(true);
+			break;
 		}
 	}
 }
@@ -161,7 +188,31 @@ void Game::processEvents()
 
 void Game::update(sf::Time elapsedTime)
 {
-	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+	switch (_state)
+	{
+	case Game::State::Menu:
+		UpdateMenu(elapsedTime);
+		break;
+	case Game::State::Game:
+		UpdateGame(elapsedTime);
+		break;
+	case Game::State::GameOver:
+		UpdateGameOver(elapsedTime);
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Game::UpdateMenu(sf::Time elapsedTime)
+{
+
+}
+void Game::UpdateGame(sf::Time elapsedTime)
+{
+	//CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+	CollisionManager::Instance()->CheckForCollisions(_regions);
 	AudioManager::Instance()->Update(elapsedTime.asSeconds());
 	ParticleSystemManager::Instance()->Update(elapsedTime.asSeconds());
 
@@ -179,8 +230,12 @@ void Game::update(sf::Time elapsedTime)
 
 	_score++;
 }
+void Game::UpdateGameOver(sf::Time elapsedTime)
+{
 
-#pragma region UpdateMethods
+}
+
+#pragma region Update Game Methods
 
 void Game::UpdatePlayer(sf::Time elapsedTime)
 {
@@ -204,6 +259,7 @@ void Game::UpdateProjectiles(sf::Time elapsedTime)
 		}
 		else
 		{
+			RemoveObjectFromRegion(_projectiles[i]);
 			delete _projectiles[i];
 			_projectiles.erase(_projectiles.begin() + i);
 			i--;
@@ -221,6 +277,7 @@ void Game::UpdateInterceptors(sf::Time elapsedTime)
 		}
 		else
 		{
+			RemoveObjectFromRegion(_interceptors[i]);
 			delete _interceptors[i];
 			_interceptors.erase(_interceptors.begin() + i);
 			i--;
@@ -253,6 +310,7 @@ void Game::UpdatePowerUps(sf::Time elapsedTime)
 		}
 		else
 		{
+			RemoveObjectFromRegion(_powerUps[i]);
 			delete _powerUps[i];
 			_powerUps.erase(_powerUps.begin() + i);
 			i--;
@@ -270,6 +328,7 @@ void Game::UpdateAlienNests(sf::Time elapsedTime)
 		}
 		else
 		{
+			RemoveObjectFromRegion(_nests[i]);
 			delete _nests[i];
 			_nests.erase(_nests.begin() + i);
 			i--;
@@ -295,6 +354,12 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 
 void Game::UpdateGameObjectBasedOnRegion(GameObject* gameObject)
 {
+	if (!gameObject->isInsideRegion())
+	{
+		_regions[gameObject->getRegion()]->AddGameObject(gameObject);
+		gameObject->InsideRegion(true);
+	}
+
 	int contained = _regions[gameObject->getRegion()]->Contained(gameObject->getPosition());
 
 	if (contained != 0)
@@ -308,14 +373,17 @@ void Game::UpdateGameObjectBasedOnRegion(GameObject* gameObject)
 	if (teleport == 1)
 	{
 		gameObject->TeleportLeft(_regions[_regions.size() - 1]->getPosition() + _regions[_regions.size() - 1]->getSize());
+		_regions[gameObject->getRegion()]->AddGameObject(gameObject);
 	}
 	else if (teleport == -1)
 	{
 		gameObject->TeleportRight(_regions[_regions.size() - 1]->getPosition() + _regions[_regions.size() - 1]->getSize());
+		_regions[gameObject->getRegion()]->AddGameObject(gameObject);
 	}
-
-
-	_regions[gameObject->getRegion()]->AddGameObject(gameObject);
+	else if (contained != 0)
+	{
+		_regions[gameObject->getRegion()]->AddGameObject(gameObject);
+	}
 }
 
 void Game::RemoveObjectFromRegion(GameObject* gameObject)
@@ -353,13 +421,46 @@ void Game::render()
 
 	_window.setView(_worldView);
 
-	for (int i = 0; i < _regions.size(); i++)
+	switch (_state)
 	{
-		_window.draw(*_regions[i]);
+	case Game::State::Menu:
+		DrawMenu();
+		break;
+	case Game::State::Game:
+		DrawGame();
+		break;
+	case Game::State::GameOver:
+		DrawGameOver();
+		break;
+
+	default:
+		break;
+	}
+
+	_window.draw(_statisticsText);
+	_window.display();
+}
+
+void Game::DrawMenu()
+{
+
+}
+void Game::DrawGame()
+{
+	if (_player->getRegion() - 1 >= 0)
+	{
+		_regions[_player->getRegion() - 1]->Draw(_window);
+	}
+
+	_regions[_player->getRegion()]->Draw(_window);
+
+	if (_player->getRegion() + 1 < _regions.size())
+	{
+		_regions[_player->getRegion() + 1]->Draw(_window);
 	}
 
 	DrawMeteors();
-	
+
 	DrawAlienNests();
 	DrawAbductors();
 
@@ -372,9 +473,10 @@ void Game::render()
 
 	ParticleSystemManager::Instance()->Draw(_window);
 	DrawRadar();
+}
+void Game::DrawGameOver()
+{
 
-	_window.draw(_statisticsText);
-	_window.display();
 }
 
 #pragma region Draw Methods
@@ -489,7 +591,38 @@ void Game::DrawCameraRectangle()
 
 #pragma endregion
 
+void Game::Destroy()
+{
+	for (int i = 0; i < _projectiles.size(); i++)
+	{
+		_window.draw(*_projectiles[i]);
+	}
 
+	for (int i = 0; i < _interceptors.size(); i++)
+	{
+		_window.draw(*_interceptors[i]);
+	}
+
+	for (int i = 0; i < _meteors.size(); i++)
+	{
+		_window.draw(*_meteors[i]);
+	}
+
+	for (int i = 0; i < _powerUps.size(); i++)
+	{
+		_window.draw(*_powerUps[i]);
+	}
+
+	for (int i = 0; i < _nests.size(); i++)
+	{
+		_window.draw(*_nests[i]);
+	}
+
+	for (int i = 0; i < _abductors.size(); i++)
+	{
+		_window.draw(*_abductors[i]);
+	}
+}
 
 void Game::updateStatistics(sf::Time elapsedTime)
 {

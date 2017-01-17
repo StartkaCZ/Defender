@@ -18,22 +18,22 @@ public:
 	};
 
 public:
-									ParticleSystemManager();
-									~ParticleSystemManager();
+										ParticleSystemManager();
+										~ParticleSystemManager();
 
-	static ParticleSystemManager*	Instance();
+	static ParticleSystemManager*		Instance();
 
-	void							Update(float dt);
-	void							Draw(sf::RenderWindow& renderWindow);
+	void								Update(float dt);
+	void								Draw(sf::RenderWindow& renderWindow);
 
-	void							AddTexture(ParticleType id, sf::Texture& texture);
-	void							CreateParticleSystem(sf::Vector2f position, ParticleType type);
+	void								AddTexture(ParticleType id, sf::Texture& texture);
+	void								CreateParticleSystem(sf::Vector2f position, ParticleType type);
 
 private:
-	static ParticleSystemManager*	_instance;
+	static ParticleSystemManager*		_instance;
 
-	std::map<ParticleType, sf::Texture&> _textures;
+	std::map<ParticleType, sf::Texture> _textures;
 
-	std::vector<ParticleSystem>		_particleSystems;
+	std::vector<ParticleSystem*>		_particleSystems;
 };
 

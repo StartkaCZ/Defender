@@ -11,6 +11,7 @@ public:
 	void			initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2f direction, sf::Vector2u screenSize, ObjectType type, float timeToLive);
 	void			Update(float dt);
 
+	virtual void	CollisionEnter(GameObject*& objectCollided) override;
 	virtual void	Die();
 
 	bool			getAlive() const;

@@ -39,6 +39,23 @@ void Projectile::Update(float dt)
 	}
 }
 
+void Projectile::CollisionEnter(GameObject*& objectCollided)
+{
+	if (_type == ObjectType::Projetile_PlayerLazer)
+	{
+		if (objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
+		{
+			Die();
+		}
+	}
+	else
+	{
+		if (objectCollided->getType() == ObjectType::Player)
+		{
+			Die();
+		}
+	}
+}
 
 void Projectile::Die()
 {

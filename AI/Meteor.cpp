@@ -1,6 +1,8 @@
 #include "Meteor.h"
 #include "ConstHolder.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
 
 Meteor::Meteor()
 {
@@ -38,6 +40,18 @@ void Meteor::Restart()
 	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
 
 	_isAlive = true;
+}
+
+void Meteor::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer || 
+		objectCollided->getType() == ObjectType::Player ||
+		objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
+	{
+		Die();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::Death);
+	}
 }
 
 void Meteor::Die()

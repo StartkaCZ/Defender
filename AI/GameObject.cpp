@@ -4,6 +4,7 @@
 
 GameObject::GameObject()
 	: _region(-1)
+	, _insideRegion(false)
 {
 }
 
@@ -60,6 +61,11 @@ int GameObject::RegionCheck(int position)
 	}
 }
 
+void GameObject::CollisionEnter(GameObject*& objectCollided)
+{
+
+}
+
 void GameObject::TeleportRight(sf::Vector2f rightEdge)
 {
 	_region = SCREEN_TIME_SIZE - 1;
@@ -74,6 +80,11 @@ void GameObject::TeleportLeft(sf::Vector2f leftEdge)
 void GameObject::TeleportByAmount(sf::Vector2f amount)
 {
 	move(amount);
+}
+
+void GameObject::InsideRegion(bool inside)
+{
+	_insideRegion = inside;
 }
 
 sf::Vector2f GameObject::getPosition() const
@@ -93,4 +104,9 @@ ObjectType GameObject::getType() const
 int GameObject::getRegion() const
 {
 	return _region;
+}
+
+bool GameObject::isInsideRegion() const
+{
+	return _insideRegion;
 }

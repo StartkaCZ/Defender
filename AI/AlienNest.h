@@ -14,6 +14,7 @@ public:
 	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
 	void					Update(float dt, sf::Vector2f playerPosition);
 
+	virtual void			CollisionEnter(GameObject*& objectCollided) override;
 	void					TakenDamage();
 	void					Die();
 

@@ -35,11 +35,14 @@ public:
 	void					TeleportLeft(sf::Vector2f leftEdge);
 
 	void					TeleportByAmount(sf::Vector2f amount);
+	void					InsideRegion(bool inside);
+	virtual void			CollisionEnter(GameObject*& objectCollided);
 
 	sf::Vector2f			getPosition() const;
 	sf::Vector2f			getSize() const;
 	ObjectType				getType() const;
 	int						getRegion() const;
+	bool					isInsideRegion() const;
 
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);
@@ -53,5 +56,6 @@ protected:
 	ObjectType				_type;
 	
 	int						_region;
+	bool					_insideRegion;
 };
 

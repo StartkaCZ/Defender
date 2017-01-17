@@ -13,6 +13,7 @@ public:
 
 	void			Restart();
 
+	virtual void	CollisionEnter(GameObject*& objectCollided) override;
 	void			Die();
 
 	bool			getAlive() const;

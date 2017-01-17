@@ -2,6 +2,9 @@
 #include "Vector2Calculator.h"
 #include "ConstHolder.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
 #include <iostream>
 
 AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture)
@@ -19,6 +22,7 @@ AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abduct
 	, _angle(0)
 	, _keepGoingTimes(0)
 	, _wonderTimer(0)
+	, _rocketsAlive(0)
 {
 }
 
@@ -270,7 +274,7 @@ void AlienNest::WonderTimer(float dt)
 
 void AlienNest::Shoot(sf::Vector2f playerPosition)
 {
-	if (_canFire)
+	if (_canFire && _rocketsAlive < 2)
 	{
 		Interceptor* intercepor = new Interceptor(_rocketsAlive);
 
@@ -283,6 +287,8 @@ void AlienNest::Shoot(sf::Vector2f playerPosition)
 
 		_interceptors.push_back(intercepor);
 		_canFire = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
 	}
 }
 void AlienNest::SpawnAbductor()
@@ -319,6 +325,21 @@ void AlienNest::CheckBorder()
 	}
 }
 
+void AlienNest::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
+	{
+		TakenDamage();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleSystemManager::ParticleType::PlayerLazer);
+	}
+	else if (objectCollided->getType() == ObjectType::Obstacle_Meteor)
+	{
+		Die();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::Death);
+	}
+}
 void AlienNest::TakenDamage()
 {
 	_lifes--;

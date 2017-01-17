@@ -5,6 +5,7 @@
 Interceptor::Interceptor(int& parentRocketCounter)
 	: _parentRocketCounter(parentRocketCounter)
 {
+	parentRocketCounter++;
 }
 
 Interceptor::~Interceptor()
@@ -46,6 +47,13 @@ void Interceptor::CalculateVelocity(sf::Vector2f playerPosition)
 	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
 }
 
+void Interceptor::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Player)
+	{
+		Die();
+	}
+}
 void Interceptor::Die()
 {
 	Projectile::Die();

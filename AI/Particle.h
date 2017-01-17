@@ -1,12 +1,9 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include "ResourceHolder.h"
-#include "ResourceIdentifiers.h"
-
 #include <SFML/Graphics.hpp>
 
-class Particle : public sf::Drawable
+class Particle : public sf::Drawable, protected sf::NonCopyable
 {
 public:
 						Particle(float timer, sf::Vector2f dir, float speed, sf::Vector2f position, sf::Texture& texture);

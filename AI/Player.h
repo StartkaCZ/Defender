@@ -16,6 +16,7 @@ public:
 	void					NukingOver();
 
 	void					CollectedPowerUp(ObjectType powerUp);
+	virtual void			CollisionEnter(GameObject*& objectCollided) override;
 	void					TakenDamage();
 
 	bool					hasNuked();

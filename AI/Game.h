@@ -20,6 +20,14 @@
 
 class Game : private sf::NonCopyable
 {
+private:
+	enum class State
+	{
+		Menu,
+		Game,
+		GameOver,
+	};
+
 public:
 								Game();
 	void						run();
@@ -35,6 +43,10 @@ private:
 	void						handleInput();
 
 private:
+	void						UpdateMenu(sf::Time elapsedTime);
+	void						UpdateGame(sf::Time elapsedTime);
+	void						UpdateGameOver(sf::Time elapsedTime);
+
 	void						UpdatePlayer(sf::Time elapsedTime);
 	void						UpdateProjectiles(sf::Time elapsedTime);
 	void						UpdateInterceptors(sf::Time elapsedTime);
@@ -53,6 +65,10 @@ private:
 
 	void						NukeReleased();
 
+	void						DrawMenu();
+	void						DrawGame();
+	void						DrawGameOver();
+
 	void						DrawProjectiles();
 	void						DrawInterceptors();
 	void						DrawMeteors();
@@ -65,6 +81,8 @@ private:
 	void						DrawRadar();
 	void						DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour);
 	void						DrawCameraRectangle();
+
+	void						Destroy();
 
 private:
 	sf::RenderWindow			_window;
@@ -88,6 +106,8 @@ private:
 	std::vector<Region*>		_regions;
 
 	int							_score;
+
+	State						_state;
 
 	const sf::Time				TIME_PER_FRAME = sf::seconds(1.f / 60.f);
 };

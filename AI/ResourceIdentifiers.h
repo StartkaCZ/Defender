@@ -21,6 +21,8 @@ namespace Textures
 		Mutant,
 		Obstacle_Meteor,
 		PowerUp_SuperJump,
+		PowerUp_Shield,
+		PowerUp_RapidFire,
 		Projectile_PlayerLazer,
 		Projectile_Interceptor,
 
@@ -28,11 +30,14 @@ namespace Textures
 		Background,
 		Foreground,
 
+		//HUD
+		HUD,
+
 		//Particles
-		PlayerLazer,
-		EnemyLazer,
-		Death,
-		PowerUp,
+		Particle_PlayerLazer,
+		Particle_EnemyLazer,
+		Particle_Death,
+		Particle_PowerUp,
 	};
 }
 

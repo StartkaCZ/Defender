@@ -26,6 +26,16 @@ void Region::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(_foregroundTexture, states);
 }
 
+void Region::Draw(sf::RenderWindow& renderWindow)
+{
+	renderWindow.draw(*this);
+
+	for (int i = 0; i < _gameObjectsWithin.size(); i++)
+	{
+		renderWindow.draw(*_gameObjectsWithin[i]);
+	}
+}
+
 ///<summary>
 ///Returns 1 if the position is ahead of the region.
 ///Returns 0 if the position is contained within the region.
@@ -54,11 +64,12 @@ void Region::AddGameObject(GameObject*& gameObject)
 
 void Region::RemoveGameObject(GameObject*& gameObject)
 {
-	std::vector<GameObject*>::iterator it = std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject);
-
-	if (it != _gameObjectsWithin.end())
+	for (int i = 0; i < _gameObjectsWithin.size(); i++)
 	{
-		_gameObjectsWithin.erase(std::find(_gameObjectsWithin.begin(), _gameObjectsWithin.end(), gameObject));
+		if (_gameObjectsWithin[i] == gameObject)
+		{
+			_gameObjectsWithin.erase(_gameObjectsWithin.begin() + i);
+		}
 	}
 }
 
@@ -84,6 +95,10 @@ bool Region::Teleport(float xPosition)
 	}
 }
 
+std::vector<GameObject*>& Region::getGameObjects()
+{
+	return _gameObjectsWithin;
+}
 
 sf::Vector2f Region::getPosition() const
 {

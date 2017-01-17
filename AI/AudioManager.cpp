@@ -7,6 +7,7 @@ AudioManager::AudioManager()
 	, _canPlayMusic(true)
 	, _canPlaySounds(true)
 {
+	
 }
 
 
@@ -37,8 +38,8 @@ void AudioManager::LoadContent()
 	_superJumpSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
 	_shotFiredSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
 
-	_gameMusic.openFromFile("Media/Audio/Yay.mp3");
-	_menuMusic.openFromFile("Media/Audio/Yay.mp3");
+	_gameMusic.openFromFile("Media/Audio/Yay.ogg");
+	_menuMusic.openFromFile("Media/Audio/Yay.ogg");
 }
 
 void AudioManager::Update(float dt)
