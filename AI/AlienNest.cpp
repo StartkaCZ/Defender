@@ -3,11 +3,13 @@
 #include "ConstHolder.h"
 
 
-AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture)
+AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, std::vector<Bullet*>& abductorBullets, sf::Texture &interceptorTexture, sf::Texture &abductorTexture, sf::Texture &abductorBulletTexture)
 	: _interceptorTexture(interceptorTexture)
 	, _abductorTexture(abductorTexture)
 	, _interceptors(interceptors)
 	, _abductors(abductors)
+	, _abductorbullets(abductorBullets)
+	,_abductorBulletTexture(abductorBulletTexture)
 	, _lifes(NEST_MAX_HEALTH)
 	, _isAlive(false)
 	, _canFire(true)
@@ -140,7 +142,7 @@ void AlienNest::SpawnAbductor()
 {
 	if (_abductors.size() < NEST_MAX_ABDUCTORS_SPAWN_COUNT)
 	{
-		Abductor* abductor = new Abductor();
+		Abductor* abductor = new Abductor(_abductorbullets, _abductorBulletTexture);
 
 		abductor->initialize(getPosition(), _abductorTexture, sf::FloatRect(0, 0, _screenSize.x, _screenSize.y));
 

@@ -12,10 +12,12 @@ Game::Game()
 	, _player(nullptr)
 	, _projectiles(std::vector<Projectile*>())
 	, _interceptors(std::vector<Interceptor*>())
+	, _bullets(std::vector<Bullet*>())
 	, _meteors(std::vector<Meteor*>())
 	, _powerUps(std::vector<PowerUp*>())
 	, _nests(std::vector<AlienNest*>())
 	, _abductors(std::vector<Abductor*>())
+	, _mutants(std::vector<Mutant*>())
 	, _regions(std::vector<Region*>())
 	, _statisticsText()
 	, _statisticsUpdateTime()
@@ -23,6 +25,27 @@ Game::Game()
 	, _score(0)
 {
 	loadContent();
+
+
+	while (_mutants.size() < 3)
+	{
+
+		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
+
+		float x = (rand() % (int)_worldBounds.width - 60) + 30;
+		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 60) + 30;
+
+		mutant->initialize(sf::Vector2f(x,y), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
+
+		_mutants.push_back(mutant);
+	}
+	while (_astronauts.size() < 5)
+	{
+		Astronaut* astronaut = new Astronaut();
+		astronaut->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
+
+		_astronauts.push_back(astronaut);
+	}
 	/*
 	while (_meteors.size() < MAX_METEORS)
 	{
@@ -44,7 +67,7 @@ Game::Game()
 	*/
 	while (_nests.size() < 2)
 	{
-		AlienNest* nest = new AlienNest(_interceptors, _abductors, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor));
+		AlienNest* nest = new AlienNest(_interceptors, _abductors, _bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor), _textureHolder.get(Textures::ID::Projectile_Interceptor));
 
 		float x = (rand() % (int)_worldBounds.width - 60) + 30;
 		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 60) + 30;
@@ -70,6 +93,10 @@ Game::Game()
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10);
+
+
+	
+
 }
 
 void Game::loadContent()
@@ -137,7 +164,7 @@ void Game::processEvents()
 
 void Game::update(sf::Time elapsedTime)
 {
-	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests, _abductors,_astronauts);
 
 	_player->Update(elapsedTime.asSeconds());
 	if (_player->hasNuked())
@@ -150,11 +177,15 @@ void Game::update(sf::Time elapsedTime)
 
 	UpdateProjectiles(elapsedTime);
 	UpdateInterceptors(elapsedTime);
+	UpdateBullets(elapsedTime);
+
 	UpdateMeteors(elapsedTime);
 
 	UpdatePowerUps(elapsedTime);
 	UpdateAlienNests(elapsedTime);
 	UpdateAbductors(elapsedTime);
+	UpdateMutants(elapsedTime);
+	UpdateAstronauts(elapsedTime);
 
 	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldView.getCenter().y));
 }
@@ -193,6 +224,24 @@ void Game::UpdateInterceptors(sf::Time elapsedTime)
 		}
 	}
 }
+
+void Game::UpdateBullets(sf::Time elapsedTime)
+{
+	for (int i = 0; i < _bullets.size(); i++)
+	{
+		if (_bullets[i]->getAlive())
+		{
+			_bullets[i]->Update(elapsedTime.asSeconds());
+		}
+		else
+		{
+			delete _bullets[i];
+			_bullets.erase(_bullets.begin() + i);
+			i--;
+		}
+	}
+}
+
 void Game::UpdateMeteors(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _meteors.size(); i++)
@@ -243,19 +292,161 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _abductors.size(); i++)
 	{
-		/*if (_abductors[i]->getAlive())
+		if (_abductors[i]->getAlive())
 		{
-		_abductors[i]->Update(elapsedTime.asSeconds());
+			Abductor::State state = _abductors[i]->getState();
+			switch (state)
+			{
+				case Abductor::State::flock:
+				{
+					_abductors[i]->flock(_abductors, _player->getPosition());
+					for (int j = 0; j < _astronauts.size(); j++)
+					{
+						_abductors[i]->findAstronaut(_astronauts[j]);
+					}
+					break;
+				}
+				case Abductor::State::seek:
+				{
+					_abductors[i]->seek();
+					break;
+				}
+				default:
+				{
+					if (_abductors[i]->flee(_player->getPosition()))
+					{
+						_abductors[i]->getTarget()->Die();
+						_abductors[i]->Die();
+
+						Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
+
+
+						mutant->initialize(_abductors[i]->getPosition(), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
+
+						_mutants.push_back(mutant);
+					}
+					break;
+				}
+			}
+			_abductors[i]->update(elapsedTime.asSeconds(), _player->getPosition());
 		}
 		else
 		{
-		delete _abductors[i];
-		_abductors.erase(_abductors.begin() + i);
-		i--;
-		}*/
+			delete _abductors[i];
+			_abductors.erase(_abductors.begin() + i);
+			i--;
+		}
 	}
 }
+void Game::UpdateMutants(sf::Time elapsedTime)
+{
+	bool once = true;
+	int firstMutantInSwarm = -1;
+	bool allCanFire = true;
+	for (int i = 0; i < _mutants.size(); i++)
+	{
+		switch (_mutants[i]->getState())
+		{
+			case  Mutant::State::seek:
+			{
+				_mutants[i]->seek(_player->getPosition());
+				
+				break;
+			}
+			default:
+			{
+				if (once)
+				{
+					once = false;
+					firstMutantInSwarm = i;
+				}
+				_mutants[i]->swarm(_mutants, _player->getPosition());
+				if (!_mutants[i]->getCanFire())
+				{
+					allCanFire = false;
+				}
 
+				break;
+			}
+		}
+		_mutants[i]->update(elapsedTime.asSeconds());
+	}
+	if (allCanFire && firstMutantInSwarm != -1)
+	{
+		sf::Vector2f fireDirection = _mutants[firstMutantInSwarm]->getFireDirection(_player->getPosition());
+		for (int i = 0; i < _mutants.size(); i++)
+		{
+			_mutants[i]->Shoot(fireDirection);
+		}
+	}
+}
+void Game::UpdateAstronauts(sf::Time elapsedTime)
+{
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		if (_astronauts[i]->getAlive())
+		{
+			_astronauts[i]->update(elapsedTime.asSeconds());
+			
+			int closestAlien;
+			int closestDistance = 400;
+			bool abductorsNearby = false;
+			for (int j = 0; j < _abductors.size(); j++)
+			{
+				sf::Vector2f targetPos = sf::Vector2f(_abductors[j]->getPosition().x, _abductors[j]->getPosition().y);
+				int d = Vector2Calculator::Distance(targetPos, _astronauts[i]->getPosition());
+				if (d < 200)
+				{
+					abductorsNearby = true;
+					if (d < closestDistance)
+					{
+						closestDistance = d;
+						closestAlien = j;
+					}
+				}
+			}
+			if (!abductorsNearby)
+			{
+				if (_astronauts[i]->getIsRunning())
+				{
+					_astronauts[i]->setIsRunning(false);
+					_astronauts[i]->setSpeed(_astronauts[i]->getSpeed() / 3.0f);
+				}
+			}
+			else
+			{
+				if (!_astronauts[i]->getIsRunning())
+				{
+					_astronauts[i]->setIsRunning(true);
+					_astronauts[i]->setSpeed(_astronauts[i]->getSpeed() * 3.0f);
+					if (_astronauts[i]->getPosition().x > _abductors[closestAlien]->getPosition().x)
+					{
+						_astronauts[i]->setDirection(1);
+					}
+					else
+					{
+						_astronauts[i]->setDirection(-1);
+					}
+				}
+			}
+			
+		}
+		else
+		{
+			for (int j = 0; j < _abductors.size(); j++)
+			{
+				if (_abductors[j]->getTarget() == _astronauts[i])
+				{
+					_abductors[j]->setTarget(nullptr);
+					_abductors[j]->setState(Abductor::State::flock);
+				}
+			}
+			delete _astronauts[i];
+			_astronauts.erase(_astronauts.begin() + i);
+			i--;
+		}
+	}
+}
 #pragma endregion
 
 
@@ -279,14 +470,17 @@ void Game::render()
 	
 	DrawAlienNests();
 	DrawAbductors();
-
+	DrawMutants();
 	DrawPowerUps();
 
 	DrawProjectiles();
 	DrawInterceptors();
+	DrawBullet();
+
 
 	_window.draw(*_player);
-
+	DrawAstronauts();
+	flock.draw(_window);
 	_window.draw(_statisticsText);
 	_window.display();
 }
@@ -305,6 +499,13 @@ void Game::DrawInterceptors()
 	for (int i = 0; i < _interceptors.size(); i++)
 	{
 		_window.draw(*_interceptors[i]);
+	}
+}
+void Game::DrawBullet()
+{
+	for (int i = 0; i < _bullets.size(); i++)
+	{
+		_window.draw(*_bullets[i]);
 	}
 }
 void Game::DrawMeteors()
@@ -335,7 +536,20 @@ void Game::DrawAbductors()
 		_window.draw(*_abductors[i]);
 	}
 }
-
+void Game::DrawAstronauts()
+{
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		_window.draw(*_astronauts[i]);
+	}
+}
+void Game::DrawMutants()
+{
+	for (int i = 0; i < _mutants.size(); i++)
+	{
+		_window.draw(*_mutants[i]);
+	}
+}
 #pragma endregion
 
 

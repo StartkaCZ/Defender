@@ -141,7 +141,10 @@
     <ClCompile Include="Abductor.cpp" />
     <ClCompile Include="AlienNest.cpp" />
     <ClCompile Include="Astronaut.cpp" />
+    <ClCompile Include="Boid.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
+    <ClCompile Include="Flock.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Interceptor.cpp" />
@@ -151,6 +154,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="Pvector.cpp" />
     <ClCompile Include="Region.cpp" />
     <ClCompile Include="Vector2Calculator.cpp" />
   </ItemGroup>
@@ -158,8 +162,11 @@
     <ClInclude Include="Abductor.h" />
     <ClInclude Include="AlienNest.h" />
     <ClInclude Include="Astronaut.h" />
+    <ClInclude Include="Boid.h" />
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="ConstHolder.h" />
+    <ClInclude Include="Flock.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Interceptor.h" />
@@ -168,6 +175,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="Pvector.h" />
     <ClInclude Include="Region.h" />
     <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="ResourceIdentifiers.h" />

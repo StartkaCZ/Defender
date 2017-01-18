@@ -1,43 +1,78 @@
 #ifndef Abductor_H
 #define Abductor_H
 
+#include <vector>
+
 #include "GameObject.h"
+#include "Pvector.h"
+#include "SFML/Graphics.hpp"
+#include "Astronaut.h"
+#include "Bullet.h"
+#include "Mutant.h"
 
 class Abductor : public GameObject
 {
+private:
+	enum class State;
+	State					_state;
+	Astronaut*				_target;
+	sf::Texture&			_bulletTexture;
+	std::vector<Bullet*>&	_bullets;
+
+	sf::Vector2f			_targetPosOffset;
+
+	int						_lifes;
+
+	bool					_canFire;
+	float					_fireRateTimer;
+
+	bool					_isAlive;
+	sf::Vector2u			_screenSize;
+	bool					predator;
+	Pvector					location;
+	Pvector					velocity;
+	Pvector					acceleration;
+	float					maxSpeed;
+	float					maxForce;
+
+
+	void					FireRateTimer(float dt);
+	void					Shoot(sf::Vector2f direction);
+	void					applyForce(Pvector force);
+	Pvector					Separation(vector<Abductor*> Boids, sf::Vector2f playerPos);
+	Pvector					Alignment(vector<Abductor*> Boids);
+	Pvector					Cohesion(vector<Abductor*> Boids);
+
 public:
-							Abductor();
+	enum class State
+	{
+		flock,
+		seek,
+		flee,
+	};
+
+
+							Abductor(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture);
 							~Abductor();
 
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
-	void					update(float dt, sf::Vector2f playerPosition);
-
-private:
-	/*
-	void					flee(float dt);
-	void					seek(float dt);
-
-	void					arrival(float dt);
-
-	void					normalize(sf::Vector2f &vector);
+	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect);
+	Pvector					seek(Pvector v);
 	
-	float					lenght(const sf::Vector2f &a);
-	float					distance(sf::Vector2f a, sf::Vector2f b);
-	float					getNewOrientation(const sf::Vector2f &source);
-	*/
+	void					update(float dt, sf::Vector2f playerPosition);
+	void					flock(vector <Abductor*> v, sf::Vector2f playerPos);
+	void					findAstronaut(Astronaut* astro);
+	void					seek();
+	bool					flee(sf::Vector2f);
+	void					borders();
 
-
-private:
-	sf::Vector2f			_velocity;
-	sf::Vector2u			_screenSize;
-
-	sf::Vector2f			_targetPosition;
-
-	float					_speed;
-	float					_orientation;
-	float					_timeToTarget;
-
-	bool					_flee;
+	void					TakenDamage();
+	void					Die();
+	bool					getAlive();
+	Astronaut*				getTarget();
+	void					setTarget(Astronaut*);
+	State					getState();
+	void					setState(State state);
+	void					setTargetPosOffset(sf::Vector2f targetPosOffset);
 };
 
 #endif // Abductor_H

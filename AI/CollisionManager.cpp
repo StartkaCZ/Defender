@@ -22,16 +22,17 @@ CollisionManager::~CollisionManager()
 }
 
 
-void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptors, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
+void CollisionManager::CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts)
 {
-	CheckProjectileCollision(player, projectiles, meteors, nests);
-	CheckInterceptorCollision(player, interceptors, meteors);
+	CheckProjectileCollision(player, projectiles, meteors, nests, abductors, astronauts);
+	CheckInterceptorCollision(player, interceptor, meteors);
 
 	CheckMeteorCollision(player, meteors);
 	CheckPlayerToPowerUpsCollision(player, powerUps);
+	CheckAbductorCollision(player, abductors);
 }
 
-void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests)
+void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts)
 {
 	for (int i = 0; i < projectiles.size(); i++)
 	{
@@ -43,6 +44,25 @@ void CollisionManager::CheckProjectileCollision(Player*& player, std::vector<Pro
 				{
 					nests[j]->TakenDamage();
 					projectiles[i]->Die();
+					break;
+				}
+			}
+			for (int j = 0; j < abductors.size(); j++)
+			{
+				if (Collided(abductors[j]->getPosition(), abductors[j]->getSize(), projectiles[i]->getPosition(), projectiles[i]->getSize()))
+				{
+					abductors[j]->TakenDamage();
+					projectiles[i]->Die();
+					break;
+				}
+			}
+			for (int j = 0; j < astronauts.size(); j++)
+			{
+				if (Collided(astronauts[j]->getPosition(), astronauts[j]->getSize(), projectiles[i]->getPosition(), projectiles[i]->getSize()))
+				{
+					astronauts[j]->TakenDamage();
+					projectiles[i]->Die();
+					break;
 				}
 			}
 		}
@@ -118,6 +138,42 @@ void CollisionManager::CheckPlayerToPowerUpsCollision(Player*& player, std::vect
 		{
 			player->CollectedPowerUp(powerUps[i]->getType());
 			powerUps[i]->Die();
+		}
+	}
+}
+
+void CollisionManager::CheckAbductorCollision(Player*& player, std::vector<Abductor*>& abductors)
+{
+	for (int i = 0; i < abductors.size(); i++)
+	{
+		if (abductors[i]->getState() == Abductor::State::seek)
+		{
+			Astronaut* astro = abductors[i]->getTarget();
+			if (astro != nullptr)
+			{
+				
+				sf::Vector2f modiflyPos = abductors[i]->getPosition();
+				sf::Vector2f modiflySize = abductors[i]->getSize() - sf::Vector2f(26,10);
+				if (modiflyPos.y + abductors[i]->getSize().y < astro->getPosition().y )
+				{
+					if (Collided(modiflyPos, modiflySize, astro->getPosition(), astro->getSize()))
+					{
+						
+						sf::Vector2f astroPosOffset = astro->getPosition() - abductors[i]->getPosition();
+						abductors[i]->setState(Abductor::State::flee);
+						abductors[i]->setTargetPosOffset(astroPosOffset);
+
+						astro->setState(Astronaut::State::capture);
+					}
+				}
+			}
+		}
+		if (Collided(player->getPosition(), player->getSize(), abductors[i]->getPosition(), abductors[i]->getSize()))
+		{
+			player->TakenDamage();
+			//delete
+			abductors[i]->Die();
+			
 		}
 	}
 }
