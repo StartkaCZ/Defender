@@ -25,7 +25,21 @@ Game::Game()
 	, _score(0)
 {
 	loadContent();
-	while (_astronauts.size() < 5)
+
+
+	while (_mutants.size() < 5)
+	{
+
+		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
+
+		float x = (rand() % (int)_worldBounds.width - 60) + 30;
+		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 60) + 30;
+
+		mutant->initialize(sf::Vector2f(x,y), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
+
+		_mutants.push_back(mutant);
+	}
+	while (_astronauts.size() < 10)
 	{
 		Astronaut* astronaut = new Astronaut();
 		astronaut->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
@@ -288,8 +302,7 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 					_abductors[i]->flock(_abductors, _player->getPosition());
 					for (int j = 0; j < _astronauts.size(); j++)
 					{
-						if (_abductors[i]->findAstronaut(_astronauts[j]))
-							break;
+						_abductors[i]->findAstronaut(_astronauts[j]);
 					}
 					break;
 				}
@@ -300,7 +313,7 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 				}
 				default:
 				{
-					if (_abductors[i]->flee())
+					if (_abductors[i]->flee(_player->getPosition()))
 					{
 						_abductors[i]->getTarget()->Die();
 						_abductors[i]->Die();
@@ -308,7 +321,7 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 						Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
 
 
-						mutant->Initialize(_abductors[i]->getPosition(), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
+						mutant->initialize(_abductors[i]->getPosition(), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
 
 						_mutants.push_back(mutant);
 					}
@@ -323,30 +336,15 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 			_abductors.erase(_abductors.begin() + i);
 			i--;
 		}
-
-		/*
-		for (int j = 0; j < _astronauts.size(); j++)
-		{
-			_abductors[i]->run(elapsedTime.asSeconds(), _player->getPosition(),_abductors,_astronauts[j]);
-		}*/
-		//if (|_abductors[i]->getAlive())
-		//{
-		//_abductors[i]->Update(elapsedTime.asSeconds());
-		//}
-		//else
-		//{
-		//delete _abductors[i];
-		//_abductors.erase(_abductors.begin() + i);
-		//i--;
-		//}
 	}
 }
 void Game::UpdateMutants(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _mutants.size(); i++)
 	{
+		_mutants[i]->swarm(_mutants);
+		//_mutants[i]->swarm(_mutants);
 		_mutants[i]->update(elapsedTime.asSeconds(), _player->getPosition());
-		_mutants[i]->flock(_mutants);
 	}
 }
 void Game::UpdateAstronauts(sf::Time elapsedTime)
@@ -356,6 +354,49 @@ void Game::UpdateAstronauts(sf::Time elapsedTime)
 		if (_astronauts[i]->getAlive())
 		{
 			_astronauts[i]->update(elapsedTime.asSeconds());
+			
+			int closestAlien;
+			int closestDistance = 400;
+			bool abductorsNearby = false;
+			for (int j = 0; j < _abductors.size(); j++)
+			{
+				sf::Vector2f targetPos = sf::Vector2f(_abductors[j]->getPosition().x, _abductors[j]->getPosition().y);
+				int d = Vector2Calculator::Distance(targetPos, _astronauts[i]->getPosition());
+				if (d < 200)
+				{
+					abductorsNearby = true;
+					if (d < closestDistance)
+					{
+						closestDistance = d;
+						closestAlien = j;
+					}
+				}
+			}
+			if (!abductorsNearby)
+			{
+				if (_astronauts[i]->getIsRunning())
+				{
+					_astronauts[i]->setIsRunning(false);
+					_astronauts[i]->setSpeed(_astronauts[i]->getSpeed() / 3.0f);
+				}
+			}
+			else
+			{
+				if (!_astronauts[i]->getIsRunning())
+				{
+					_astronauts[i]->setIsRunning(true);
+					_astronauts[i]->setSpeed(_astronauts[i]->getSpeed() * 3.0f);
+					if (_astronauts[i]->getPosition().x > _abductors[closestAlien]->getPosition().x)
+					{
+						_astronauts[i]->setDirection(1);
+					}
+					else
+					{
+						_astronauts[i]->setDirection(-1);
+					}
+				}
+			}
+			
 		}
 		else
 		{

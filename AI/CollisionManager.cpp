@@ -134,12 +134,12 @@ void CollisionManager::CheckAbductorCollision(Player*& player, std::vector<Abduc
 			{
 				
 				sf::Vector2f modiflyPos = abductors[i]->getPosition();
-				sf::Vector2f modiflySize = abductors[i]->getSize() - sf::Vector2f(26,22);
-				if (modiflyPos.y + 32< astro->getPosition().y )
+				sf::Vector2f modiflySize = abductors[i]->getSize() - sf::Vector2f(26,10);
+				if (modiflyPos.y + abductors[i]->getSize().y < astro->getPosition().y )
 				{
 					if (Collided(modiflyPos, modiflySize, astro->getPosition(), astro->getSize()))
 					{
-
+						
 						sf::Vector2f astroPosOffset = astro->getPosition() - abductors[i]->getPosition();
 						abductors[i]->setState(Abductor::State::flee);
 						abductors[i]->setTargetPosOffset(astroPosOffset);
@@ -153,7 +153,7 @@ void CollisionManager::CheckAbductorCollision(Player*& player, std::vector<Abduc
 		{
 			player->TakenDamage();
 			//delete
-			abductors[i]->Die();
+			//abductors[i]->Die();
 			
 		}
 	}

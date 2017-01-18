@@ -1,15 +1,18 @@
 #include "Abductor.h"
 #include "ConstHolder.h"
-#include "Bullet.h"
-/*
-Abductor::Abductor()
+#include <math.h>
+
+#define PI 3.141592635
+
+Abductor::Abductor(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
+	: _target(nullptr), _state(State::flock), _bullets(bullets), _bulletTexture(bulletTexture), _lifes(1), _isAlive(true), _canFire(true)
 {
 }
 
-
 Abductor::~Abductor()
 {
-}*/
+	delete _target;
+}
 
 void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
@@ -17,21 +20,14 @@ void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::Float
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 	acceleration = Pvector(0, 0);
-	velocity = Pvector(rand() % 3 - 2,0); // Allows for range of -2 -> 2
+	velocity = Pvector(rand() % 6 - 2,0); // Allows for range of -2 -> 2
 	maxSpeed = 5;
-	maxForce = 0.5;
+	maxForce = 0.5f;
 	location =  Pvector(position.x, position.y);
 }
 
 
 
-#define PI 3.141592635
-
-using namespace std;
-
-// =============================================== //
-// ======== Boid Functions from Boid.h =========== //
-// =============================================== //
 
 // Adds force Pvector to current force Pvector
 void Abductor::applyForce(Pvector force)
@@ -68,32 +64,12 @@ Pvector Abductor::Separation(vector<Abductor*> boids, sf::Vector2f playerPos)
 				steer.addVector(diff);
 				count++;
 			}
-			// If current boid is a predator and the boid we're looking at is also
-			// a predator, then separate only slightly 
-			if ((d > 0) && (d < desiredseparation) && predator == true && boids[i]->predator == true)
-			{
-				Pvector pred2pred(0, 0);
-				pred2pred = pred2pred.subTwoVector(location, boids[i]->location);
-				pred2pred.normalize();
-				pred2pred.divScalar(d);
-				steer.addVector(pred2pred);
-				count++;
-			}
-			// If current boid is not a predator, but the boid we're looking at is
-			// a predator, then create a large separation Pvector
-			else if ((d > 0) && (d < desiredseparation + 70) && boids[i]->predator == true)
-			{
-				Pvector pred(0, 0);
-				pred = pred.subTwoVector(location, boids[i]->location);
-				pred.mulScalar(900);
-				steer.addVector(pred);
-				count++;
-			}
 		}
 	}
+	
 	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
 	float d = location.distance(playerPosition);
-	if ((d > 0) && (d < desiredseparation + 100))
+	if ((d > 0) && (d < desiredseparation + 120))
 	{
 		Pvector pred(0, 0);
 		pred = pred.subTwoVector(location, playerPosition);
@@ -120,10 +96,6 @@ Pvector Abductor::Separation(vector<Abductor*> boids, sf::Vector2f playerPos)
 // of nearby boids.
 Pvector Abductor::Alignment(vector<Abductor*> Boids)
 {
-	// If the boid we're looking at is a predator, do not run the alignment
-	// algorithm
-	//if (predator == true)
-	//	return Pvector(0,0);
 	float neighbordist = 90;
 
 	Pvector sum(0, 0);
@@ -162,11 +134,6 @@ Pvector Abductor::Alignment(vector<Abductor*> Boids)
 // steering force to move in that direction.
 Pvector Abductor::Cohesion(vector<Abductor*> Boids)
 {
-	// If the boid we're looking at is a predator, do not run the cohesion
-	// algorithm
-	//if (predator == true)
-	//	return Pvector(0,0);
-
 	float neighbordist = 90;
 
 	Pvector sum(0, 0);
@@ -203,7 +170,6 @@ Pvector Abductor::seek(Pvector v)
 						   // Normalize desired and scale to maximum speed
 	desired.normalize();
 	desired.mulScalar(maxSpeed);
-	// Steering = Desired minus Velocity
 	acceleration.subTwoVector(desired, velocity);
 	acceleration.limit(maxForce);  // Limit to maximum steering force
 	return acceleration;
@@ -220,7 +186,7 @@ void Abductor::update(float dt, sf::Vector2f playerPos)
 	//To make the slow down not as abrupt
 	acceleration.mulScalar(.25f);
 	// Update velocity
-	velocity.addVector(acceleration);
+	velocity.addVector(acceleration  * dt);
 	// Limit speed
 	velocity.limit(maxSpeed);
 	location.addVector(velocity);
@@ -272,10 +238,26 @@ void Abductor::flock(vector<Abductor*> v,  sf::Vector2f playerPos)
 	Pvector sep = Separation(v, playerPos);
 	Pvector ali = Alignment(v);
 	Pvector coh = Cohesion(v);
+
+	if (location.y > GROUND_LEVEL)
+	{
+		Pvector force(0,0);
+		force.y = location.y - GROUND_LEVEL;
+
+		sep.addVector(Pvector(0, -force.y * 0.18f));
+	}
+	else if (location.y < 0)
+	{
+		Pvector force(0, 0);
+		force.y = location.y - 0;
+
+		sep.addVector(Pvector(0, -force.y * 0.18f));
+	}
+
 	// Arbitrarily weight these forces
-	sep.mulScalar(1.5);
-	ali.mulScalar(1.0); // Might need to alter weights for different characteristics
-	coh.mulScalar(1.0);
+	sep.mulScalar(52.5);
+	ali.mulScalar(35.0 ); // Might need to alter weights for different characteristics
+	coh.mulScalar(35.0);
 	// Add the force vectors to acceleration
 	applyForce(sep);
 	applyForce(ali);
@@ -283,25 +265,26 @@ void Abductor::flock(vector<Abductor*> v,  sf::Vector2f playerPos)
 	
 	
 }
-bool Abductor::findAstronaut(Astronaut* astro)
+void Abductor::findAstronaut(Astronaut* astro)
 {
 	//check distance of abductor and astro
 	Pvector targetPos = Pvector(astro->getPosition().x, astro->getPosition().y);
 	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
 	Pvector ab = targetPos - currentPos;
-	if (_target == nullptr)
+	if (ab.magnitude() < 200) 
 	{
-		if (!astro->getIsTarget())
+		
+		if (_target == nullptr)
 		{
-			if (ab.magnitude() < 200) {
+			if (!astro->getIsTarget())
+			{
 				astro->setIsTarget(true);
 				_state = State::seek;
 				_target = astro;
-				return true;
 			}
 		}
+	
 	}
-	return false;
 }
 
 void Abductor::seek()
@@ -314,10 +297,31 @@ void Abductor::seek()
 	
 }
 
-bool Abductor::flee()
+bool Abductor::flee(sf::Vector2f playerPos)
 {
-	velocity.x = 0;
-	velocity.y = -1;
+	Pvector steer(0,0);
+	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
+	float d = location.distance(playerPosition);
+	if ((d > 0) && (d <170))
+	{
+		Pvector pred(0, 0);
+		pred = pred.subTwoVector(location, playerPosition);
+		pred.mulScalar(1000);
+		steer.addVector(pred);
+	}
+
+
+	steer.normalize();
+	steer.mulScalar(maxSpeed);
+	steer.y =  -1.5f ;
+	steer.subVector(velocity);
+	steer.limit(maxForce);
+	
+
+	steer.mulScalar(65.5);
+	
+	applyForce(steer);
+
 	_target->setPosition(getPosition().x + _targetPosOffset.x, getPosition().y + _targetPosOffset.y);
 	if (getPosition().y + getSize().y * 2 + _target->getSize().y * 2 < 0)
 	{
@@ -330,82 +334,53 @@ bool Abductor::flee()
 void Abductor::borders()
 {
 	if (location.x < 0) location.x += _screenSize.x;
-	if (location.y < -200) location.y += _screenSize.y + 200;
+	//if (location.y < -200) location.y += _screenSize.y + 200;
 	if (location.x > 2400) location.x -= _screenSize.x;
-	if (location.y > 600) 
-		location.y -= _screenSize.y;
+	
 }
 
-// Calculates the angle for the velocity of a boid which allows the visual 
-// image to rotate in the direction that it is going in.
-float Abductor::angle(Pvector v)
+void Abductor::TakenDamage()
 {
-	// From the definition of the dot product
-	float angle = (float)(atan2(v.x, -v.y) * 180 / PI);
-	return angle;
+	_lifes--;
+
+	if (_lifes == 0)
+	{
+		Die();
+	}
 }
 
-void Abductor::swarm(vector <Abductor*>v)
+void Abductor::Die()
 {
-	/*		Lenard-Jones Potential function
-	Vector R = me.position - you.position
-	Real D = R.magnitude()
-	Real U = -A / pow(D, N) + B / pow(D, M)
-	R.normalise()
-	force = force + R*U
-	*/
-	Pvector	R;
-	Pvector sum(0, 0);
+	_isAlive = false;
+	if (_target != nullptr)
+	{
+		_target->setIsTarget(false);
 
-	// Your code here..
-
-	applyForce(sum);
-	//update();
-	borders();
+		if (_target->getState() == Astronaut::State::capture)
+		{
+			_target->setState(Astronaut::State::fall);
+		}
+		_target = nullptr;
+	}
 }
 
-
-
-/*
-void Abductor::flee(float dt)
+bool Abductor::getAlive()
 {
-_velocity = getPosition() - _targetPosition;
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
+	return _isAlive;
 }
-void Abductor::seek(float dt)
+
+Astronaut* Abductor::getTarget() {
+	return _target;
+}
+
+Abductor::State Abductor::getState() {
+	return _state;
+}
+void Abductor::setState(Abductor::State state) {
+	_state = state;
+}
+
+void Abductor::setTargetPosOffset(sf::Vector2f targetPosOffset)
 {
-_velocity = _targetPosition - getPosition();
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
+	_targetPosOffset = targetPosOffset;
 }
-
-void Abductor::arrival(float dt)
-{
-_velocity = _targetPosition - getPosition();
-float velocityLenght = lenght(_velocity);
-
-if (velocityLenght > 0)
-{
-float speed = _speed / _timeToTarget;
-
-if (speed > _speed)
-speed = _speed;
-
-normalize(_velocity);
-
-move(_velocity * speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
-}
-}
-*/
-
-// This file defines the boid class. This includes the attributes found in
-// boids -- speed, location on the board, acceleration, etc.

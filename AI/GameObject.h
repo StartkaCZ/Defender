@@ -31,6 +31,8 @@ public:
 	sf::Vector2f			getSize() const;
 	ObjectType				getType() const;
 
+	void setSize(sf::Vector2f size);
+
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);
 

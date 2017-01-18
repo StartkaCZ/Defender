@@ -1,37 +1,33 @@
 #include "Mutant.h"
 #include "ConstHolder.h"
-#include "Bullet.h"
-/*
-Abductor::Abductor()
+#include <math.h>
+
+#define PI 3.141592635
+
+Mutant::Mutant(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
+	: _target(nullptr), _state(State::flock), _bullets(bullets), _bulletTexture(bulletTexture), _lifes(1), _isAlive(true), _canFire(true)
 {
 }
 
-
-Abductor::~Abductor()
+Mutant::~Mutant()
 {
-}*/
+	delete _target;
+}
 
-void Mutant::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
+void Mutant::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Abductor);
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 	acceleration = Pvector(0, 0);
-	velocity = Pvector(rand() % 3 - 2, 1); // Allows for range of -2 -> 2
-	maxSpeed = 10;
-	maxForce = 0.5;
+	velocity = Pvector(rand() % 6 - 2, 0); // Allows for range of -2 -> 2
+	maxSpeed = 5;
+	maxForce = 0.5f;
 	location = Pvector(position.x, position.y);
 }
 
 
 
-#define PI 3.141592635
-
-using namespace std;
-
-// =============================================== //
-// ======== Boid Functions from Boid.h =========== //
-// =============================================== //
 
 // Adds force Pvector to current force Pvector
 void Mutant::applyForce(Pvector force)
@@ -41,13 +37,13 @@ void Mutant::applyForce(Pvector force)
 
 // Function that checks and modifies the distance
 // of a boid if it breaks the law of separation.
-Pvector Mutant::Separation(vector<Mutant*> &boids)
+Pvector Mutant::Separation(vector<Mutant*> boids, sf::Vector2f playerPos)
 {
 	// If the boid we're looking at is a predator, do not run the separation
 	// algorithm
 
 	// Distance of field of vision for separation between boids
-	float desiredseparation = 20;
+	float desiredseparation = 50;
 
 	Pvector steer(0, 0);
 	int count = 0;
@@ -68,28 +64,18 @@ Pvector Mutant::Separation(vector<Mutant*> &boids)
 				steer.addVector(diff);
 				count++;
 			}
-			// If current boid is a predator and the boid we're looking at is also
-			// a predator, then separate only slightly 
-			if ((d > 0) && (d < desiredseparation) && predator == true && boids[i]->predator == true)
-			{
-				Pvector pred2pred(0, 0);
-				pred2pred = pred2pred.subTwoVector(location, boids[i]->location);
-				pred2pred.normalize();
-				pred2pred.divScalar(d);
-				steer.addVector(pred2pred);
-				count++;
-			}
-			// If current boid is not a predator, but the boid we're looking at is
-			// a predator, then create a large separation Pvector
-			else if ((d > 0) && (d < desiredseparation + 70) && boids[i]->predator == true)
-			{
-				Pvector pred(0, 0);
-				pred = pred.subTwoVector(location, boids[i]->location);
-				pred.mulScalar(900);
-				steer.addVector(pred);
-				count++;
-			}
 		}
+	}
+
+	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
+	float d = location.distance(playerPosition);
+	if ((d > 0) && (d < desiredseparation + 120))
+	{
+		Pvector pred(0, 0);
+		pred = pred.subTwoVector(location, playerPosition);
+		pred.mulScalar(1000);
+		steer.addVector(pred);
+		count++;
 	}
 	// Adds average difference of location to acceleration
 	if (count > 0)
@@ -108,13 +94,9 @@ Pvector Mutant::Separation(vector<Mutant*> &boids)
 // Alignment calculates the average velocity in the field of view and 
 // manipulates the velocity of the Boid passed as parameter to adjust to that
 // of nearby boids.
-Pvector Mutant::Alignment(vector<Mutant*> &Boids)
+Pvector Mutant::Alignment(vector<Mutant*> Boids)
 {
-	// If the boid we're looking at is a predator, do not run the alignment
-	// algorithm
-	//if (predator == true)
-	//	return Pvector(0,0);
-	float neighbordist = 50;
+	float neighbordist = 90;
 
 	Pvector sum(0, 0);
 	int count = 0;
@@ -150,14 +132,9 @@ Pvector Mutant::Alignment(vector<Mutant*> &Boids)
 
 // Cohesion finds the average location of nearby boids and manipulates the 
 // steering force to move in that direction.
-Pvector Mutant::Cohesion(vector<Mutant*> &Boids)
+Pvector Mutant::Cohesion(vector<Mutant*> Boids)
 {
-	// If the boid we're looking at is a predator, do not run the cohesion
-	// algorithm
-	//if (predator == true)
-	//	return Pvector(0,0);
-
-	float neighbordist = 50;
+	float neighbordist = 90;
 
 	Pvector sum(0, 0);
 	int count = 0;
@@ -193,7 +170,6 @@ Pvector Mutant::seek(Pvector v)
 						   // Normalize desired and scale to maximum speed
 	desired.normalize();
 	desired.mulScalar(maxSpeed);
-	// Steering = Desired minus Velocity
 	acceleration.subTwoVector(desired, velocity);
 	acceleration.limit(maxForce);  // Limit to maximum steering force
 	return acceleration;
@@ -203,16 +179,14 @@ Pvector Mutant::seek(Pvector v)
 //are given by the three laws.
 void Mutant::update(float dt, sf::Vector2f playerPos)
 {
-	
-	
 	FireRateTimer(dt);
-	Shoot(playerPos);
+	//Shoot(playerPos);
 	borders();
 
 	//To make the slow down not as abrupt
-	acceleration.mulScalar(.4);
+	acceleration.mulScalar(.25f);
 	// Update velocity
-	velocity.addVector(acceleration);
+	velocity.addVector(acceleration  * dt);
 	// Limit speed
 	velocity.limit(maxSpeed);
 	location.addVector(velocity);
@@ -220,7 +194,6 @@ void Mutant::update(float dt, sf::Vector2f playerPos)
 	acceleration.mulScalar(0);
 
 	setPosition(sf::Vector2f(location.x, location.y));
-
 }
 
 void Mutant::FireRateTimer(float dt)
@@ -258,17 +231,33 @@ void Mutant::Shoot(sf::Vector2f playerPosition)
 
 //Applies all three laws for the flock of boids and modifies to keep them from
 //breaking the laws.
-void Mutant::flock(vector<Mutant*> &v)
+void Mutant::flock(vector<Mutant*> v, sf::Vector2f playerPos)
 {
 
 
-	Pvector sep = Separation(v);
+	Pvector sep = Separation(v, playerPos);
 	Pvector ali = Alignment(v);
 	Pvector coh = Cohesion(v);
+
+	if (location.y > GROUND_LEVEL)
+	{
+		Pvector force(0, 0);
+		force.y = location.y - GROUND_LEVEL;
+
+		sep.addVector(Pvector(0, -force.y * 0.18f));
+	}
+	else if (location.y < 0)
+	{
+		Pvector force(0, 0);
+		force.y = location.y - 0;
+
+		sep.addVector(Pvector(0, -force.y * 0.18f));
+	}
+
 	// Arbitrarily weight these forces
-	sep.mulScalar(1.5);
-	ali.mulScalar(1.0); // Might need to alter weights for different characteristics
-	coh.mulScalar(1.0);
+	sep.mulScalar(52.5);
+	ali.mulScalar(35.0); // Might need to alter weights for different characteristics
+	coh.mulScalar(35.0);
 	// Add the force vectors to acceleration
 	applyForce(sep);
 	applyForce(ali);
@@ -277,100 +266,236 @@ void Mutant::flock(vector<Mutant*> &v)
 
 }
 
-
-
-void Mutant::flee()
+void Mutant::swarm(vector <Mutant*> v)
 {
-	velocity.x = 0;
-	velocity.y = -1;
 
+	Pvector sum(0, 0);
+
+
+	Pvector target(200, 200);
+	Pvector	O;
+	O = O.subTwoVector(target, location);
+
+
+
+	if (O.magnitude() < 1)
+	{
+
+		float A = 0.3f;
+		float N = 0.4f;
+
+		float B = 0.45f;
+		float M = 0.5f;
+
+		for (int i = 0; i < v.size(); i++)
+		{
+			Pvector	R;
+			R = R.subTwoVector(location, v[i]->location);
+
+			float D = R.magnitude();
+
+			if (D > 0)
+			{
+				float U = -A / pow(D, N) + B / pow(D, M);
+				R.normalize();
+
+				R.mulScalar(U*20);
+				sum.addVector(R);
+			}
+		}
+	}
+	else
+	{
+		O.normalize();
+		O.mulScalar(10.0f);
+		sum.addVector(O);
+	}
+
+	applyForce(sum);
+
+
+
+
+
+
+
+
+	/*
+	Pvector target(300, 300);
+	Pvector sum(0, 0);
+
+	float A = 0.3f;
+	float N = 0.4f;
+
+	float B = 0.45f;
+	float M = 0.5f;
+
+	for (int i = 0; i < v.size(); i++)
+	{
+		Pvector	R;
+		
+		Pvector	R;
+		R = R.subTwoVector(location, v[i]->location);
+
+		float D = R.magnitude();
+
+		if (D > 0)
+		{
+			float U = -A / pow(D, N) + B / pow(D, M);
+			R.normalize();
+
+			R.mulScalar(U * 1500);
+			sum.addVector(R);
+		}
+		
+		R = R.subTwoVector(target, location);
+		float distance = R.magnitude();
+		
+			R.normalize();
+			R.mulScalar(distance * 0.05f);
+			sum.addVector(R);
+		
+		//R.mulScalar();
+	}
+	
+	if (location.y > GROUND_LEVEL)
+	{
+		Pvector force(0, 0);
+		force.y = location.y - GROUND_LEVEL;
+
+		sum.addVector(Pvector(0, -force.y * 0.18f));
+	}
+	else if (location.y < 0)
+	{
+		Pvector force(0, 0);
+		force.y = location.y - 0;
+
+		sum.addVector(Pvector(0, -force.y * 0.18f));
+	}
+	
+	applyForce(sum);*/
+}
+
+
+
+
+
+void Mutant::findAstronaut(Astronaut* astro)
+{
+	//check distance of abductor and astro
+	Pvector targetPos = Pvector(astro->getPosition().x, astro->getPosition().y);
+	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
+	Pvector ab = targetPos - currentPos;
+	if (ab.magnitude() < 200)
+	{
+
+		if (_target == nullptr)
+		{
+			if (!astro->getIsTarget())
+			{
+				astro->setIsTarget(true);
+				_state = State::seek;
+				_target = astro;
+			}
+		}
+
+	}
+}
+
+void Mutant::seek()
+{
+	Pvector targetPos = Pvector(_target->getPosition().x, _target->getPosition().y - 32);
+	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
+	Pvector ab = targetPos - currentPos;
+	ab.normalize();
+	velocity = ab * 5.0f;
 
 }
 
-void Mutant::evolve()
+bool Mutant::flee(sf::Vector2f playerPos)
 {
+	Pvector steer(0, 0);
+	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
+	float d = location.distance(playerPosition);
+	if ((d > 0) && (d <170))
+	{
+		Pvector pred(0, 0);
+		pred = pred.subTwoVector(location, playerPosition);
+		pred.mulScalar(1000);
+		steer.addVector(pred);
+	}
 
+
+	steer.normalize();
+	steer.mulScalar(maxSpeed);
+	steer.y = -1.5f;
+	steer.subVector(velocity);
+	steer.limit(maxForce);
+
+
+	steer.mulScalar(65.5);
+
+	applyForce(steer);
+
+	_target->setPosition(getPosition().x + _targetPosOffset.x, getPosition().y + _targetPosOffset.y);
+	if (getPosition().y + getSize().y * 2 + _target->getSize().y * 2 < 0)
+	{
+		return true;
+	}
+	return false;
 }
+
 // Checks if boids go out of the window and if so, wraps them around to the other side.
 void Mutant::borders()
 {
 	if (location.x < 0) location.x += _screenSize.x;
-	if (location.y < -200) location.y += _screenSize.y + 200;
+	//if (location.y < -200) location.y += _screenSize.y + 200;
 	if (location.x > 2400) location.x -= _screenSize.x;
-	if (location.y > 600)
-		location.y -= _screenSize.y;
+
 }
 
-// Calculates the angle for the velocity of a boid which allows the visual 
-// image to rotate in the direction that it is going in.
-float Mutant::angle(Pvector v)
+void Mutant::TakenDamage()
 {
-	// From the definition of the dot product
-	float angle = (float)(atan2(v.x, -v.y) * 180 / PI);
-	return angle;
+	_lifes--;
+
+	if (_lifes == 0)
+	{
+		Die();
+	}
 }
 
-void Mutant::swarm(vector <Mutant*> &v)
+void Mutant::Die()
 {
-	/*		Lenard-Jones Potential function
-	Vector R = me.position - you.position
-	Real D = R.magnitude()
-	Real U = -A / pow(D, N) + B / pow(D, M)
-	R.normalise()
-	force = force + R*U
-	*/
-	Pvector	R;
-	Pvector sum(0, 0);
+	_isAlive = false;
+	if (_target != nullptr)
+	{
+		_target->setIsTarget(false);
 
-	// Your code here..
-
-	applyForce(sum);
-	//update();
-	borders();
+		if (_target->getState() == Astronaut::State::capture)
+		{
+			_target->setState(Astronaut::State::fall);
+		}
+		_target = nullptr;
+	}
 }
 
-
-
-/*
-void Abductor::flee(float dt)
+bool Mutant::getAlive()
 {
-_velocity = getPosition() - _targetPosition;
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
+	return _isAlive;
 }
-void Abductor::seek(float dt)
+
+Astronaut* Mutant::getTarget() {
+	return _target;
+}
+
+Mutant::State Mutant::getState() {
+	return _state;
+}
+void Mutant::setState(Mutant::State state) {
+	_state = state;
+}
+
+void Mutant::setTargetPosOffset(sf::Vector2f targetPosOffset)
 {
-_velocity = _targetPosition - getPosition();
-normalize(_velocity);
-
-move(_velocity * _speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
+	_targetPosOffset = targetPosOffset;
 }
-
-void Abductor::arrival(float dt)
-{
-_velocity = _targetPosition - getPosition();
-float velocityLenght = lenght(_velocity);
-
-if (velocityLenght > 0)
-{
-float speed = _speed / _timeToTarget;
-
-if (speed > _speed)
-speed = _speed;
-
-normalize(_velocity);
-
-move(_velocity * speed * dt);
-_orientation = getNewOrientation(_velocity);
-setRotation(_orientation);
-}
-}
-*/
-
-// This file defines the boid class. This includes the attributes found in
-// boids -- speed, location on the board, acceleration, etc.

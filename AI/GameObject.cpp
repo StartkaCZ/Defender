@@ -35,10 +35,18 @@ sf::Vector2f GameObject::getPosition() const
 {
 	return Transformable::getPosition();
 }
+
+
 sf::Vector2f GameObject::getSize() const
 {
 	return _size;
 }
+
+void GameObject::setSize(sf::Vector2f size) 
+{
+	_size = size;
+}
+
 
 ObjectType GameObject::getType() const
 {
