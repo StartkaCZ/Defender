@@ -11,7 +11,6 @@ Abductor::Abductor(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
 
 Abductor::~Abductor()
 {
-	delete _target;
 }
 
 void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
@@ -177,10 +176,15 @@ Pvector Abductor::seek(Pvector v)
 
 //Update modifies velocity, location, and resets acceleration with values that
 //are given by the three laws.
-void Abductor::update(float dt, sf::Vector2f playerPos)
+void Abductor::update(float dt, sf::Vector2f p)
 {
 	FireRateTimer(dt);
-	//Shoot(playerPos);
+	Pvector ab = ab.subTwoVector(Pvector(p.x,p.y) , location);
+	if (ab.magnitude() < 300)
+	{
+		ab.normalize();
+		Shoot(sf::Vector2f(ab.x, ab.y));
+	}
 	borders();
 
 	//To make the slow down not as abrupt
@@ -212,17 +216,12 @@ void Abductor::FireRateTimer(float dt)
 	}
 }
 
-void Abductor::Shoot(sf::Vector2f playerPosition)
+void Abductor::Shoot(sf::Vector2f direction)
 {
 	if (_canFire)
 	{
 		Bullet* bullet = new Bullet();
-
-		sf::Vector2f direction = playerPosition - getPosition();
-		Vector2Calculator::Normalize(direction);
-
-		//sf::Vector2f position = getPosition() + direction * Vector2Calculator::Lenght(_size) * 0.5f;
-		bullet->initialize(getPosition(), _bulletTexture, playerPosition, _screenSize);
+		bullet->initialize(getPosition(), _bulletTexture, direction, _screenSize);
 
 		_bullets.push_back(bullet);
 		_canFire = false;
@@ -372,7 +371,10 @@ bool Abductor::getAlive()
 Astronaut* Abductor::getTarget() {
 	return _target;
 }
-
+void Abductor::setTarget(Astronaut* a)
+{
+	_target = a;
+}
 Abductor::State Abductor::getState() {
 	return _state;
 }

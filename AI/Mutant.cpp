@@ -5,13 +5,19 @@
 #define PI 3.141592635
 
 Mutant::Mutant(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
-	: _target(nullptr), _state(State::flock), _bullets(bullets), _bulletTexture(bulletTexture), _lifes(1), _isAlive(true), _canFire(true)
+	: _state(State::seek), 
+	_bullets(bullets), 
+	_bulletTexture(bulletTexture),
+	_lifes(2), 
+	_isAlive(true),
+	_canFire(true),
+	_fireRateTimer(0)
 {
 }
 
 Mutant::~Mutant()
 {
-	delete _target;
+	
 }
 
 void Mutant::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
@@ -19,11 +25,11 @@ void Mutant::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRe
 	GameObject::initialize(position, texture, ObjectType::Abductor);
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
-	acceleration = Pvector(0, 0);
-	velocity = Pvector(rand() % 6 - 2, 0); // Allows for range of -2 -> 2
-	maxSpeed = 5;
-	maxForce = 0.5f;
-	location = Pvector(position.x, position.y);
+	_acceleration = Pvector(0, 0);
+	_velocity = Pvector(rand() % 6 - 2, 0); // Allows for range of -2 -> 2
+	_maxSpeed = 5;
+	_maxForce = 0.5f;
+	_location = Pvector(position.x, position.y);
 }
 
 
@@ -32,168 +38,28 @@ void Mutant::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRe
 // Adds force Pvector to current force Pvector
 void Mutant::applyForce(Pvector force)
 {
-	acceleration.addVector(force);
+	_acceleration.addVector(force);
 }
 
-// Function that checks and modifies the distance
-// of a boid if it breaks the law of separation.
-Pvector Mutant::Separation(vector<Mutant*> boids, sf::Vector2f playerPos)
-{
-	// If the boid we're looking at is a predator, do not run the separation
-	// algorithm
-
-	// Distance of field of vision for separation between boids
-	float desiredseparation = 50;
-
-	Pvector steer(0, 0);
-	int count = 0;
-	// For every boid in the system, check if it's too close
-	for (int i = 0; i < boids.size(); i++)
-	{
-		if (boids[i]->getState() == State::flock)
-		{
-			// Calculate distance from current boid to boid we're looking at
-			float d = location.distance(boids[i]->location);
-			// If this is a fellow boid and it's too close, move away from it
-			if ((d > 0) && (d < desiredseparation))
-			{
-				Pvector diff(0, 0);
-				diff = diff.subTwoVector(location, boids[i]->location);
-				diff.normalize();
-				diff.divScalar(d);      // Weight by distance
-				steer.addVector(diff);
-				count++;
-			}
-		}
-	}
-
-	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
-	float d = location.distance(playerPosition);
-	if ((d > 0) && (d < desiredseparation + 120))
-	{
-		Pvector pred(0, 0);
-		pred = pred.subTwoVector(location, playerPosition);
-		pred.mulScalar(1000);
-		steer.addVector(pred);
-		count++;
-	}
-	// Adds average difference of location to acceleration
-	if (count > 0)
-		steer.divScalar((float)count);
-	if (steer.magnitude() > 0)
-	{
-		// Steering = Desired - Velocity
-		steer.normalize();
-		steer.mulScalar(maxSpeed);
-		steer.subVector(velocity);
-		steer.limit(maxForce);
-	}
-	return steer;
-}
-
-// Alignment calculates the average velocity in the field of view and 
-// manipulates the velocity of the Boid passed as parameter to adjust to that
-// of nearby boids.
-Pvector Mutant::Alignment(vector<Mutant*> Boids)
-{
-	float neighbordist = 90;
-
-	Pvector sum(0, 0);
-	int count = 0;
-	for (int i = 0; i < Boids.size(); i++)
-	{
-		if (Boids[i]->getState() == State::flock)
-		{
-			float d = location.distance(Boids[i]->location);
-			if ((d > 0) && (d < neighbordist)) // 0 < d < 50
-			{
-				sum.addVector(Boids[i]->velocity);
-				count++;
-			}
-		}
-	}
-	// If there are boids close enough for alignment...
-	if (count > 0)
-	{
-		sum.divScalar((float)count);// Divide sum by the number of close boids (average of velocity)
-		sum.normalize();	   		// Turn sum into a unit vector, and
-		sum.mulScalar(maxSpeed);    // Multiply by maxSpeed
-									// Steer = Desired - Velocity
-		Pvector steer;
-		steer = steer.subTwoVector(sum, velocity); //sum = desired(average)  
-		steer.limit(maxForce);
-		return steer;
-	}
-	else {
-		Pvector temp(0, 0);
-		return temp;
-	}
-}
-
-// Cohesion finds the average location of nearby boids and manipulates the 
-// steering force to move in that direction.
-Pvector Mutant::Cohesion(vector<Mutant*> Boids)
-{
-	float neighbordist = 90;
-
-	Pvector sum(0, 0);
-	int count = 0;
-	for (int i = 0; i < Boids.size(); i++)
-	{
-		if (Boids[i]->getState() == State::flock)
-		{
-			float d = location.distance(Boids[i]->location);
-			if ((d > 0) && (d < neighbordist))
-			{
-				sum.addVector(Boids[i]->location);
-				count++;
-			}
-		}
-	}
-	if (count > 0)
-	{
-		sum.divScalar(count);
-		return seek(sum);
-	}
-	else {
-		Pvector temp(0, 0);
-		return temp;
-	}
-}
-
-// Seek function limits the maxSpeed, finds necessary steering force and
-// normalizes the vectors.
-Pvector Mutant::seek(Pvector v)
-{
-	Pvector desired;
-	desired.subVector(v);  // A vector pointing from the location to the target
-						   // Normalize desired and scale to maximum speed
-	desired.normalize();
-	desired.mulScalar(maxSpeed);
-	acceleration.subTwoVector(desired, velocity);
-	acceleration.limit(maxForce);  // Limit to maximum steering force
-	return acceleration;
-}
 
 //Update modifies velocity, location, and resets acceleration with values that
 //are given by the three laws.
-void Mutant::update(float dt, sf::Vector2f playerPos)
+void Mutant::update(float dt)
 {
 	FireRateTimer(dt);
-	//Shoot(playerPos);
 	borders();
 
 	//To make the slow down not as abrupt
-	acceleration.mulScalar(.25f);
+	_acceleration.mulScalar(.25f);
 	// Update velocity
-	velocity.addVector(acceleration  * dt);
+	_velocity.addVector(_acceleration );
 	// Limit speed
-	velocity.limit(maxSpeed);
-	location.addVector(velocity);
+	_velocity.limit(_maxSpeed);
+	_location.addVector(_velocity);
 	// Reset accelertion to 0 each cycle
-	acceleration.mulScalar(0);
+	_acceleration.mulScalar(0);
 
-	setPosition(sf::Vector2f(location.x, location.y));
+	setPosition(sf::Vector2f(_location.x, _location.y));
 }
 
 void Mutant::FireRateTimer(float dt)
@@ -212,117 +78,52 @@ void Mutant::FireRateTimer(float dt)
 	}
 }
 
-void Mutant::Shoot(sf::Vector2f playerPosition)
+void Mutant::Shoot(sf::Vector2f diretion)
 {
 	if (_canFire)
 	{
 		Bullet* bullet = new Bullet();
-
-		sf::Vector2f direction = playerPosition - getPosition();
-		Vector2Calculator::Normalize(direction);
-
-		//sf::Vector2f position = getPosition() + direction * Vector2Calculator::Lenght(_size) * 0.5f;
-		bullet->initialize(getPosition(), _bulletTexture, playerPosition, _screenSize);
+		bullet->initialize(getPosition(), _bulletTexture, diretion, _screenSize);
 
 		_bullets.push_back(bullet);
 		_canFire = false;
 	}
 }
 
-//Applies all three laws for the flock of boids and modifies to keep them from
-//breaking the laws.
-void Mutant::flock(vector<Mutant*> v, sf::Vector2f playerPos)
+sf::Vector2f Mutant::getFireDirection(sf::Vector2f p)
 {
-
-
-	Pvector sep = Separation(v, playerPos);
-	Pvector ali = Alignment(v);
-	Pvector coh = Cohesion(v);
-
-	if (location.y > GROUND_LEVEL)
-	{
-		Pvector force(0, 0);
-		force.y = location.y - GROUND_LEVEL;
-
-		sep.addVector(Pvector(0, -force.y * 0.18f));
-	}
-	else if (location.y < 0)
-	{
-		Pvector force(0, 0);
-		force.y = location.y - 0;
-
-		sep.addVector(Pvector(0, -force.y * 0.18f));
-	}
-
-	// Arbitrarily weight these forces
-	sep.mulScalar(52.5);
-	ali.mulScalar(35.0); // Might need to alter weights for different characteristics
-	coh.mulScalar(35.0);
-	// Add the force vectors to acceleration
-	applyForce(sep);
-	applyForce(ali);
-	applyForce(coh);
-
-
+	Pvector direction = direction.subTwoVector(Pvector(p.x,p.y), _location);
+	direction.normalize();
+	return sf::Vector2f(direction.x, direction.y);
 }
 
-void Mutant::swarm(vector <Mutant*> v)
+void Mutant::swarm(vector <Mutant*> v, sf::Vector2f p)
 {
-
 	Pvector sum(0, 0);
+	Pvector PlayerPos(p.x, p.y);
+	Pvector direction = direction.subTwoVector(_location, PlayerPos);
+	float distanceToPlayer = direction.magnitude();
+	direction.normalize();
+	Pvector TargetPos(PlayerPos.x + direction.x * 220, PlayerPos.y + direction.y * 220);
+	Pvector VectorToTargetPos = VectorToTargetPos.subTwoVector(TargetPos, _location);
 
-
-	Pvector target(200, 200);
-	Pvector	O;
-	O = O.subTwoVector(target, location);
-
-
-
-	if (O.magnitude() < 1)
+	if (distanceToPlayer > 600)
 	{
-
-		float A = 0.3f;
-		float N = 0.4f;
-
-		float B = 0.45f;
-		float M = 0.5f;
-
-		for (int i = 0; i < v.size(); i++)
-		{
-			Pvector	R;
-			R = R.subTwoVector(location, v[i]->location);
-
-			float D = R.magnitude();
-
-			if (D > 0)
-			{
-				float U = -A / pow(D, N) + B / pow(D, M);
-				R.normalize();
-
-				R.mulScalar(U*20);
-				sum.addVector(R);
-			}
-		}
+		_state = State::seek;
+		return;
+	}
+	else if (distanceToPlayer < 150)
+	{
+		direction.normalize();
+		direction.mulScalar(-2.5f);
+		sum.subVector(direction);
 	}
 	else
 	{
-		O.normalize();
-		O.mulScalar(10.0f);
-		sum.addVector(O);
+		VectorToTargetPos.normalize();
+		VectorToTargetPos.mulScalar(0.5f);
+		sum.addVector(VectorToTargetPos);
 	}
-
-	applyForce(sum);
-
-
-
-
-
-
-
-
-	/*
-	Pvector target(300, 300);
-	Pvector sum(0, 0);
 
 	float A = 0.3f;
 	float N = 0.4f;
@@ -332,125 +133,69 @@ void Mutant::swarm(vector <Mutant*> v)
 
 	for (int i = 0; i < v.size(); i++)
 	{
-		Pvector	R;
-		
-		Pvector	R;
-		R = R.subTwoVector(location, v[i]->location);
-
-		float D = R.magnitude();
-
-		if (D > 0)
+		if (v[i]->getState() == Mutant::State::swarm)
 		{
-			float U = -A / pow(D, N) + B / pow(D, M);
-			R.normalize();
+			Pvector	R;
+			R = R.subTwoVector(_location, v[i]->getLocation());
 
-			R.mulScalar(U * 1500);
-			sum.addVector(R);
-		}
-		
-		R = R.subTwoVector(target, location);
-		float distance = R.magnitude();
-		
-			R.normalize();
-			R.mulScalar(distance * 0.05f);
-			sum.addVector(R);
-		
-		//R.mulScalar();
-	}
-	
-	if (location.y > GROUND_LEVEL)
-	{
-		Pvector force(0, 0);
-		force.y = location.y - GROUND_LEVEL;
+			float D = R.magnitude();
 
-		sum.addVector(Pvector(0, -force.y * 0.18f));
-	}
-	else if (location.y < 0)
-	{
-		Pvector force(0, 0);
-		force.y = location.y - 0;
-
-		sum.addVector(Pvector(0, -force.y * 0.18f));
-	}
-	
-	applyForce(sum);*/
-}
-
-
-
-
-
-void Mutant::findAstronaut(Astronaut* astro)
-{
-	//check distance of abductor and astro
-	Pvector targetPos = Pvector(astro->getPosition().x, astro->getPosition().y);
-	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
-	Pvector ab = targetPos - currentPos;
-	if (ab.magnitude() < 200)
-	{
-
-		if (_target == nullptr)
-		{
-			if (!astro->getIsTarget())
+			if (D > 0)
 			{
-				astro->setIsTarget(true);
-				_state = State::seek;
-				_target = astro;
+				float U = -A / pow(D, N) + B / pow(D, M);
+				R.normalize();
+
+				R.mulScalar(U * 700);
+				sum.addVector(R);
+
 			}
 		}
-
 	}
-}
 
-void Mutant::seek()
-{
-	Pvector targetPos = Pvector(_target->getPosition().x, _target->getPosition().y - 32);
-	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
-	Pvector ab = targetPos - currentPos;
-	ab.normalize();
-	velocity = ab * 5.0f;
-
-}
-
-bool Mutant::flee(sf::Vector2f playerPos)
-{
-	Pvector steer(0, 0);
-	Pvector playerPosition = Pvector(playerPos.x, playerPos.y);
-	float d = location.distance(playerPosition);
-	if ((d > 0) && (d <170))
+	if (_location.y > GROUND_LEVEL)
 	{
-		Pvector pred(0, 0);
-		pred = pred.subTwoVector(location, playerPosition);
-		pred.mulScalar(1000);
-		steer.addVector(pred);
+		Pvector force(0, 0);
+		force.y = _location.y - GROUND_LEVEL;
+
+		sum.addVector(Pvector(0, -force.y * 0.18f));
 	}
-
-
-	steer.normalize();
-	steer.mulScalar(maxSpeed);
-	steer.y = -1.5f;
-	steer.subVector(velocity);
-	steer.limit(maxForce);
-
-
-	steer.mulScalar(65.5);
-
-	applyForce(steer);
-
-	_target->setPosition(getPosition().x + _targetPosOffset.x, getPosition().y + _targetPosOffset.y);
-	if (getPosition().y + getSize().y * 2 + _target->getSize().y * 2 < 0)
+	else if (_location.y < 0)
 	{
-		return true;
+		Pvector force(0, 0);
+		force.y = _location.y - 0;
+
+		sum.addVector(Pvector(0, -force.y * 0.18f));
 	}
-	return false;
+
+	applyForce(sum);
 }
+
+void Mutant::seek(sf::Vector2f p)
+{
+	Pvector player(p.x, p.y);
+	Pvector AB = AB.subTwoVector(player, _location);
+	
+	
+	if (AB.magnitude() < 600)
+	{
+		_state = State::swarm;
+	}
+	else
+	{
+		AB.normalize();
+		_velocity = AB * (_maxSpeed - 2.0f);
+		//AB.limit(maxSpeed);
+		//applyForce(AB);
+	}
+}
+
 
 // Checks if boids go out of the window and if so, wraps them around to the other side.
 void Mutant::borders()
 {
-	if (location.x < 0) location.x += _screenSize.x;
+	if (_location.x < 0) _location.x += _screenSize.x;
 	//if (location.y < -200) location.y += _screenSize.y + 200;
-	if (location.x > 2400) location.x -= _screenSize.x;
+	if (_location.x > 2400) _location.x -= _screenSize.x;
 
 }
 
@@ -467,16 +212,6 @@ void Mutant::TakenDamage()
 void Mutant::Die()
 {
 	_isAlive = false;
-	if (_target != nullptr)
-	{
-		_target->setIsTarget(false);
-
-		if (_target->getState() == Astronaut::State::capture)
-		{
-			_target->setState(Astronaut::State::fall);
-		}
-		_target = nullptr;
-	}
 }
 
 bool Mutant::getAlive()
@@ -484,18 +219,29 @@ bool Mutant::getAlive()
 	return _isAlive;
 }
 
-Astronaut* Mutant::getTarget() {
-	return _target;
-}
-
 Mutant::State Mutant::getState() {
 	return _state;
 }
+
 void Mutant::setState(Mutant::State state) {
 	_state = state;
 }
 
-void Mutant::setTargetPosOffset(sf::Vector2f targetPosOffset)
+Pvector	Mutant::getLocation()
 {
-	_targetPosOffset = targetPosOffset;
+	return _location;
+}
+
+void Mutant::setLocation(Pvector loc)
+{
+	_location = loc;
+}
+
+bool Mutant::getCanFire()
+{
+	return _canFire;
+};
+void Mutant::setCanFire(bool canFire)
+{
+	_canFire = canFire;
 }

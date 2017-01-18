@@ -6,7 +6,8 @@ Astronaut::Astronaut() :
 	_animationtimer(0),
 	_isTarget(false),
 	_isAlive(true),
-	_isRunning(false)
+	_isRunning(false),
+	_lifes(1)
 {
 	_direction = rand() % 2;
 	if (!_direction)
@@ -75,7 +76,15 @@ void Astronaut::update(float deltatime)
 	}
 }
 
+void Astronaut::TakenDamage()
+{
+	_lifes--;
 
+	if (_lifes == 0)
+	{
+		Die();
+	}
+}
 
 bool Astronaut::getIsRunning()
 {

@@ -20,9 +20,9 @@ public:
 	CollisionManager();
 	~CollisionManager();
 
-	void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors);
+	void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts);
 
-	void CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests);
+	void CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts);
 	void CheckInterceptorCollision(Player*& player, std::vector<Interceptor*>& interceptor, std::vector<Meteor*>& meteors);
 	void CheckMeteorCollision(Player*& player, std::vector<Meteor*>& meteors);
 

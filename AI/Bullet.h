@@ -17,10 +17,8 @@ public:
 
 	}
 
-	void initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2f target, sf::Vector2u screenSize)
+	void initialize(sf::Vector2f position, sf::Texture &texture, sf::Vector2f direction, sf::Vector2u screenSize)
 	{
-		sf::Vector2f direction = target - position;
-		Vector2Calculator::Normalize(direction);
 		_velocity = direction * ADBUCTOR_BULLET_SPEED;
 		Projectile::initialize(position, texture, direction, screenSize, ObjectType::Projetile_Bullet);
 	}

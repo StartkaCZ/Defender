@@ -37,7 +37,7 @@ private:
 
 
 	void					FireRateTimer(float dt);
-	void					Shoot(sf::Vector2f playerPosition);
+	void					Shoot(sf::Vector2f direction);
 	void					applyForce(Pvector force);
 	Pvector					Separation(vector<Abductor*> Boids, sf::Vector2f playerPos);
 	Pvector					Alignment(vector<Abductor*> Boids);
@@ -60,7 +60,6 @@ public:
 	
 	void					update(float dt, sf::Vector2f playerPosition);
 	void					flock(vector <Abductor*> v, sf::Vector2f playerPos);
-	void					swarm(vector <Abductor*> v);
 	void					findAstronaut(Astronaut* astro);
 	void					seek();
 	bool					flee(sf::Vector2f);
@@ -70,6 +69,7 @@ public:
 	void					Die();
 	bool					getAlive();
 	Astronaut*				getTarget();
+	void					setTarget(Astronaut*);
 	State					getState();
 	void					setState(State state);
 	void					setTargetPosOffset(sf::Vector2f targetPosOffset);

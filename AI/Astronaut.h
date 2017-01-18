@@ -22,6 +22,7 @@ private:
 	int					_currentFrame;
 	float				_animationRate;
 
+	int					_lifes;
 	bool				_isAlive;	
 	bool				_isTarget;
 	bool				_isRunning;
@@ -48,6 +49,7 @@ public:
 
 	bool				getAlive();
 
+	void				TakenDamage();
 	void				Die();
 
 

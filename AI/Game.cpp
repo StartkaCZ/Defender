@@ -27,7 +27,7 @@ Game::Game()
 	loadContent();
 
 
-	while (_mutants.size() < 5)
+	while (_mutants.size() < 3)
 	{
 
 		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
@@ -39,7 +39,7 @@ Game::Game()
 
 		_mutants.push_back(mutant);
 	}
-	while (_astronauts.size() < 10)
+	while (_astronauts.size() < 5)
 	{
 		Astronaut* astronaut = new Astronaut();
 		astronaut->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut));
@@ -164,7 +164,7 @@ void Game::processEvents()
 
 void Game::update(sf::Time elapsedTime)
 {
-	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests, _abductors);
+	CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests, _abductors,_astronauts);
 
 	_player->Update(elapsedTime.asSeconds());
 	if (_player->hasNuked())
@@ -340,11 +340,44 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 }
 void Game::UpdateMutants(sf::Time elapsedTime)
 {
+	bool once = true;
+	int firstMutantInSwarm = -1;
+	bool allCanFire = true;
 	for (int i = 0; i < _mutants.size(); i++)
 	{
-		_mutants[i]->swarm(_mutants);
-		//_mutants[i]->swarm(_mutants);
-		_mutants[i]->update(elapsedTime.asSeconds(), _player->getPosition());
+		switch (_mutants[i]->getState())
+		{
+			case  Mutant::State::seek:
+			{
+				_mutants[i]->seek(_player->getPosition());
+				
+				break;
+			}
+			default:
+			{
+				if (once)
+				{
+					once = false;
+					firstMutantInSwarm = i;
+				}
+				_mutants[i]->swarm(_mutants, _player->getPosition());
+				if (!_mutants[i]->getCanFire())
+				{
+					allCanFire = false;
+				}
+
+				break;
+			}
+		}
+		_mutants[i]->update(elapsedTime.asSeconds());
+	}
+	if (allCanFire && firstMutantInSwarm != -1)
+	{
+		sf::Vector2f fireDirection = _mutants[firstMutantInSwarm]->getFireDirection(_player->getPosition());
+		for (int i = 0; i < _mutants.size(); i++)
+		{
+			_mutants[i]->Shoot(fireDirection);
+		}
 	}
 }
 void Game::UpdateAstronauts(sf::Time elapsedTime)
@@ -400,6 +433,14 @@ void Game::UpdateAstronauts(sf::Time elapsedTime)
 		}
 		else
 		{
+			for (int j = 0; j < _abductors.size(); j++)
+			{
+				if (_abductors[j]->getTarget() == _astronauts[i])
+				{
+					_abductors[j]->setTarget(nullptr);
+					_abductors[j]->setState(Abductor::State::flock);
+				}
+			}
 			delete _astronauts[i];
 			_astronauts.erase(_astronauts.begin() + i);
 			i--;
