@@ -5,11 +5,13 @@
 #include "Abductor.h"
 #include "Interceptor.h"
 #include "Meteor.h"
+#include "Bullet.h"
+
 
 class AlienNest : public GameObject
 {
 public:
-							AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, sf::Texture &interceptorTexture, sf::Texture &abductorTexture);
+							AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abductor*>& abductors, std::vector<Bullet*>& abductorBullets, sf::Texture &interceptorTexture, sf::Texture &abductorTexture, sf::Texture &abductorBulletTexture);
 							~AlienNest();
 
 	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
@@ -41,13 +43,14 @@ private:
 private:
 	sf::Texture&			_interceptorTexture;
 	sf::Texture&			_abductorTexture;
+	sf::Texture&			_abductorBulletTexture;
 
 	sf::Vector2f			_velocity;
 	sf::Vector2u			_screenSize;
 
 	std::vector<Interceptor*>&_interceptors;
 	std::vector<Abductor*>&	 _abductors;
-
+	std::vector<Bullet*>&	 _abductorbullets;
 	float					_fireRateTimer;
 	float					_spawnTimer;
 	float					_wonderTimer;

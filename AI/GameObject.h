@@ -20,6 +20,7 @@ enum class ObjectType
 	//Projectiles
 	Projetile_PlayerLazer,
 	Projetile_Interceptor,
+	Projetile_Bullet
 };
 
 class GameObject : public sf::Drawable, protected sf::NonCopyable, protected sf::Transformable
@@ -44,6 +45,8 @@ public:
 	int						getRegion() const;
 	bool					isInsideRegion() const;
 	bool					getAlive() const;
+
+	void setSize(sf::Vector2f size);
 
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);

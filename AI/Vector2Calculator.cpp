@@ -1,6 +1,5 @@
 #include "Vector2Calculator.h"
 
-
 void Vector2Calculator::Normalize(sf::Vector2f& a)
 {
 	float lenght = Lenght(a);

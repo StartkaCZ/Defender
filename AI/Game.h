@@ -13,6 +13,7 @@
 #include "PowerUp.h"
 #include "Projectile.h"
 #include "Interceptor.h"
+#include "Bullet.h"
 #include "Region.h"
 #include "HUD.h"
 
@@ -51,20 +52,21 @@ private:
 	void						UpdatePlayer(sf::Time elapsedTime);
 	void						UpdateProjectiles(sf::Time elapsedTime);
 	void						UpdateInterceptors(sf::Time elapsedTime);
+	void						UpdateBullets(sf::Time elapsedTime);
 	void						UpdateMeteors(sf::Time elapsedTime);
 	void						UpdatePowerUps(sf::Time elapsedTime);
 	void						UpdateAlienNests(sf::Time elapsedTime);
 	void						UpdateAbductors(sf::Time elapsedTime);
-	//void						UpdateMutants(sf::Time elapsedTime);
-	//void						UpdateAstronauts(sf::Time elapsedTime);
+	void						UpdateMutants(sf::Time elapsedTime);
+	void						UpdateAstronauts(sf::Time elapsedTime);
+
+	void						NukeReleased();
 
 	void						SetupRegion(GameObject* gameObject);
 	void						UpdateGameObjectBasedOnRegion(GameObject* gameObject);
 	void						RemoveObjectFromRegion(GameObject* gameObject);
 
 	void						UpdateCamera();
-
-	void						NukeReleased();
 
 	void						DrawMenu();
 	void						DrawGame();
@@ -93,6 +95,7 @@ private:
 
 	HUD*						_hud;
 	Player*						_player;
+	std::vector<Bullet*>		_bullets;
 	std::vector<Projectile*>	_projectiles;
 	std::vector<Interceptor*>	_interceptors;
 	std::vector<Meteor*>		_meteors;
