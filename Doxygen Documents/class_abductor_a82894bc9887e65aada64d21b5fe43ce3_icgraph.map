@@ -1,0 +1,4 @@
+<map id="Abductor::Die" name="Abductor::Die">
+<area shape="rect" id="node2" href="$class_abductor.html#aab3d199eedf0268f752ee5eba65b2e42" title="Abductor::CollisionEnter" alt="" coords="368,5,531,32"/>
+<area shape="rect" id="node3" href="$class_abductor.html#ac2b3795a02d4cb9be88ccf4518d96d43" title="Abductor::TakenDamage" alt="" coords="155,31,320,57"/>
+</map>

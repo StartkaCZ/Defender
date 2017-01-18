@@ -1,0 +1,8 @@
+<map id="Projectile::Die" name="Projectile::Die">
+<area shape="rect" id="node2" href="$class_bullet.html#a5ca74d7990f25c518df1860b681079ea" title="Bullet::Update" alt="" coords="186,5,290,32"/>
+<area shape="rect" id="node3" href="$class_interceptor.html#a9e82736540536728ef42b0b12456f629" title="Interceptor::Die" alt="" coords="183,56,293,83"/>
+<area shape="rect" id="node6" href="$class_projectile.html#a4330e3fcf8a15f112b5bcad48f8926f3" title="Projectile::Update" alt="" coords="175,107,301,133"/>
+<area shape="rect" id="node7" href="$class_projectile.html#ad5b4d289fefc7b4881ad563d1edc8123" title="Projectile::CollisionEnter" alt="" coords="156,157,320,184"/>
+<area shape="rect" id="node4" href="$class_interceptor.html#a457e310829a95ec0912c689b56f60ea7" title="Interceptor::Update" alt="" coords="387,31,519,57"/>
+<area shape="rect" id="node5" href="$class_interceptor.html#aed6f9d1c6cf9031932b9b077ea78efd8" title="Interceptor::CollisionEnter" alt="" coords="368,81,539,108"/>
+</map>

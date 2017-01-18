@@ -1,0 +1,5 @@
+<map id="Mutant::getFireDirection" name="Mutant::getFireDirection">
+<area shape="rect" id="node2" href="$class_pvector.html#a255e0fda569608930ed7986763f6ab85" title="Pvector::subTwoVector" alt="" coords="215,5,369,32"/>
+<area shape="rect" id="node4" href="$class_pvector.html#af21ee637474eff3c3387a7b7d138004a" title="Pvector::normalize" alt="" coords="227,56,357,83"/>
+<area shape="rect" id="node3" href="$class_pvector.html#a77eb246570e459227cb4c317af0012b7" title="Pvector::set" alt="" coords="417,5,508,32"/>
+</map>

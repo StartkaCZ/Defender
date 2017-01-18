@@ -1,0 +1,4 @@
+<map id="AlienNest::Die" name="AlienNest::Die">
+<area shape="rect" id="node2" href="$class_alien_nest.html#ac936762893fb80eea95fd0f815c83f50" title="AlienNest::CollisionEnter" alt="" coords="376,5,543,32"/>
+<area shape="rect" id="node3" href="$class_alien_nest.html#a4916c5b809f5dc32f5ac19ac142dcc3d" title="AlienNest::TakenDamage" alt="" coords="159,31,328,57"/>
+</map>

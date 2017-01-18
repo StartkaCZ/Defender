@@ -1,0 +1,5 @@
+<map id="Interceptor::CalculateVelocity" name="Interceptor::CalculateVelocity">
+<area shape="rect" id="node2" href="$class_game_object.html#a43a1f9dafe383a47a20abb51919e9e79" title="GameObject::getPosition" alt="" coords="245,5,413,32"/>
+<area shape="rect" id="node3" href="$class_vector2_calculator.html#a56c7d46fd41e4cc101dba43d35edaa45" title="Vector2Calculator::\lNormalize" alt="" coords="263,57,396,98"/>
+<area shape="rect" id="node4" href="$class_vector2_calculator.html#a000a92e0b22e3d7310a0ccf90cf84e7f" title="Vector2Calculator::\lLenght" alt="" coords="461,57,595,98"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="Projectile" name="Projectile">
+<area shape="rect" id="node6" href="$class_bullet.html" title="{Bullet\n||+ Bullet()\l+ ~Bullet()\l+ initialize()\l+ Update()\l}" alt="" coords="39,755,129,877"/>
+<area shape="rect" id="node7" href="$class_interceptor.html" title="{Interceptor\n||+ Interceptor()\l+ ~Interceptor()\l+ initialize()\l+ Update()\l+ CalculateVelocity()\l+ CollisionEnter()\l+ Die()\l}" alt="" coords="153,733,295,899"/>
+<area shape="rect" id="node2" href="$class_game_object.html" title="{GameObject\n|# _size\l# _sprite\l# _type\l# _region\l# _insideRegion\l# _isAlive\l|+ GameObject()\l+ ~GameObject()\l+ SetRegion()\l+ RegionCheck()\l+ TeleportRight()\l+ TeleportLeft()\l+ TeleportByAmount()\l+ InsideRegion()\l+ CollisionEnter()\l+ getPosition()\land 6 more...\l# initialize()\l# draw()\l}" alt="" coords="79,131,228,457"/>
+</map>

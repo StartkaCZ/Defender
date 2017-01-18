@@ -1,0 +1,9 @@
+<map id="Mutant::Die" name="Mutant::Die">
+<area shape="rect" id="node2" href="$class_audio_manager.html#a014c2ce3fc771812638da4141a6e6cc6" title="AudioManager::Instance" alt="" coords="149,5,312,32"/>
+<area shape="rect" id="node4" href="$class_audio_manager.html#ad28d4a81910956078bdd3ed16ad6cead" title="AudioManager::PlaySound" alt="" coords="143,56,319,83"/>
+<area shape="rect" id="node5" href="$class_particle_system_manager.html#a4c929fc139232df2ee161de7fcd7ba48" title="ParticleSystemManager\l::Instance" alt="" coords="150,107,311,149"/>
+<area shape="rect" id="node7" href="$class_particle_system_manager.html#aba90bdf5ea30e4b50fe2d40ee3c16785" title="ParticleSystemManager\l::CreateParticleSystem" alt="" coords="150,173,311,214"/>
+<area shape="rect" id="node8" href="$class_game_object.html#a43a1f9dafe383a47a20abb51919e9e79" title="GameObject::getPosition" alt="" coords="147,239,315,265"/>
+<area shape="rect" id="node3" href="$class_audio_manager.html#ae59d8605c1d706e7bab47d4e8f900d09" title="AudioManager::AudioManager" alt="" coords="367,5,563,32"/>
+<area shape="rect" id="node6" href="$class_particle_system_manager.html#ac40235e0d67a2e74d06b377345a64808" title="ParticleSystemManager\l::ParticleSystemManager" alt="" coords="380,107,549,149"/>
+</map>

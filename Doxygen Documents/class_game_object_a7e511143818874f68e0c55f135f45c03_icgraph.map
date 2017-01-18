@@ -1,0 +1,10 @@
+<map id="GameObject::SetRegion" name="GameObject::SetRegion">
+<area shape="rect" id="node2" href="$class_abductor.html#a0978f15e949c873be87107fc230a0581" title="Abductor::update" alt="" coords="219,5,340,32"/>
+<area shape="rect" id="node3" href="$class_alien_nest.html#a87c3ece740d4f75bfeaf5308f5cb27ec" title="AlienNest::Update" alt="" coords="216,56,343,83"/>
+<area shape="rect" id="node4" href="$class_game.html#ad59df6562a58a614fda24622d3715b65" title="Game::Game" alt="" coords="229,107,329,133"/>
+<area shape="rect" id="node5" href="$class_mutant.html#a6ef9d31c6c1a852f09d02edb6f07d9db" title="Mutant::Shoot" alt="" coords="227,157,331,184"/>
+<area shape="rect" id="node6" href="$class_player.html#a112a2cb485d77e11990e6c3bf4a3c872" title="Player::ReadInput" alt="" coords="217,208,342,235"/>
+<area shape="rect" id="node7" href="$class_player.html#a2e6518b602a35ec83a71318db084e67b" title="Player::Update" alt="" coords="391,208,499,235"/>
+<area shape="rect" id="node8" href="$class_game.html#a1ab78f5ed0d5ea879157357cf2fb2afa" title="Game::run" alt="" coords="547,208,629,235"/>
+<area shape="rect" id="node9" href="$_main_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="677,208,728,235"/>
+</map>

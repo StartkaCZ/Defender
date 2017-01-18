@@ -1,0 +1,5 @@
+<map id="Boid::seek" name="Boid::seek">
+<area shape="rect" id="node2" href="$class_pvector.html#a11ea8cbdc8cc308d5509d5bb85142001" title="Pvector::subVector" alt="" coords="137,5,269,32"/>
+<area shape="rect" id="node3" href="$class_pvector.html#af21ee637474eff3c3387a7b7d138004a" title="Pvector::normalize" alt="" coords="139,56,268,83"/>
+<area shape="rect" id="node4" href="$class_pvector.html#aca5515b7c409f641c5565ca0f5bb2940" title="Pvector::mulScalar" alt="" coords="138,107,269,133"/>
+</map>

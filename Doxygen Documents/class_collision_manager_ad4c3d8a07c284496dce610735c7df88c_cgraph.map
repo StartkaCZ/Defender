@@ -1,0 +1,6 @@
+<map id="CollisionManager::CollisionBasedOnType" name="CollisionManager::CollisionBasedOnType">
+<area shape="rect" id="node2" href="$class_collision_manager.html#a1046ecd4bc7ca80995643bc0971a4a0c" title="CollisionManager::Collided" alt="" coords="236,5,411,32"/>
+<area shape="rect" id="node3" href="$class_game_object.html#a43a1f9dafe383a47a20abb51919e9e79" title="GameObject::getPosition" alt="" coords="239,56,407,83"/>
+<area shape="rect" id="node4" href="$class_game_object.html#ac2a396aea32a45585432d55bee67d9ad" title="GameObject::getSize" alt="" coords="250,107,397,133"/>
+<area shape="rect" id="node5" href="$class_game_object.html#a21e3083391c232bb499fa87619785347" title="GameObject::CollisionEnter" alt="" coords="232,157,415,184"/>
+</map>

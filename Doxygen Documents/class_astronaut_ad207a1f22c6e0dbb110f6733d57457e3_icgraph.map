@@ -1,0 +1,5 @@
+<map id="Astronaut::setState" name="Astronaut::setState">
+<area shape="rect" id="node2" href="$class_abductor.html#aab3d199eedf0268f752ee5eba65b2e42" title="Abductor::CollisionEnter" alt="" coords="551,31,713,57"/>
+<area shape="rect" id="node3" href="$class_abductor.html#a82894bc9887e65aada64d21b5fe43ce3" title="Abductor::Die" alt="" coords="188,31,289,57"/>
+<area shape="rect" id="node4" href="$class_abductor.html#ac2b3795a02d4cb9be88ccf4518d96d43" title="Abductor::TakenDamage" alt="" coords="337,81,503,108"/>
+</map>

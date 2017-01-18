@@ -1,0 +1,8 @@
+<map id="Abductor::Die" name="Abductor::Die">
+<area shape="rect" id="node2" href="$class_astronaut.html#a7367432474790a0cec34bd401ebcf2e0" title="Astronaut::setIsTarget" alt="" coords="167,5,318,32"/>
+<area shape="rect" id="node3" href="$class_astronaut.html#a8f047cf0965dc69a9bb1a087ee932227" title="Astronaut::getState" alt="" coords="175,56,310,83"/>
+<area shape="rect" id="node4" href="$class_astronaut.html#ad207a1f22c6e0dbb110f6733d57457e3" title="Astronaut::setState" alt="" coords="175,107,310,133"/>
+<area shape="rect" id="node5" href="$class_audio_manager.html#a014c2ce3fc771812638da4141a6e6cc6" title="AudioManager::Instance" alt="" coords="161,157,324,184"/>
+<area shape="rect" id="node7" href="$class_audio_manager.html#ad28d4a81910956078bdd3ed16ad6cead" title="AudioManager::PlaySound" alt="" coords="155,208,331,235"/>
+<area shape="rect" id="node6" href="$class_audio_manager.html#ae59d8605c1d706e7bab47d4e8f900d09" title="AudioManager::AudioManager" alt="" coords="379,157,575,184"/>
+</map>

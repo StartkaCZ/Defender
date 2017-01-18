@@ -1,0 +1,3 @@
+<map id="Astronaut" name="Astronaut">
+<area shape="rect" id="node2" href="$class_game_object.html" title="{GameObject\n|# _size\l# _sprite\l# _type\l# _region\l# _insideRegion\l# _isAlive\l|+ GameObject()\l+ ~GameObject()\l+ SetRegion()\l+ RegionCheck()\l+ TeleportRight()\l+ TeleportLeft()\l+ TeleportByAmount()\l+ InsideRegion()\l+ CollisionEnter()\l+ getPosition()\land 6 more...\l# initialize()\l# draw()\l}" alt="" coords="79,131,228,457"/>
+</map>

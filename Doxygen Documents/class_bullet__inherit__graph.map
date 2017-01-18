@@ -1,0 +1,4 @@
+<map id="Bullet" name="Bullet">
+<area shape="rect" id="node2" href="$class_projectile.html" title="{Projectile\n|# _velocity\l# _screenSize\l# _timeToLive\l|+ Projectile()\l+ ~Projectile()\l+ initialize()\l+ Update()\l+ CollisionEnter()\l+ Die()\l}" alt="" coords="92,505,215,685"/>
+<area shape="rect" id="node3" href="$class_game_object.html" title="{GameObject\n|# _size\l# _sprite\l# _type\l# _region\l# _insideRegion\l# _isAlive\l|+ GameObject()\l+ ~GameObject()\l+ SetRegion()\l+ RegionCheck()\l+ TeleportRight()\l+ TeleportLeft()\l+ TeleportByAmount()\l+ InsideRegion()\l+ CollisionEnter()\l+ getPosition()\land 6 more...\l# initialize()\l# draw()\l}" alt="" coords="79,131,228,457"/>
+</map>

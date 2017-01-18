@@ -1,0 +1,10 @@
+<map id="GameObject::getType" name="GameObject::getType">
+<area shape="rect" id="node2" href="$class_abductor.html#aab3d199eedf0268f752ee5eba65b2e42" title="Abductor::CollisionEnter" alt="" coords="207,5,369,32"/>
+<area shape="rect" id="node3" href="$class_alien_nest.html#ac936762893fb80eea95fd0f815c83f50" title="AlienNest::CollisionEnter" alt="" coords="205,56,371,83"/>
+<area shape="rect" id="node4" href="$class_interceptor.html#aed6f9d1c6cf9031932b9b077ea78efd8" title="Interceptor::CollisionEnter" alt="" coords="203,107,373,133"/>
+<area shape="rect" id="node5" href="$class_meteor.html#a951f61fdd39ee443b6587b4ed376dc5d" title="Meteor::CollisionEnter" alt="" coords="213,157,363,184"/>
+<area shape="rect" id="node6" href="$class_mutant.html#a80fb21790d6afe16a7780d2adc3a768e" title="Mutant::CollisionEnter" alt="" coords="213,208,363,235"/>
+<area shape="rect" id="node7" href="$class_player.html#a381baa3fe24fbf6992b5d269f47a12c4" title="Player::CollisionEnter" alt="" coords="215,259,361,285"/>
+<area shape="rect" id="node8" href="$class_power_up.html#a41df58c91c33700a2d4c09c32fe1846e" title="PowerUp::CollisionEnter" alt="" coords="207,309,369,336"/>
+<area shape="rect" id="node9" href="$class_projectile.html#ad5b4d289fefc7b4881ad563d1edc8123" title="Projectile::CollisionEnter" alt="" coords="206,360,370,387"/>
+</map>

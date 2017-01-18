@@ -1,0 +1,4 @@
+<map id="PowerUp::CollisionEnter" name="PowerUp::CollisionEnter">
+<area shape="rect" id="node2" href="$class_game_object.html#aa5f10650ee2a5bef523eb889cc6bd0ba" title="GameObject::getType" alt="" coords="216,5,365,32"/>
+<area shape="rect" id="node3" href="$class_power_up.html#ab8f43ddd1035209dfe350cddef07e6ba" title="PowerUp::Die" alt="" coords="240,56,341,83"/>
+</map>

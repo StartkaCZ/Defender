@@ -1,0 +1,4 @@
+<map id="Mutant::Die" name="Mutant::Die">
+<area shape="rect" id="node2" href="$class_mutant.html#a80fb21790d6afe16a7780d2adc3a768e" title="Mutant::CollisionEnter" alt="" coords="344,5,495,32"/>
+<area shape="rect" id="node3" href="$class_mutant.html#af696b588d5a44df758cb96be88cb9fe1" title="Mutant::TakenDamage" alt="" coords="143,31,296,57"/>
+</map>

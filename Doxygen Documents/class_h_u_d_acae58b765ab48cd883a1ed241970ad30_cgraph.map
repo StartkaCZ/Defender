@@ -1,0 +1,9 @@
+<map id="HUD::Initialize" name="HUD::Initialize">
+<area shape="rect" id="node2" href="$class_resource_holder.html#a6452638a75b6df7ea7d610f204632850" title="ResourceHolder::get" alt="" coords="166,5,306,32"/>
+<area shape="rect" id="node3" href="$class_player.html#a42b23624a04fb966c4d8a55dba6b5abe" title="Player::canNuke" alt="" coords="177,56,295,83"/>
+<area shape="rect" id="node4" href="$class_player.html#a62fa30f2aa4baf04ba1081708c2e2cb5" title="Player::rapidFire" alt="" coords="177,107,295,133"/>
+<area shape="rect" id="node5" href="$class_player.html#a72591c641e39d04adfa0d59d654cc219" title="Player::shieldOn" alt="" coords="177,157,295,184"/>
+<area shape="rect" id="node6" href="$class_player.html#ab426c71e98226d264ccc79ae6cfa7f9c" title="Player::getLives" alt="" coords="179,208,293,235"/>
+<area shape="rect" id="node7" href="$class_player.html#a36c70f179b22fd76fe38e4fea59df045" title="Player::getSuperJumps" alt="" coords="157,259,315,285"/>
+<area shape="rect" id="node8" href="$_string_helpers_8h.html#a1e803cea7d2670ece91f5465281446ba" title="toString" alt="" coords="203,309,269,336"/>
+</map>

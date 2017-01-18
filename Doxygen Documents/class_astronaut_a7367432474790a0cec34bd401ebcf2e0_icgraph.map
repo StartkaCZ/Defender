@@ -1,0 +1,6 @@
+<map id="Astronaut::setIsTarget" name="Astronaut::setIsTarget">
+<area shape="rect" id="node2" href="$class_abductor.html#a502364eea7175c2156125200012a8706" title="Abductor::findAstronaut" alt="" coords="204,5,363,32"/>
+<area shape="rect" id="node3" href="$class_abductor.html#a82894bc9887e65aada64d21b5fe43ce3" title="Abductor::Die" alt="" coords="233,56,334,83"/>
+<area shape="rect" id="node4" href="$class_abductor.html#aab3d199eedf0268f752ee5eba65b2e42" title="Abductor::CollisionEnter" alt="" coords="624,56,787,83"/>
+<area shape="rect" id="node5" href="$class_abductor.html#ac2b3795a02d4cb9be88ccf4518d96d43" title="Abductor::TakenDamage" alt="" coords="411,81,576,108"/>
+</map>

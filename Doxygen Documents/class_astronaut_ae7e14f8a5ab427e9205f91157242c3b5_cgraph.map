@@ -1,0 +1,4 @@
+<map id="Astronaut::Initialize" name="Astronaut::Initialize">
+<area shape="rect" id="node2" href="$class_game_object.html#a6011ac074a403b8bd8d84696b280fded" title="GameObject::initialize" alt="" coords="187,5,337,32"/>
+<area shape="rect" id="node3" href="$class_game_object.html#ab7e9d0b1aedda5e01a0f1e279307d4b2" title="GameObject::setSize" alt="" coords="189,56,335,83"/>
+</map>

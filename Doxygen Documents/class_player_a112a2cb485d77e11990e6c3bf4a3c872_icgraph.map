@@ -1,0 +1,5 @@
+<map id="Player::ReadInput" name="Player::ReadInput">
+<area shape="rect" id="node2" href="$class_player.html#a2e6518b602a35ec83a71318db084e67b" title="Player::Update" alt="" coords="179,5,287,32"/>
+<area shape="rect" id="node3" href="$class_game.html#a1ab78f5ed0d5ea879157357cf2fb2afa" title="Game::run" alt="" coords="335,5,417,32"/>
+<area shape="rect" id="node4" href="$_main_8cpp.html#ae66f6b31b5ad750f1fe042a706a4e3d4" title="main" alt="" coords="465,5,516,32"/>
+</map>
