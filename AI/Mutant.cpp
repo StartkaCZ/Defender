@@ -156,7 +156,7 @@ void Mutant::swarm(vector <Mutant*> v, sf::Vector2f p)
 			}
 		}
 	}
-	float groundLevel = _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y;
+	float groundLevel = _screenSize.y * PLAYER_OFFSET_FROM_GROUND;
 
 	if (_location.y > groundLevel)
 	{
@@ -165,10 +165,10 @@ void Mutant::swarm(vector <Mutant*> v, sf::Vector2f p)
 
 		sum.addVector(Pvector(0, -force.y * 0.18f));
 	}
-	else if (_location.y < HUD_HEIGHT + _size.y)
+	else if (_location.y < HUD_HEIGHT)
 	{
 		Pvector force(0, 0);
-		force.y = _location.y - HUD_HEIGHT + _size.y;
+		force.y = _location.y - HUD_HEIGHT ;
 
 		sum.addVector(Pvector(0, -force.y * 0.18f));
 	}

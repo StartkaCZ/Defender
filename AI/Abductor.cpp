@@ -22,8 +22,8 @@ void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::Float
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 	acceleration = Pvector(0, 0);
-	velocity = Pvector(rand() % 6 - 2,0); // Allows for range of -2 -> 2
-	maxSpeed = 5.0f;
+	velocity = Pvector(rand() % 4 - 2, rand() % 4 - 2); // Allows for range of -2 -> 2
+	maxSpeed = 4.0f;
 	maxForce = 0.5f;
 	location =  Pvector(position.x, position.y);
 }
@@ -264,7 +264,7 @@ void Abductor::flock(vector<Abductor*> v,  sf::Vector2f playerPos)
 	// Arbitrarily weight these forces
 	sep.mulScalar(52.5);
 	ali.mulScalar(35.0 ); // Might need to alter weights for different characteristics
-	coh.mulScalar(35.0);
+	coh.mulScalar(50.0);
 	// Add the force vectors to acceleration
 	applyForce(sep);
 	applyForce(ali);
@@ -300,7 +300,7 @@ void Abductor::seek()
 	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
 	Pvector ab = targetPos - currentPos;
 	ab.normalize();
-	velocity = ab * 5.0f;
+	velocity = ab * 4.0f;
 	
 }
 
@@ -320,7 +320,7 @@ bool Abductor::flee(sf::Vector2f playerPos)
 
 	steer.normalize();
 	steer.mulScalar(maxSpeed);
-	steer.y =  -1.5f ;
+	steer.y =  -0.8f ;
 	steer.subVector(velocity);
 	steer.limit(maxForce);
 	
