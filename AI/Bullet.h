@@ -37,9 +37,5 @@ public:
 		}
 	}
 
-	virtual void	CollisionEnter(GameObject*& objectCollided) override
-	{
-
-	}
 };
 

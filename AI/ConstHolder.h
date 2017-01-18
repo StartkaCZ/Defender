@@ -19,7 +19,7 @@ const float NEST_MAX_SPEED = 150.0f;
 const float NEST_DISTANCE_TO_FIRE = 300.0f;
 const float NEST_DISTANCE_TO_EVADE = 500.0f;
 const float NEST_FIRE_RATE = 2.5f;
-const float NEST_SPAWN_RATE = 1.0f;
+const float NEST_SPAWN_RATE = 5.0f;
 const float NEST_INTERCEPTOR_MISSILE_MAX_SPEED = PLAYER_MAX_SPEED;
 const float NEST_INTERCEPTOR_MISSILE_LIFE_TIME = 10.0f;
 

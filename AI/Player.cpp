@@ -344,7 +344,7 @@ void Player::CollectedPowerUp(ObjectType powerUp)
 
 void Player::CollisionEnter(GameObject*& objectCollided)
 {
-	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Obstacle_Meteor)// ||
+	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Obstacle_Meteor || objectCollided->getType() == ObjectType::Projetile_Bullet)// ||
 		//objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
 	{
 		TakenDamage();

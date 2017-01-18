@@ -40,7 +40,7 @@ Game::Game()
 		_regions.push_back(region);
 	}
 
-	while (_mutants.size() < 3)
+	while (_mutants.size() < 6)
 	{
 		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
 
@@ -57,7 +57,11 @@ Game::Game()
 	while (_astronauts.size() < 5)
 	{
 		Astronaut* astronaut = new Astronaut();
-		astronaut->Initialize(sf::Vector2f(800, 499), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
+
+		float x = rand() % (int)(_worldBounds.width - 256) + 128;
+		float y = _worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 32;
+
+		astronaut->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
 
 		_astronauts.push_back(astronaut);
 
@@ -329,9 +333,11 @@ void Game::UpdateBullets(sf::Time elapsedTime)
 		if (_bullets[i]->getAlive())
 		{
 			_bullets[i]->Update(elapsedTime.asSeconds());
+			UpdateGameObjectBasedOnRegion(_bullets[i]);
 		}
 		else
 		{
+			RemoveObjectFromRegion(_bullets[i]);
 			delete _bullets[i];
 			_bullets.erase(_bullets.begin() + i);
 			i--;
@@ -431,6 +437,7 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 						mutant->initialize(_abductors[i]->getPosition(), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
 
 						_mutants.push_back(mutant);
+						SetupRegion(mutant);
 					}
 					break;
 				}
@@ -509,12 +516,15 @@ void Game::UpdateMutants(sf::Time elapsedTime)
 	bool allCanFire = true;
 	for (int i = 0; i < _mutants.size(); i++)
 	{
-		switch (_mutants[i]->getState())
+		if (_mutants[i]->getAlive())
 		{
+			UpdateGameObjectBasedOnRegion(_mutants[i]);
+			switch (_mutants[i]->getState())
+			{
 			case  Mutant::State::seek:
 			{
 				_mutants[i]->seek(_player->getPosition());
-				
+
 				break;
 			}
 			default:
@@ -532,8 +542,16 @@ void Game::UpdateMutants(sf::Time elapsedTime)
 
 				break;
 			}
+			}
+			_mutants[i]->update(elapsedTime.asSeconds());
 		}
-		_mutants[i]->update(elapsedTime.asSeconds());
+		else
+		{
+			RemoveObjectFromRegion(_mutants[i]);
+			delete _mutants[i];
+			_mutants.erase(_mutants.begin() + i);
+			i--;
+		}
 	}
 	if (allCanFire && firstMutantInSwarm != -1)
 	{
@@ -757,6 +775,21 @@ void Game::DrawRadar()
 	for (int i = 0; i < _abductors.size(); i++)
 	{
 		DrawRectangle(_abductors[i]->getSize(), _abductors[i]->getPosition(), sf::Color::Red);
+	}
+
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		DrawRectangle(_astronauts[i]->getSize(), _astronauts[i]->getPosition(), sf::Color::Cyan);
+	}
+
+	for (int i = 0; i < _mutants.size(); i++)
+	{
+		DrawRectangle(_mutants[i]->getSize(), _mutants[i]->getPosition(), sf::Color::Red);
+	}
+
+	for (int i = 0; i < _bullets.size(); i++)
+	{
+		DrawRectangle(_bullets[i]->getSize(), _bullets[i]->getPosition(), sf::Color::Yellow);
 	}
 
 	DrawRectangle(_player->getSize(), _player->getPosition(), sf::Color::Green);
