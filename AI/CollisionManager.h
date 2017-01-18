@@ -22,20 +22,8 @@ public:
 	CollisionManager();
 	~CollisionManager();
 
-	//void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests);
 	void CheckForCollisions(std::vector<Region*>& regions);
 	void CollisionBasedOnType(GameObject*& a, GameObject*& b);
-/*
-	void CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests);
-	void CheckForCollisions(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Interceptor*>& interceptor, std::vector<PowerUp*>& powerUps, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts);
-
-	void CheckProjectileCollision(Player*& player, std::vector<Projectile*>& projectiles, std::vector<Meteor*>& meteors, std::vector<AlienNest*>& nests, std::vector<Abductor*>& abductors, std::vector<Astronaut*> astronauts);
-	void CheckInterceptorCollision(Player*& player, std::vector<Interceptor*>& interceptor, std::vector<Meteor*>& meteors);
-	void CheckMeteorCollision(Player*& player, std::vector<Meteor*>& meteors);
-
-	void CheckPlayerToPowerUpsCollision(Player*& player, std::vector<PowerUp*>& powerUps);
-	void CheckAbductorCollision(Player*& player, std::vector<Abductor*>& abductors);
-	*/
 
 	bool Collided(sf::Vector2f p1, sf::Vector2f s1, sf::Vector2f p2, sf::Vector2f s2);
 

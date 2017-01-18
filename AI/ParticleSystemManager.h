@@ -19,6 +19,7 @@ public:
 
 	void								AddTexture(ParticleType id, sf::Texture& texture);
 	void								CreateParticleSystem(sf::Vector2f position, ParticleType type);
+	void								ClearParticles();
 
 private:
 	static ParticleSystemManager*		_instance;

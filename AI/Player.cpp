@@ -315,7 +315,7 @@ void Player::SuperJump()
 
 void Player::NukingOver()
 {
-	_hasNuked = true;
+	_hasNuked = false;
 }
 
 void Player::CollectedPowerUp(ObjectType powerUp)

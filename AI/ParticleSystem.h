@@ -28,6 +28,8 @@ public:
 
 	void					Update(float dt);
 
+	void					ClearParticles();
+
 	bool					isFinished() const;
 
 	void					Draw(sf::RenderWindow& renderWindow);

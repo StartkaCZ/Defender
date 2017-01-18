@@ -78,3 +78,14 @@ void ParticleSystemManager::CreateParticleSystem(sf::Vector2f position, Particle
 		break;
 	}
 }
+
+void ParticleSystemManager::ClearParticles()
+{
+	for (int i = 0; i < _particleSystems.size(); i++)
+	{
+		_particleSystems[i]->ClearParticles();
+		delete _particleSystems[i];
+	}
+
+	_particleSystems.clear();
+}

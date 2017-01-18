@@ -88,6 +88,16 @@ void ParticleSystem::Draw(sf::RenderWindow& renderWindow)
 	}
 }
 
+void ParticleSystem::ClearParticles()
+{
+	for (int i = 0; i < _particles.size(); i++)
+	{
+		delete _particles[i];
+	}
+
+	_particles.clear();
+}
+
 bool ParticleSystem::isFinished() const
 {
 	return  _particles.size() == 0;

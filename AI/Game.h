@@ -41,10 +41,13 @@ private:
 	void						update(sf::Time elapsedTime);
 	void						render();
 
+	void						RestartGame();
+	void						InitializeNewGame();
+	void						NewLevel();
+
 	void						updateStatistics(sf::Time elapsedTime);
 	void						handleInput();
 
-private:
 	void						UpdateMenu(sf::Time elapsedTime);
 	void						UpdateGame(sf::Time elapsedTime);
 	void						UpdateGameOver(sf::Time elapsedTime);
@@ -108,6 +111,11 @@ private:
 
 	int							_score;
 	int							_level;
+
+	int							_nestsToSpawn;
+	int							_mutantsToSpawn;
+
+	sf::Text					_indicationText;
 
 	State						_state;
 

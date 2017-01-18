@@ -25,7 +25,7 @@ Mutant::~Mutant()
 
 void Mutant::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
-	GameObject::initialize(position, texture, ObjectType::Abductor);
+	GameObject::initialize(position, texture, ObjectType::Mutant);
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 	_acceleration = Pvector(0, 0);
@@ -216,7 +216,7 @@ void Mutant::borders()
 {
 	if (_location.x < 0) _location.x += _screenSize.x;
 	//if (location.y < -200) location.y += _screenSize.y + 200;
-	if (_location.x > 2400) _location.x -= _screenSize.x;
+	if (_location.x > _screenSize.x) _location.x -= _screenSize.x;
 
 }
 

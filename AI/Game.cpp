@@ -27,106 +27,24 @@ Game::Game()
 	, _statisticsUpdateTime()
 	, _statisticsNumFrames(0)
 	, _score(0)
+	, _nestsToSpawn(0)
+	, _mutantsToSpawn(0)
 	, _state(State::Menu)
 {
 	loadContent();
 
-	for (int i = 0; _regions.size() < SCREEN_TIME_SIZE; i++)
-	{
-		Region* region = new Region();
+	_worldView.setCenter(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f));
 
-		region->Initialize(sf::Vector2f(i * _worldView.getSize().x, 0), _textureHolder.get(Textures::ID::Background), _textureHolder.get(Textures::ID::Foreground));
-
-		_regions.push_back(region);
-	}
-
-	while (_mutants.size() < 6)
-	{
-		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
-
-		float x = (rand() % (int)_worldBounds.width - 60) + 30;
-		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 60) + 30;
-
-		mutant->initialize(sf::Vector2f(x,y), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
-
-		_mutants.push_back(mutant);
-
-		SetupRegion(mutant);
-	}
-
-	while (_astronauts.size() < 5)
-	{
-		Astronaut* astronaut = new Astronaut();
-
-		float x = rand() % (int)(_worldBounds.width - 256) + 128;
-		float y = _worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 32;
-
-		astronaut->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
-
-		_astronauts.push_back(astronaut);
-
-		SetupRegion(astronaut);
-	}
-	
-	while (_meteors.size() < MAX_METEORS)
-	{
-		Meteor* meteor = new Meteor();
-
-		meteor->Initialize(_textureHolder.get(Textures::ID::Obstacle_Meteor), _worldBounds);
-
-		_meteors.push_back(meteor);
-
-		SetupRegion(meteor);
-	}
-	
-	PowerUp* powerUp = new PowerUp();
-	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
-	SetupRegion(powerUp);
-	_powerUps.push_back(powerUp);
-
-	powerUp = new PowerUp();
-	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_Shield), ObjectType::PowerUp_Shield, _worldBounds);
-	SetupRegion(powerUp);
-	_powerUps.push_back(powerUp);
-
-	powerUp = new PowerUp();
-	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_RapidFire), ObjectType::PowerUp_RapidFire, _worldBounds);
-	SetupRegion(powerUp);
-	_powerUps.push_back(powerUp);
-	
-	while (_nests.size() < 1)
-	{
-		AlienNest* nest = new AlienNest(_interceptors, _abductors, _bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor), _textureHolder.get(Textures::ID::Projectile_Interceptor));
-
-		float x = rand() % (int)(_worldBounds.width - 256) + 128;
-		float y = rand() % (int)(_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 256) + 128;
-
-		nest->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::AlienNest), _worldBounds);
-
-		SetupRegion(nest);
-
-		_nests.push_back(nest);
-	}
-	
-	_player = new Player(_projectiles, _textureHolder.get(Textures::ID::Projectile_PlayerLazer));
-	_player->Initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
-	SetupRegion(_player);
-	
-	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldBounds.height * 0.5f));
+	_indicationText.setFont(_fontHolder.get(Fonts::ID::Normal));
+	_indicationText.setString("PRESS ENTER TO PLAY");
+	_indicationText.setPosition(sf::Vector2f(_worldBounds.width * 0.5f - (25 * _indicationText.getString().getSize() * 0.5f), _worldBounds.height * 0.5f));
+	_indicationText.setCharacterSize(25);
 
 	_statisticsText.setFont(_fontHolder.get(Fonts::ID::Normal));
 	_statisticsText.setPosition(5.f, 5.f);
 	_statisticsText.setCharacterSize(10);
 
-
 	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Menu);
-
-
-	_state = State::Game;
-	_level = 1;
-	_hud = new HUD();
-	_hud->Initialize(_textureHolder, _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size(), _player);
-	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
 }
 
 void Game::loadContent()
@@ -244,13 +162,32 @@ void Game::update(sf::Time elapsedTime)
 
 void Game::UpdateMenu(sf::Time elapsedTime)
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+	{
+		InitializeNewGame();
+		NewLevel();
 
+		_state = State::Game;
+
+		_hud = new HUD();
+		_hud->Initialize(_textureHolder, _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size(), _player);
+
+		AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
+	}
 }
 void Game::UpdateGame(sf::Time elapsedTime)
 {
 	if (_player->getLives() > 0 && _astronauts.size() > 0)
 	{
-		//CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+		int enemiesLeft = _abductors.size() + _nests.size() + _mutants.size();
+
+		if (enemiesLeft == 0)
+		{
+			NewLevel();
+			enemiesLeft = _abductors.size() + _nests.size() + _mutants.size();
+		}
+
+
 		CollisionManager::Instance()->CheckForCollisions(_regions);
 		AudioManager::Instance()->Update(elapsedTime.asSeconds());
 		ParticleSystemManager::Instance()->Update(elapsedTime.asSeconds());
@@ -271,16 +208,172 @@ void Game::UpdateGame(sf::Time elapsedTime)
 
 		UpdateCamera();
 
-		_hud->Update(elapsedTime.asSeconds(), _score, _astronauts.size(), _abductors.size() + _nests.size() + _mutants.size(), _level, _worldView.getCenter() - _worldView.getSize()*0.5f);
+		_hud->Update(elapsedTime.asSeconds(), _score, _astronauts.size(), enemiesLeft, _level, _worldView.getCenter() - _worldView.getSize()*0.5f);
 	}
 	else
 	{
-
+		_indicationText.setPosition(sf::Vector2f(_worldBounds.width * 0.5f - (25 * _indicationText.getString().getSize() * 0.5f), _worldBounds.height * 0.5f));
+		_state = State::GameOver;
+		AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Menu);
 	}
 }
 void Game::UpdateGameOver(sf::Time elapsedTime)
 {
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+	{
+		RestartGame();
 
+		_state = State::Game;
+
+		_hud = new HUD();
+		_hud->Initialize(_textureHolder, _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size(), _player);
+
+		AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
+	}
+}
+
+void Game::RestartGame()
+{
+	_level = 0;
+	_nestsToSpawn = 0;
+	_mutantsToSpawn = 0;
+
+	Destroy();
+
+	InitializeNewGame();
+
+	NewLevel();
+}
+void Game::InitializeNewGame()
+{
+	for (int i = 0; _regions.size() < SCREEN_TIME_SIZE; i++)
+	{
+		Region* region = new Region();
+
+		region->Initialize(sf::Vector2f(i * _worldView.getSize().x, 0), _textureHolder.get(Textures::ID::Background), _textureHolder.get(Textures::ID::Foreground));
+
+		_regions.push_back(region);
+	}
+
+	while (_astronauts.size() < 5)
+	{
+		Astronaut* astronaut = new Astronaut();
+
+		float x = rand() % (int)(_worldBounds.width - 256) + 128;
+		float y = _worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 32;
+
+		astronaut->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
+
+		_astronauts.push_back(astronaut);
+
+		SetupRegion(astronaut);
+	}
+
+	while (_meteors.size() < MAX_METEORS)
+	{
+		Meteor* meteor = new Meteor();
+
+		meteor->Initialize(_textureHolder.get(Textures::ID::Obstacle_Meteor), _worldBounds);
+
+		_meteors.push_back(meteor);
+
+		SetupRegion(meteor);
+	}
+
+	PowerUp* powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
+
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_Shield), ObjectType::PowerUp_Shield, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
+
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_RapidFire), ObjectType::PowerUp_RapidFire, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
+
+	_player = new Player(_projectiles, _textureHolder.get(Textures::ID::Projectile_PlayerLazer));
+	_player->Initialize(sf::Vector2f(_worldBounds.width * 0.5f, _worldBounds.height * 0.5f), _textureHolder.get(Textures::ID::Player), _worldBounds);
+	SetupRegion(_player);
+
+	_worldView.setCenter(sf::Vector2f(_player->getPosition().x, _worldBounds.height * 0.5f));
+}
+void Game::NewLevel()
+{
+	_level++;
+
+	int astronatsToSpawn = 3;
+
+	if (_level < 3)
+	{
+		_nestsToSpawn++;
+		_mutantsToSpawn++;
+	}
+	else
+	{
+		_nestsToSpawn++;
+		_mutantsToSpawn = _nests.size() * MUTANTS_PER_NEST;
+	}
+
+	while (_nests.size() < _nestsToSpawn)
+	{
+		AlienNest* nest = new AlienNest(_interceptors, _abductors, _bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor), _textureHolder.get(Textures::ID::Projectile_Interceptor));
+
+		float x = rand() % (int)(_worldBounds.width - 256) + 128;
+		float y = rand() % (int)(_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 256 - HUD_HEIGHT) + 128 + HUD_HEIGHT;
+
+		nest->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::AlienNest), _worldBounds);
+
+		SetupRegion(nest);
+
+		_nests.push_back(nest);
+	}
+
+	while (_mutants.size() < _nests.size() * _nests.size())
+	{
+		Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));
+
+		float x = (rand() % (int)_worldBounds.width - 60) + 30;
+		float y = (rand() % (int)_worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 128 - HUD_HEIGHT) + 64 + HUD_HEIGHT;
+
+		mutant->initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
+
+		_mutants.push_back(mutant);
+
+		SetupRegion(mutant);
+	}
+
+	for (int i = 0; i < astronatsToSpawn; i++)
+	{
+		Astronaut* astronaut = new Astronaut();
+
+		float x = rand() % (int)(_worldBounds.width - 256) + 128;
+		float y = _worldBounds.height * PLAYER_OFFSET_FROM_GROUND - 32;
+
+		astronaut->Initialize(sf::Vector2f(x, y), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
+
+		_astronauts.push_back(astronaut);
+
+		SetupRegion(astronaut);
+	}
+
+	PowerUp* powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_SuperJump), ObjectType::PowerUp_SuperJump, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
+
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_Shield), ObjectType::PowerUp_Shield, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
+
+	powerUp = new PowerUp();
+	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_RapidFire), ObjectType::PowerUp_RapidFire, _worldBounds);
+	SetupRegion(powerUp);
+	_powerUps.push_back(powerUp);
 }
 
 #pragma region Update Game Methods
@@ -526,7 +619,6 @@ void Game::UpdateMutants(sf::Time elapsedTime)
 	{
 		if (_mutants[i]->getAlive())
 		{
-			UpdateGameObjectBasedOnRegion(_mutants[i]);
 			switch (_mutants[i]->getState())
 			{
 			case  Mutant::State::seek:
@@ -552,9 +644,11 @@ void Game::UpdateMutants(sf::Time elapsedTime)
 			}
 			}
 			_mutants[i]->update(elapsedTime.asSeconds());
+			UpdateGameObjectBasedOnRegion(_mutants[i]);
 		}
 		else
 		{
+			_score += MUTANT_SCORE;
 			RemoveObjectFromRegion(_mutants[i]);
 			delete _mutants[i];
 			_mutants.erase(_mutants.begin() + i);
@@ -706,7 +800,7 @@ void Game::render()
 
 void Game::DrawMenu()
 {
-
+	_window.draw(_indicationText);
 }
 void Game::DrawGame()
 {
@@ -719,7 +813,14 @@ void Game::DrawGame()
 }
 void Game::DrawGameOver()
 {
+	DrawVisibleRegions();
+	DrawVisibleObjects();
 
+	ParticleSystemManager::Instance()->Draw(_window);
+	_hud->Draw(_window);
+	DrawRadar();
+
+	_window.draw(_indicationText);
 }
 
 #pragma region Draw Methods
@@ -837,61 +938,69 @@ void Game::DrawCameraRectangle()
 
 void Game::Destroy()
 {
+	ParticleSystemManager::Instance()->ClearParticles();
+
 	delete _player;
 
-	while (true)
+	for (int i = 0; i < _projectiles.size(); i++)
 	{
-		delete _projectiles[0];
+		delete _projectiles[i];
 	}
 	_projectiles.clear();
 
-	while (true)
+	for (int i = 0; i < _interceptors.size(); i++)
 	{
-		delete _interceptors[0];
+		delete _interceptors[i];
 	}
 	_interceptors.clear();
 
-	while (true)
+	for (int i = 0; i < _meteors.size(); i++)
 	{
-		delete _meteors[0];
+		delete _meteors[i];
 	}
 	_meteors.clear();
 
-	while (true)
+	for (int i = 0; i < _powerUps.size(); i++)
 	{
-		delete _powerUps[0];
+		delete _powerUps[i];
 	}
 	_powerUps.clear();
 
-	while (true)
+	for (int i = 0; i < _nests.size(); i++)
 	{
-		delete _nests[0];
+		delete _nests[i];
 	}
 	_nests.clear();
 
-	while (true)
+	for (int i = 0; i < _abductors.size(); i++)
 	{
-		delete _abductors[0];
+		delete _abductors[i];
 	}
 	_abductors.clear();
 
-	while (true)
+	for (int i = 0; i < _mutants.size(); i++)
 	{
-		delete _mutants[0];
+		delete _mutants[i];
 	}
 	_mutants.clear();
 
-	while (true)
+	for (int i = 0; i < _astronauts.size(); i++)
 	{
-		delete _astronauts[0];
+		delete _astronauts[i];
 	}
 	_astronauts.clear();
 
-	while (true)
+	for (int i = 0; i < _regions.size(); i++)
 	{
-		delete _regions[0];
+		delete _regions[i];
 	}
 	_regions.clear();
+
+	for (int i = 0; i < _bullets.size(); i++)
+	{
+		delete _bullets[i];
+	}
+	_bullets.clear();
 
 	delete _hud;
 }
