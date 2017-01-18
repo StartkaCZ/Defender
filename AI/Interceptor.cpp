@@ -2,6 +2,9 @@
 #include "ConstHolder.h"
 #include "Vector2Calculator.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
 Interceptor::Interceptor(int& parentRocketCounter)
 	: _parentRocketCounter(parentRocketCounter)
 {
@@ -49,7 +52,7 @@ void Interceptor::CalculateVelocity(sf::Vector2f playerPosition)
 
 void Interceptor::CollisionEnter(GameObject*& objectCollided)
 {
-	if (objectCollided->getType() == ObjectType::Player)
+	if (objectCollided->getType() == ObjectType::Player || objectCollided->getType() == ObjectType::Obstacle_Meteor)
 	{
 		Die();
 	}
@@ -59,4 +62,7 @@ void Interceptor::Die()
 	Projectile::Die();
 	
 	_parentRocketCounter--;
+
+	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::EnemyLazer);
 }

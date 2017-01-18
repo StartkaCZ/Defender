@@ -1,6 +1,8 @@
 #include "Projectile.h"
 #include "ConstHolder.h"
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
 
 Projectile::Projectile()
 {
@@ -43,7 +45,8 @@ void Projectile::CollisionEnter(GameObject*& objectCollided)
 {
 	if (_type == ObjectType::Projetile_PlayerLazer)
 	{
-		if (objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
+		if (objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || 
+			objectCollided->getType() == ObjectType::Mutant || objectCollided->getType() == ObjectType::Obstacle_Meteor)
 		{
 			Die();
 		}
@@ -60,6 +63,9 @@ void Projectile::CollisionEnter(GameObject*& objectCollided)
 void Projectile::Die()
 {
 	_isAlive = false;
+
+	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::EnemyLazer);
 }
 
 bool Projectile::getAlive() const

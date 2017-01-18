@@ -12,12 +12,14 @@ Game::Game()
 	, _worldBounds(0.f, 0.f, _worldView.getSize().x * SCREEN_TIME_SIZE, _worldView.getSize().y)
 	, _textureHolder()
 	, _player(nullptr)
+	, _hud(nullptr)
 	, _projectiles(std::vector<Projectile*>())
 	, _interceptors(std::vector<Interceptor*>())
 	, _meteors(std::vector<Meteor*>())
 	, _powerUps(std::vector<PowerUp*>())
 	, _nests(std::vector<AlienNest*>())
 	, _abductors(std::vector<Abductor*>())
+	, _astronauts(std::vector<Astronaut*>())
 	, _regions(std::vector<Region*>())
 	, _statisticsText()
 	, _statisticsUpdateTime()
@@ -36,7 +38,7 @@ Game::Game()
 		_regions.push_back(region);
 	}
 
-	/*
+	
 	while (_meteors.size() < MAX_METEORS)
 	{
 		Meteor* meteor = new Meteor();
@@ -62,7 +64,7 @@ Game::Game()
 	powerUp->Initialize(_textureHolder.get(Textures::ID::PowerUp_RapidFire), ObjectType::PowerUp_RapidFire, _worldBounds);
 	SetupRegion(powerUp);
 	_powerUps.push_back(powerUp);
-	*/
+	
 	while (_nests.size() < 1)
 	{
 		AlienNest* nest = new AlienNest(_interceptors, _abductors, _textureHolder.get(Textures::ID::Projectile_Interceptor), _textureHolder.get(Textures::ID::Abductor));
@@ -92,6 +94,8 @@ Game::Game()
 
 
 	_state = State::Game;
+	_hud = new HUD();
+	_hud->Initialize(_textureHolder.get(Textures::ID::HUD), _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size());
 	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
 }
 
@@ -228,7 +232,7 @@ void Game::UpdateGame(sf::Time elapsedTime)
 
 	UpdateCamera();
 
-	_score++;
+	_hud->Update(elapsedTime.asSeconds(), _score, _player->getLives(), _astronauts.size(), _worldView.getCenter() - _worldView.getSize()*0.5f);
 }
 void Game::UpdateGameOver(sf::Time elapsedTime)
 {
@@ -310,6 +314,7 @@ void Game::UpdatePowerUps(sf::Time elapsedTime)
 		}
 		else
 		{
+			_score += 10;
 			RemoveObjectFromRegion(_powerUps[i]);
 			delete _powerUps[i];
 			_powerUps.erase(_powerUps.begin() + i);
@@ -323,11 +328,12 @@ void Game::UpdateAlienNests(sf::Time elapsedTime)
 	{
 		if (_nests[i]->getAlive())
 		{
-			_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			_nests[i]->Update(elapsedTime.asSeconds(), _player->getPosition(), _meteors);
 			UpdateGameObjectBasedOnRegion(_nests[i]);
 		}
 		else
 		{
+			_score += 250;
 			RemoveObjectFromRegion(_nests[i]);
 			delete _nests[i];
 			_nests.erase(_nests.begin() + i);
@@ -452,14 +458,14 @@ void Game::DrawGame()
 		_regions[_player->getRegion() - 1]->Draw(_window);
 	}
 
-	_regions[_player->getRegion()]->Draw(_window);
-
 	if (_player->getRegion() + 1 < _regions.size())
 	{
 		_regions[_player->getRegion() + 1]->Draw(_window);
 	}
 
-	DrawMeteors();
+	_regions[_player->getRegion()]->Draw(_window);
+
+	/*DrawMeteors();
 
 	DrawAlienNests();
 	DrawAbductors();
@@ -469,9 +475,10 @@ void Game::DrawGame()
 	DrawProjectiles();
 	DrawInterceptors();
 
-	_window.draw(*_player);
+	_window.draw(*_player);*/
 
 	ParticleSystemManager::Instance()->Draw(_window);
+	_hud->Draw(_window);
 	DrawRadar();
 }
 void Game::DrawGameOver()
@@ -593,35 +600,57 @@ void Game::DrawCameraRectangle()
 
 void Game::Destroy()
 {
+	delete _player;
+
 	for (int i = 0; i < _projectiles.size(); i++)
 	{
-		_window.draw(*_projectiles[i]);
+		delete _projectiles[i];
 	}
+	_projectiles.clear();
 
 	for (int i = 0; i < _interceptors.size(); i++)
 	{
-		_window.draw(*_interceptors[i]);
+		delete _interceptors[i];
 	}
+	_interceptors.clear();
 
 	for (int i = 0; i < _meteors.size(); i++)
 	{
-		_window.draw(*_meteors[i]);
+		delete _meteors[i];
 	}
+	_meteors.clear();
 
 	for (int i = 0; i < _powerUps.size(); i++)
 	{
-		_window.draw(*_powerUps[i]);
+		delete _powerUps[i];
 	}
+	_powerUps.clear();
 
 	for (int i = 0; i < _nests.size(); i++)
 	{
-		_window.draw(*_nests[i]);
+		delete _nests[i];
 	}
+	_nests.clear();
 
 	for (int i = 0; i < _abductors.size(); i++)
 	{
-		_window.draw(*_abductors[i]);
+		delete _abductors[i];
 	}
+	_abductors.clear();
+
+	for (int i = 0; i < _astronauts.size(); i++)
+	{
+		delete _astronauts[i];
+	}
+	_astronauts.clear();
+
+	for (int i = 0; i < _regions.size(); i++)
+	{
+		delete _regions[i];
+	}
+	_regions.clear();
+
+	delete _hud;
 }
 
 void Game::updateStatistics(sf::Time elapsedTime)
@@ -633,8 +662,7 @@ void Game::updateStatistics(sf::Time elapsedTime)
 	{
 		_statisticsText.setString(
 			"Frames / Second = " + toString(_statisticsNumFrames) + "\n" +
-			"Time / Update = " + toString(_statisticsUpdateTime.asMicroseconds() / _statisticsNumFrames) + "us\n" + 
-			"Score = " + toString(_score));
+			"Time / Update = " + toString(_statisticsUpdateTime.asMicroseconds() / _statisticsNumFrames) + "us\n");
 		
 		_statisticsUpdateTime -= sf::seconds(1.0f);
 		_statisticsNumFrames = 0;

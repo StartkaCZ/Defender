@@ -4,6 +4,7 @@
 #include "Projectile.h"
 #include "Abductor.h"
 #include "Interceptor.h"
+#include "Meteor.h"
 
 class AlienNest : public GameObject
 {
@@ -12,7 +13,7 @@ public:
 							~AlienNest();
 
 	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
-	void					Update(float dt, sf::Vector2f playerPosition);
+	void					Update(float dt, sf::Vector2f playerPosition, std::vector<Meteor*>& meteors);
 
 	virtual void			CollisionEnter(GameObject*& objectCollided) override;
 	void					TakenDamage();
@@ -31,6 +32,7 @@ private:
 
 	void					Wonder();
 	void					Evade();
+	void					AvoidMeteors(std::vector<Meteor*>& meteors);
 
 	void					CheckBorder();
 

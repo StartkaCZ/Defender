@@ -46,13 +46,15 @@ void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Floa
 
 	Move();
 }
-void AlienNest::Update(float dt, sf::Vector2f playerPosition)
+void AlienNest::Update(float dt, sf::Vector2f playerPosition, std::vector<Meteor*>& meteors)
 {
-	UpdateBehaviour(playerPosition);
+	//UpdateBehaviour(playerPosition);
 
 	FireRateTimer(dt);
 	SpawnTimer(dt);
 	WonderTimer(dt);
+
+	AvoidMeteors(meteors);
 
 	move(_velocity * NEST_MAX_SPEED * dt);
 
@@ -231,6 +233,84 @@ void AlienNest::Evade()
 	}
 }
 
+void AlienNest::AvoidMeteors(std::vector<Meteor*>& meteors)
+{
+	for (int i = 0; i < meteors.size(); i++)
+	{
+		if (meteors[i]->getRegion() == _region || meteors[i]->getRegion() + 1 == _region || meteors[i]->getRegion() - 1 == _region)
+		{
+			float distance = Vector2Calculator::Distance(meteors[i]->getPosition(), getPosition());
+
+			sf::Vector2f difference = meteors[i]->getPosition() - getPosition();
+			float differenceAngle = std::atan2(difference.y, difference.x) * 180 / PI;
+
+			if (differenceAngle < 0)
+			{
+				differenceAngle += 360;
+			}
+
+			int angleBtw = abs(differenceAngle - _angle);
+
+			if (distance < (_size.y + _size.y * 0.5f))
+			{
+				if (angleBtw < 60)
+				{
+					_angle += 180;
+				}
+
+				if (_angle > 360)
+				{
+					_angle -= 360;
+				}
+				else if (_angle < 0)
+				{
+					_angle += 360;
+				}
+
+				_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
+			}
+			else if (distance < _size.y + _size.y + _size.y + _size.y + _size.y)
+			{
+				if (angleBtw < 60)
+				{
+					if (getPosition().y + _size.y > meteors[i]->getPosition().y)
+					{//i am above meteor
+						if (differenceAngle < _angle)
+						{
+							_angle += 15;
+						}
+						else
+						{
+							_angle -= 15;
+						}
+					}
+					else
+					{//i am below meteor
+						if (differenceAngle - _size.y < _angle)
+						{
+							_angle -= 15;
+						}
+						else
+						{
+							_angle += 15;
+						}
+					}
+
+					if (_angle > 360)
+					{
+						_angle -= 360;
+					}
+					else if (_angle < 0)
+					{
+						_angle += 360;
+					}
+
+					_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
+				}
+			}
+		}
+	}
+}
 
 void AlienNest::FireRateTimer(float dt)
 {

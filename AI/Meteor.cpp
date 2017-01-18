@@ -26,6 +26,11 @@ void Meteor::Initialize(sf::Texture &texture, sf::FloatRect screenSize)
 void Meteor::Update(float dt)
 {
 	move(_velocity * dt);
+
+	if (getPosition().y > _screenSize.y)
+	{
+		Restart();
+	}
 }
 
 void Meteor::Restart()
@@ -44,13 +49,18 @@ void Meteor::Restart()
 
 void Meteor::CollisionEnter(GameObject*& objectCollided)
 {
-	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer || 
+	if (//objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer || 
 		objectCollided->getType() == ObjectType::Player ||
 		objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
 	{
 		Die();
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
 		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::Death);
+	}
+	else if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
+	{
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem((getPosition() + objectCollided->getPosition()) * 0.5f, ParticleSystemManager::ParticleType::EnemyLazer);
 	}
 }
 

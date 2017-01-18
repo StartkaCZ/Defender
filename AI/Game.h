@@ -14,6 +14,7 @@
 #include "Projectile.h"
 #include "Interceptor.h"
 #include "Region.h"
+#include "HUD.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -96,6 +97,7 @@ private:
 	TextureHolder				_textureHolder;
 	FontHolder					_fontHolder;
 
+	HUD*						_hud;
 	Player*						_player;
 	std::vector<Projectile*>	_projectiles;
 	std::vector<Interceptor*>	_interceptors;
@@ -103,9 +105,11 @@ private:
 	std::vector<PowerUp*>		_powerUps;
 	std::vector<AlienNest*>		_nests;
 	std::vector<Abductor*>		_abductors;
+	std::vector<Astronaut*>		_astronauts;
 	std::vector<Region*>		_regions;
 
 	int							_score;
+	int							_level;
 
 	State						_state;
 

@@ -357,8 +357,12 @@ void Player::TakenDamage()
 	}
 }
 
+int Player::getLives() const
+{
+	return _lifes;
+}
 
-bool Player::hasNuked()
+bool Player::hasNuked() const
 {
 	return _hasNuked;
 }

@@ -4,8 +4,8 @@ AudioManager* AudioManager::_instance = nullptr;
 
 AudioManager::AudioManager()
 	: _playingSounds(std::queue<sf::Sound>())
-	, _canPlayMusic(true)
-	, _canPlaySounds(true)
+	, _canPlayMusic(false)
+	, _canPlaySounds(false)
 {
 	
 }
@@ -101,24 +101,27 @@ void AudioManager::AddSoundEffect(sf::SoundBuffer& buffer)
 
 void AudioManager::PlayMusic(MusicType type)
 {
-	switch (type)
+	if (_canPlayMusic)
 	{
-	case AudioManager::MusicType::Game:
-		_menuMusic.stop();
+		switch (type)
+		{
+		case AudioManager::MusicType::Game:
+			_menuMusic.stop();
 
-		_gameMusic.play();
-		_gameMusic.setLoop(true);
-		break;
+			_gameMusic.play();
+			_gameMusic.setLoop(true);
+			break;
 
-	case AudioManager::MusicType::Menu:
-		_gameMusic.stop();
+		case AudioManager::MusicType::Menu:
+			_gameMusic.stop();
 
-		_menuMusic.play();
-		_menuMusic.setLoop(true);
-		break;
+			_menuMusic.play();
+			_menuMusic.setLoop(true);
+			break;
 
-	default:
-		break;
+		default:
+			break;
+		}
 	}
 }
 	   

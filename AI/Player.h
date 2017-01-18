@@ -19,7 +19,8 @@ public:
 	virtual void			CollisionEnter(GameObject*& objectCollided) override;
 	void					TakenDamage();
 
-	bool					hasNuked();
+	bool					hasNuked() const;
+	int						getLives() const;
 
 
 private:
