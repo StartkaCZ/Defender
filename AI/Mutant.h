@@ -61,6 +61,8 @@ public:
 	void					Die();
 	bool					getAlive();
 
+	virtual void			CollisionEnter(GameObject*& objectCollided) override;
+
 	State					getState();
 	void					setState(State state);
 

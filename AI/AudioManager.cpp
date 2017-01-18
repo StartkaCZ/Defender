@@ -32,7 +32,7 @@ AudioManager* AudioManager::Instance()
 void AudioManager::LoadContent()
 {
 	_unitHitSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
-	__unitDestroyedSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
+	_unitDestroyedSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
 	_powerUpCollectedSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
 	_nukedSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
 	_superJumpSoundBuffer.loadFromFile("Media/Audio/Yay.wav");
@@ -65,7 +65,7 @@ void AudioManager::PlaySound(SoundType type)
 			break;
 
 		case AudioManager::SoundType::UnitDestroyed:
-			AddSoundEffect(__unitDestroyedSoundBuffer);
+			AddSoundEffect(_unitDestroyedSoundBuffer);
 			break;
 
 		case AudioManager::SoundType::PowerUpCollected:

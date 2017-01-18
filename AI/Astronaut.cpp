@@ -25,7 +25,7 @@ Astronaut::~Astronaut()
 void Astronaut::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Astronaut);
-	sf::Vector2f scale = sf::Vector2f(0.3f, 0.3f);
+	sf::Vector2f scale = sf::Vector2f(0.2f, 0.2f);
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 

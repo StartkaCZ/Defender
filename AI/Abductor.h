@@ -65,6 +65,8 @@ public:
 	bool					flee(sf::Vector2f);
 	void					borders();
 
+	virtual void			CollisionEnter(GameObject*& objectCollided) override;
+
 	void					TakenDamage();
 	void					Die();
 	bool					getAlive();

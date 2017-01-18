@@ -36,5 +36,10 @@ public:
 			Die();
 		}
 	}
+
+	virtual void	CollisionEnter(GameObject*& objectCollided) override
+	{
+
+	}
 };
 

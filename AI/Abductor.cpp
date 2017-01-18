@@ -2,6 +2,10 @@
 #include "ConstHolder.h"
 #include <math.h>
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
+#include "CollisionManager.h"
 
 Abductor::Abductor(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
 	: _target(nullptr), _state(State::flock), _bullets(bullets), _bulletTexture(bulletTexture), _lifes(1), _isAlive(true), _canFire(true)
@@ -19,7 +23,7 @@ void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::Float
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 	acceleration = Pvector(0, 0);
 	velocity = Pvector(rand() % 6 - 2,0); // Allows for range of -2 -> 2
-	maxSpeed = 5;
+	maxSpeed = 5.0f;
 	maxForce = 0.5f;
 	location =  Pvector(position.x, position.y);
 }
@@ -223,6 +227,8 @@ void Abductor::Shoot(sf::Vector2f direction)
 		Bullet* bullet = new Bullet();
 		bullet->initialize(getPosition(), _bulletTexture, direction, _screenSize);
 
+		bullet->SetRegion(_region);
+
 		_bullets.push_back(bullet);
 		_canFire = false;
 	}
@@ -236,7 +242,7 @@ void Abductor::flock(vector<Abductor*> v,  sf::Vector2f playerPos)
 	Pvector ali = Alignment(v);
 	Pvector coh = Cohesion(v);
 
-	float groundLevel = _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y;
+	float groundLevel = _screenSize.y * PLAYER_OFFSET_FROM_GROUND ;
 
 	if (location.y > groundLevel)
 	{
@@ -245,10 +251,10 @@ void Abductor::flock(vector<Abductor*> v,  sf::Vector2f playerPos)
 
 		sep.addVector(Pvector(0, -force.y * 0.18f));
 	}
-	else if (location.y < HUD_HEIGHT + _size.y)
+	else if (location.y < HUD_HEIGHT)
 	{
 		Pvector force(0, 0);
-		force.y = location.y - HUD_HEIGHT + _size.y;
+		force.y = location.y - HUD_HEIGHT;
 
 		sep.addVector(Pvector(0, -force.y * 0.18f));
 	}
@@ -288,7 +294,7 @@ void Abductor::findAstronaut(Astronaut* astro)
 
 void Abductor::seek()
 {
-	Pvector targetPos = Pvector(_target->getPosition().x, _target->getPosition().y - 32);
+	Pvector targetPos = Pvector(_target->getPosition().x, _target->getPosition().y - 20);
 	Pvector currentPos = Pvector(getPosition().x, getPosition().y);
 	Pvector ab = targetPos - currentPos;
 	ab.normalize();
@@ -333,9 +339,54 @@ bool Abductor::flee(sf::Vector2f playerPos)
 void Abductor::borders()
 {
 	if (location.x < 0) location.x += _screenSize.x;
-	//if (location.y < -200) location.y += _screenSize.y + 200;
-	if (location.x > 2400) location.x -= _screenSize.x;
+	if (location.x > _screenSize.x) location.x -= _screenSize.x;
 	
+}
+
+void Abductor::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
+	{
+		TakenDamage();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleType::PlayerLazer);
+	}
+	else if (objectCollided->getType() == ObjectType::Obstacle_Meteor)
+	{
+		Die();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
+	}
+	else if (objectCollided->getType() == ObjectType::Astronaut)
+	{
+		if (_state == Abductor::State::seek)
+		{
+
+			if (_target != nullptr)
+			{
+
+				sf::Vector2f modiflyPos = getPosition();
+				sf::Vector2f modiflySize = getSize() - sf::Vector2f(26, 10);
+				if (modiflyPos.y + getSize().y < _target->getPosition().y)
+				{
+					
+
+					sf::Vector2f astroPosOffset = _target->getPosition() - getPosition();
+					setState(Abductor::State::flee);
+					setTargetPosOffset(astroPosOffset);
+
+					_target->setState(Astronaut::State::capture);
+					
+				}
+			}
+		}
+	}
+	else if (objectCollided->getType() == ObjectType::Player)
+	{
+		Player * p = static_cast<Player*>(objectCollided);
+		//p->TakenDamage();
+		Die();
+	}
 }
 
 void Abductor::TakenDamage()

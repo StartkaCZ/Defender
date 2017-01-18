@@ -46,7 +46,7 @@ private:
 	static AudioManager*	_instance;
 
 	sf::SoundBuffer			_unitHitSoundBuffer;
-	sf::SoundBuffer			__unitDestroyedSoundBuffer;
+	sf::SoundBuffer			_unitDestroyedSoundBuffer;
 	sf::SoundBuffer			_powerUpCollectedSoundBuffer;
 	sf::SoundBuffer			_nukedSoundBuffer;
 	sf::SoundBuffer			_superJumpSoundBuffer;

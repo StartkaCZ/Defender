@@ -50,14 +50,18 @@ Game::Game()
 		mutant->initialize(sf::Vector2f(x,y), _textureHolder.get(Textures::ID::Mutant), _worldBounds);
 
 		_mutants.push_back(mutant);
+
+		SetupRegion(mutant);
 	}
 
 	while (_astronauts.size() < 5)
 	{
 		Astronaut* astronaut = new Astronaut();
-		astronaut->Initialize(sf::Vector2f(800, 200), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
+		astronaut->Initialize(sf::Vector2f(800, 499), _textureHolder.get(Textures::ID::Astronaut), _worldBounds);
 
 		_astronauts.push_back(astronaut);
+
+		SetupRegion(astronaut);
 	}
 	
 	while (_meteors.size() < MAX_METEORS)
@@ -547,7 +551,8 @@ void Game::UpdateAstronauts(sf::Time elapsedTime)
 		if (_astronauts[i]->getAlive())
 		{
 			_astronauts[i]->update(elapsedTime.asSeconds());
-			
+			UpdateGameObjectBasedOnRegion(_astronauts[i]);
+
 			int closestAlien;
 			int closestDistance = 400;
 			bool abductorsNearby = false;
@@ -601,6 +606,7 @@ void Game::UpdateAstronauts(sf::Time elapsedTime)
 					_abductors[j]->setState(Abductor::State::flock);
 				}
 			}
+			RemoveObjectFromRegion(_astronauts[i]);
 			delete _astronauts[i];
 			_astronauts.erase(_astronauts.begin() + i);
 			i--;

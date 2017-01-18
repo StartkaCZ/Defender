@@ -2,6 +2,9 @@
 #include "ConstHolder.h"
 #include <math.h>
 
+#include "ParticleSystemManager.h"
+#include "AudioManager.h"
+
 #define PI 3.141592635
 
 Mutant::Mutant(std::vector<Bullet*>& bullets, sf::Texture &bulletTexture)
@@ -84,7 +87,7 @@ void Mutant::Shoot(sf::Vector2f diretion)
 	{
 		Bullet* bullet = new Bullet();
 		bullet->initialize(getPosition(), _bulletTexture, diretion, _screenSize);
-
+		bullet->SetRegion(_region);
 		_bullets.push_back(bullet);
 		_canFire = false;
 	}
@@ -190,6 +193,21 @@ void Mutant::seek(sf::Vector2f p)
 	}
 }
 
+void Mutant::CollisionEnter(GameObject*& objectCollided)
+{
+	if (objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
+	{
+		TakenDamage();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleType::PlayerLazer);
+	}
+	else if (objectCollided->getType() == ObjectType::Obstacle_Meteor)
+	{
+		Die();
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
+	}
+}
 
 // Checks if boids go out of the window and if so, wraps them around to the other side.
 void Mutant::borders()
