@@ -49,15 +49,7 @@ void Meteor::Restart()
 
 void Meteor::CollisionEnter(GameObject*& objectCollided)
 {
-	if (//objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer || 
-		objectCollided->getType() == ObjectType::Player ||
-		objectCollided->getType() == ObjectType::Abductor || objectCollided->getType() == ObjectType::AlienNest || objectCollided->getType() == ObjectType::Mutant)
-	{
-		Die();
-		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
-		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
-	}
-	else if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
+	if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
 	{
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
 		ParticleSystemManager::Instance()->CreateParticleSystem((getPosition() + objectCollided->getPosition()) * 0.5f, ParticleType::EnemyLazer);

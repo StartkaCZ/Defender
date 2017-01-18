@@ -1,5 +1,6 @@
 #include "Astronaut.h"
 #include "ConstHolder.h"
+
 Astronaut::Astronaut() :
 	_state(State::fall),
 	_currentFrame(1),

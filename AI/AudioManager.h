@@ -16,6 +16,10 @@ public:
 		Nuked,
 		SuperJump,
 		ShotFired,
+		AstronautKidnapped,
+		AstronautReleased,
+
+		GameOver
 	};
 
 	enum class MusicType
@@ -51,6 +55,9 @@ private:
 	sf::SoundBuffer			_nukedSoundBuffer;
 	sf::SoundBuffer			_superJumpSoundBuffer;
 	sf::SoundBuffer			_shotFiredSoundBuffer;
+	sf::SoundBuffer			_astronautKidnappedBuffer;
+	sf::SoundBuffer			_astronautReleasedBuffer;
+	sf::SoundBuffer			_gameOverBuffer;
 
 	sf::Music				_gameMusic;
 	sf::Music				_menuMusic;

@@ -90,6 +90,8 @@ void Mutant::Shoot(sf::Vector2f diretion)
 		bullet->SetRegion(_region);
 		_bullets.push_back(bullet);
 		_canFire = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
 	}
 }
 
@@ -231,6 +233,8 @@ void Mutant::TakenDamage()
 void Mutant::Die()
 {
 	_isAlive = false;
+	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
 }
 
 bool Mutant::getAlive()

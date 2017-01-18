@@ -364,4 +364,7 @@ void AlienNest::TakenDamage()
 void AlienNest::Die()
 {
 	_isAlive = false;
+
+	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
 }

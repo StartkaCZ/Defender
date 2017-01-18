@@ -21,8 +21,11 @@ void HUD::Initialize(TextureHolder& textureHolder, sf::Font& font, int level, in
 
 	//SETUP FOR SPRITES
 	SetupSprite(_lifesSprite, textureHolder.get(Textures::ID::Player), sf::Vector2f(10, HUD_HEIGHT - 70), ICON_SCALE, true);
-	SetupSprite(_astronautsSprite, textureHolder.get(Textures::ID::Astronaut), sf::Vector2f(10, HUD_HEIGHT - 47.5f), ICON_SCALE, true);
+	SetupSprite(_astronautsSprite, textureHolder.get(Textures::ID::Astronaut), sf::Vector2f(10, HUD_HEIGHT - 50.f), ICON_SCALE, true);
 	SetupSprite(_superJumpsSprite, textureHolder.get(Textures::ID::PowerUp_SuperJump), sf::Vector2f(10, HUD_HEIGHT - 25), ICON_SCALE, true);
+
+	_astronautsSprite.setTextureRect(sf::IntRect(0, 0, 64, 128));
+	_astronautsSprite.setScale(0.175f, 0.175f);
 
 	SetupSprite(_nukeSprite, textureHolder.get(Textures::ID::IconNuke), sf::Vector2f(250, HUD_HEIGHT - 47.5f), 1, _player->canNuke());
 	SetupSprite(_rapidFireSprite, textureHolder.get(Textures::ID::PowerUp_RapidFire), sf::Vector2f(500, HUD_HEIGHT - 47.5f), 1, _player->rapidFire());
@@ -67,7 +70,7 @@ void HUD::Update(float dt, int score, int astronautsLeft, int enemiesLeft, int l
 
 	//Update FOR SPRITES
 	UpdateSprite(_lifesSprite, position + sf::Vector2f(10, HUD_HEIGHT - 70), true);
-	UpdateSprite(_astronautsSprite, position + sf::Vector2f(10, HUD_HEIGHT - 47.5f), true);
+	UpdateSprite(_astronautsSprite, position + sf::Vector2f(10, HUD_HEIGHT - 50.f), true);
 	UpdateSprite(_superJumpsSprite, position + sf::Vector2f(10, HUD_HEIGHT - 25), true);
 
 	UpdateSprite(_nukeSprite, position + sf::Vector2f(250, HUD_HEIGHT - 47.5f), _player->canNuke());

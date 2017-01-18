@@ -244,28 +244,35 @@ void Game::UpdateMenu(sf::Time elapsedTime)
 }
 void Game::UpdateGame(sf::Time elapsedTime)
 {
-	//CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
-	CollisionManager::Instance()->CheckForCollisions(_regions);
-	AudioManager::Instance()->Update(elapsedTime.asSeconds());
-	ParticleSystemManager::Instance()->Update(elapsedTime.asSeconds());
+	if (_player->getLives() > 0 && _astronauts.size() > 0)
+	{
+		//CollisionManager::Instance()->CheckForCollisions(_player, _projectiles, _interceptors, _powerUps, _meteors, _nests);
+		CollisionManager::Instance()->CheckForCollisions(_regions);
+		AudioManager::Instance()->Update(elapsedTime.asSeconds());
+		ParticleSystemManager::Instance()->Update(elapsedTime.asSeconds());
 
-	UpdatePlayer(elapsedTime);
+		UpdatePlayer(elapsedTime);
 
-	UpdateProjectiles(elapsedTime);
-	UpdateInterceptors(elapsedTime);
-	UpdateBullets(elapsedTime);
+		UpdateProjectiles(elapsedTime);
+		UpdateInterceptors(elapsedTime);
+		UpdateBullets(elapsedTime);
 
-	UpdateMeteors(elapsedTime);
+		UpdateMeteors(elapsedTime);
 
-	UpdatePowerUps(elapsedTime);
-	UpdateAlienNests(elapsedTime);
-	UpdateAbductors(elapsedTime);
-	UpdateMutants(elapsedTime);
-	UpdateAstronauts(elapsedTime);
+		UpdatePowerUps(elapsedTime);
+		UpdateAlienNests(elapsedTime);
+		UpdateAbductors(elapsedTime);
+		UpdateMutants(elapsedTime);
+		UpdateAstronauts(elapsedTime);
 
-	UpdateCamera();
+		UpdateCamera();
 
-	_hud->Update(elapsedTime.asSeconds(), _score, _astronauts.size(), _abductors.size() + _nests.size() + _mutants.size(), _level, _worldView.getCenter() - _worldView.getSize()*0.5f);
+		_hud->Update(elapsedTime.asSeconds(), _score, _astronauts.size(), _abductors.size() + _nests.size() + _mutants.size(), _level, _worldView.getCenter() - _worldView.getSize()*0.5f);
+	}
+	else
+	{
+
+	}
 }
 void Game::UpdateGameOver(sf::Time elapsedTime)
 {
@@ -423,6 +430,7 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 					if (_abductors[i]->flee(_player->getPosition()))
 					{
 						_abductors[i]->getTarget()->Die();
+						_abductors[i]->setTarget(nullptr);
 						_abductors[i]->Die();
 
 						Mutant* mutant = new Mutant(_bullets, _textureHolder.get(Textures::ID::Projectile_Interceptor));

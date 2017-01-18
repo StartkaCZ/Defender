@@ -231,6 +231,8 @@ void Abductor::Shoot(sf::Vector2f direction)
 
 		_bullets.push_back(bullet);
 		_canFire = false;
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::ShotFired);
 	}
 }
 
@@ -361,22 +363,19 @@ void Abductor::CollisionEnter(GameObject*& objectCollided)
 	{
 		if (_state == Abductor::State::seek)
 		{
-
 			if (_target != nullptr)
 			{
-
 				sf::Vector2f modiflyPos = getPosition();
 				sf::Vector2f modiflySize = getSize() - sf::Vector2f(26, 10);
 				if (modiflyPos.y + getSize().y < _target->getPosition().y)
 				{
-					
-
 					sf::Vector2f astroPosOffset = _target->getPosition() - getPosition();
 					setState(Abductor::State::flee);
 					setTargetPosOffset(astroPosOffset);
 
 					_target->setState(Astronaut::State::capture);
-					
+
+					AudioManager::Instance()->PlaySound(AudioManager::SoundType::AstronautKidnapped);
 				}
 			}
 		}
@@ -396,6 +395,9 @@ void Abductor::TakenDamage()
 	if (_lifes == 0)
 	{
 		Die();
+
+		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
 	}
 }
 
@@ -409,6 +411,7 @@ void Abductor::Die()
 		if (_target->getState() == Astronaut::State::capture)
 		{
 			_target->setState(Astronaut::State::fall);
+			AudioManager::Instance()->PlaySound(AudioManager::SoundType::AstronautReleased);
 		}
 		_target = nullptr;
 	}
