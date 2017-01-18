@@ -23,8 +23,6 @@ void Projectile::initialize(sf::Vector2f position, sf::Texture &texture, sf::Vec
 	setRotation(std::atan2(_velocity.y, _velocity.x) * 180 / PI);
 
 	_timeToLive = timeToLive;
-
-	_isAlive = true;
 }
 
 void Projectile::Update(float dt)
@@ -65,10 +63,5 @@ void Projectile::Die()
 	_isAlive = false;
 
 	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::EnemyLazer);
-}
-
-bool Projectile::getAlive() const
-{
-	return _isAlive;
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::EnemyLazer);
 }

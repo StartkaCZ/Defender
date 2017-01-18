@@ -6,7 +6,7 @@ const float PLAYER_ACCELERATION = 10.0f;
 const float PLAYER_DECCELERATION = 12.5f;
 const float PLAYER_FIRE_RATE = 1.0f;
 const float	PLAYER_NUKE_TIMER = 60.0f;
-const float	PLAYER_SUPER_JUMP_TIMER = 5.0f;
+const float	PLAYER_SUPER_JUMP_TIMER = 1.0f;
 const float PLAYER_OFFSET_FROM_GROUND = 0.9f;
 const float PLAYER_MAX_LIVES = 3;
 const float PLAYER_LAZER_LIFE = 2.0f;
@@ -42,5 +42,16 @@ const float METEOR_FALL_SPEED = 20.0f;
 const float	PI = 3.141592;
 const float SCREEN_TIME_SIZE = 2.0f;// 9.0f;
 
-const int	MAX_METEORS = SCREEN_TIME_SIZE*2;
+const int	MAX_METEORS = SCREEN_TIME_SIZE;
 const int	MAX_POWER_UPS = 1;
+
+const int	RADAR_HIGHT = 150;
+const int   HUD_HEIGHT = 225;
+const float ICON_SCALE = 0.5f;
+const float SIZE_SCALAR = 0.20f;
+const float RADAR_CAMERA_RECTANGLE = 2.5f + 2.5f;
+
+const int	POWER_UP_SCORE = 10;
+const int	ABDUCTOR_SCORE = 50;
+const int	MUTANT_SCORE = 100;
+const int	NEST_SCORE = 250;

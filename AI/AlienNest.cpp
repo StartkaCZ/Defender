@@ -13,7 +13,6 @@ AlienNest::AlienNest(std::vector<Interceptor*>& interceptors, std::vector<Abduct
 	, _interceptors(interceptors)
 	, _abductors(abductors)
 	, _lifes(NEST_MAX_HEALTH)
-	, _isAlive(false)
 	, _canFire(true)
 	, _wondering(true)
 	, _canSpawnAbductor(true)
@@ -37,8 +36,6 @@ void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Floa
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 
-	_isAlive = true;
-
 	if (rand() % 2 == 0)
 	{
 		_angle = 180;
@@ -48,7 +45,7 @@ void AlienNest::Initialize(sf::Vector2f position, sf::Texture &texture, sf::Floa
 }
 void AlienNest::Update(float dt, sf::Vector2f playerPosition, std::vector<Meteor*>& meteors)
 {
-	//UpdateBehaviour(playerPosition);
+	UpdateBehaviour(playerPosition);
 
 	FireRateTimer(dt);
 	SpawnTimer(dt);
@@ -77,10 +74,7 @@ void AlienNest::UpdateBehaviour(sf::Vector2f playerPosition)
 		sf::Vector2f difference = playerPosition - getPosition();
 		float differenceAngle = std::atan2(difference.y, difference.x) * 180 / PI;
 
-		if (differenceAngle < 0)
-		{
-			differenceAngle += 360;
-		}
+		NormalizeAngle();
 
 		int angleBtw = abs(differenceAngle - _angle);
 
@@ -104,84 +98,22 @@ void AlienNest::Move()
 {
 	if (_wondering)
 	{
-		Wonder();
+		Orientate(15, rand() % 11);
 	}
 	else
 	{
-		Evade();
+		Orientate(30, 10);
 	}
 
-	if (_angle > 360)
-	{
-		_angle -= 360;
-	}
-	else if (_angle < 0)
-	{
-		_angle += 360;
-	}
+	NormalizeAngle();
 
 	_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
 }
 
-void AlienNest::Wonder()
-{
-	float predictedYposition = getPosition().y + _velocity.y * _size.y*3;
-	if (predictedYposition < _size.y)
-	{
-		//setPosition(getPosition().x, _size.y);
-		if (_angle >= 270)
-		{
-			_angle += 15;
-			_goClockWise = true;
-		}
-		else
-		{
-			_angle -= 15;
-			_goClockWise = false;
-		}
-	}
-	else if (predictedYposition > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
-	{
-		//setPosition(getPosition().x, _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y);
-
-		if (_angle >= 90)
-		{
-			_angle += 15;
-			_goClockWise = true;
-		}
-		else
-		{
-			_angle -= 15;
-			_goClockWise = false;
-		}
-	}
-	else
-	{
-		if (_keepGoingTimes == 0)
-		{
-			_goClockWise = rand() % 2 == 0;
-			_keepGoingTimes = rand() % 5 + 5;
-		}
-		else
-		{
-			_keepGoingTimes--;
-		}
-
-		int angleToAdd = rand() % 11;
-
-		if (!_goClockWise)
-		{
-			angleToAdd = -angleToAdd;
-		}
-
-		_angle += angleToAdd;
-	}
-}
-
-void AlienNest::Evade()
+void AlienNest::Orientate(int rotateBy, int angleToAdd)
 {
 	float predictedYposition = getPosition().y + _velocity.y * _size.y * 3;
-	if (predictedYposition < _size.y)
+	if (predictedYposition < HUD_HEIGHT + _size.y)
 	{
 		//setPosition(getPosition().x, _size.y);
 		if (_angle >= 270)
@@ -233,6 +165,18 @@ void AlienNest::Evade()
 	}
 }
 
+void AlienNest::NormalizeAngle()
+{
+	if (_angle > 360)
+	{
+		_angle -= 360;
+	}
+	else if (_angle < 0)
+	{
+		_angle += 360;
+	}
+}
+
 void AlienNest::AvoidMeteors(std::vector<Meteor*>& meteors)
 {
 	for (int i = 0; i < meteors.size(); i++)
@@ -258,14 +202,7 @@ void AlienNest::AvoidMeteors(std::vector<Meteor*>& meteors)
 					_angle += 180;
 				}
 
-				if (_angle > 360)
-				{
-					_angle -= 360;
-				}
-				else if (_angle < 0)
-				{
-					_angle += 360;
-				}
+				NormalizeAngle();
 
 				_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
 			}
@@ -296,14 +233,7 @@ void AlienNest::AvoidMeteors(std::vector<Meteor*>& meteors)
 						}
 					}
 
-					if (_angle > 360)
-					{
-						_angle -= 360;
-					}
-					else if (_angle < 0)
-					{
-						_angle += 360;
-					}
+					NormalizeAngle();
 
 					_velocity = sf::Vector2f(cos(_angle * PI / 180), sin(_angle * PI / 180));
 				}
@@ -377,7 +307,7 @@ void AlienNest::SpawnAbductor()
 	{
 		Abductor* abductor = new Abductor();
 
-		abductor->initialize(getPosition(), _abductorTexture, sf::FloatRect(0, 0, _screenSize.x, _screenSize.y));
+		abductor->Initialize(getPosition(), _abductorTexture, sf::FloatRect(0, 0, _screenSize.x, _screenSize.y));
 		abductor->SetRegion(_region);
 
 		_abductors.push_back(abductor);
@@ -395,9 +325,9 @@ void AlienNest::CheckBorder()
 		setPosition(0, getPosition().y);
 	}
 
-	if (getPosition().y < _size.y)
+	if (getPosition().y < _size.y + HUD_HEIGHT)
 	{
-		setPosition(getPosition().x, _size.y);
+		setPosition(getPosition().x, _size.y + HUD_HEIGHT);
 	}
 	else if (getPosition().y > _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y)
 	{
@@ -411,13 +341,13 @@ void AlienNest::CollisionEnter(GameObject*& objectCollided)
 	{
 		TakenDamage();
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleSystemManager::ParticleType::PlayerLazer);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleType::PlayerLazer);
 	}
 	else if (objectCollided->getType() == ObjectType::Obstacle_Meteor)
 	{
 		Die();
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::Death);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
 	}
 }
 void AlienNest::TakenDamage()
@@ -432,9 +362,4 @@ void AlienNest::TakenDamage()
 void AlienNest::Die()
 {
 	_isAlive = false;
-}
-
-bool AlienNest::getAlive() const
-{
-	return _isAlive;
 }

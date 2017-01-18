@@ -7,7 +7,7 @@
 #include "AudioManager.h"
 
 Game::Game()
-	: _window(sf::VideoMode(800, 600), "Defender", sf::Style::Close)
+	: _window(sf::VideoMode(1200, 900), "Defender", sf::Style::Close)
 	, _worldView(_window.getDefaultView())
 	, _worldBounds(0.f, 0.f, _worldView.getSize().x * SCREEN_TIME_SIZE, _worldView.getSize().y)
 	, _textureHolder()
@@ -19,6 +19,7 @@ Game::Game()
 	, _powerUps(std::vector<PowerUp*>())
 	, _nests(std::vector<AlienNest*>())
 	, _abductors(std::vector<Abductor*>())
+	, _mutants(std::vector<Mutant*>())
 	, _astronauts(std::vector<Astronaut*>())
 	, _regions(std::vector<Region*>())
 	, _statisticsText()
@@ -94,8 +95,9 @@ Game::Game()
 
 
 	_state = State::Game;
+	_level = 1;
 	_hud = new HUD();
-	_hud->Initialize(_textureHolder.get(Textures::ID::HUD), _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size());
+	_hud->Initialize(_textureHolder, _fontHolder.get(Fonts::ID::Normal), _level, _score, _player->getLives(), _astronauts.size(), _player);
 	AudioManager::Instance()->PlayMusic(AudioManager::MusicType::Game);
 }
 
@@ -118,24 +120,27 @@ void Game::loadContent()
 	_textureHolder.load(Textures::ID::Obstacle_Meteor, "Media/Textures/Meteor.png");
 
 	_textureHolder.load(Textures::ID::PowerUp_SuperJump, "Media/Textures/SuperJumpPowerUp.png");
-	_textureHolder.load(Textures::ID::PowerUp_Shield, "Media/Textures/SuperJumpPowerUp.png");
-	_textureHolder.load(Textures::ID::PowerUp_RapidFire, "Media/Textures/SuperJumpPowerUp.png");
+	_textureHolder.load(Textures::ID::PowerUp_Shield, "Media/Textures/ShieldPowerUp.png");
+	_textureHolder.load(Textures::ID::PowerUp_RapidFire, "Media/Textures/RapidFirePowerUp.png");
 
 	_textureHolder.load(Textures::ID::Background, "Media/Textures/Background.png");
 	_textureHolder.load(Textures::ID::Foreground, "Media/Textures/Foreground.png");
 	_textureHolder.load(Textures::ID::HUD, "Media/Textures/HUD.png");
+	_textureHolder.load(Textures::ID::IconNuke, "Media/Textures/IconNuke.png");
 
-	_textureHolder.load(Textures::ID::Particle_PlayerLazer, "Media/Textures/ParticleDeath.png");
-	_textureHolder.load(Textures::ID::Particle_EnemyLazer, "Media/Textures/ParticleDeath.png");
+	_textureHolder.load(Textures::ID::Particle_PlayerLazer, "Media/Textures/ParticlePlayerLazer.png");
+	_textureHolder.load(Textures::ID::Particle_EnemyLazer, "Media/Textures/ParticleEnemyLazer.png");
 	_textureHolder.load(Textures::ID::Particle_Death, "Media/Textures/ParticleDeath.png");
-	_textureHolder.load(Textures::ID::Particle_PowerUp, "Media/Textures/ParticleDeath.png");
+	_textureHolder.load(Textures::ID::Particle_PowerUp, "Media/Textures/ParticlePowerUp.png");
+	_textureHolder.load(Textures::ID::Particle_PlayerTrail, "Media/Textures/ParticlePlayerTrail.png");
 
 	_fontHolder.load(Fonts::ID::Normal, "Media/Sansation.ttf");
 
-	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::PlayerLazer, _textureHolder.get(Textures::ID::Particle_PlayerLazer));
-	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::EnemyLazer, _textureHolder.get(Textures::ID::Particle_EnemyLazer));
-	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::Death, _textureHolder.get(Textures::ID::Particle_Death));
-	ParticleSystemManager::Instance()->AddTexture(ParticleSystemManager::ParticleType::PowerUp, _textureHolder.get(Textures::ID::Particle_PowerUp));
+	ParticleSystemManager::Instance()->AddTexture(ParticleType::PlayerLazer, _textureHolder.get(Textures::ID::Particle_PlayerLazer));
+	ParticleSystemManager::Instance()->AddTexture(ParticleType::EnemyLazer, _textureHolder.get(Textures::ID::Particle_EnemyLazer));
+	ParticleSystemManager::Instance()->AddTexture(ParticleType::Death, _textureHolder.get(Textures::ID::Particle_Death));
+	ParticleSystemManager::Instance()->AddTexture(ParticleType::PowerUp, _textureHolder.get(Textures::ID::Particle_PowerUp));
+	ParticleSystemManager::Instance()->AddTexture(ParticleType::PlayerTrail, _textureHolder.get(Textures::ID::Particle_PlayerTrail));
 }
 
 void Game::SetupRegion(GameObject* gameObject)
@@ -232,7 +237,7 @@ void Game::UpdateGame(sf::Time elapsedTime)
 
 	UpdateCamera();
 
-	_hud->Update(elapsedTime.asSeconds(), _score, _player->getLives(), _astronauts.size(), _worldView.getCenter() - _worldView.getSize()*0.5f);
+	_hud->Update(elapsedTime.asSeconds(), _score, _astronauts.size(), _abductors.size() + _nests.size() + _mutants.size(), _level, _worldView.getCenter() - _worldView.getSize()*0.5f);
 }
 void Game::UpdateGameOver(sf::Time elapsedTime)
 {
@@ -314,7 +319,7 @@ void Game::UpdatePowerUps(sf::Time elapsedTime)
 		}
 		else
 		{
-			_score += 10;
+			_score += POWER_UP_SCORE;
 			RemoveObjectFromRegion(_powerUps[i]);
 			delete _powerUps[i];
 			_powerUps.erase(_powerUps.begin() + i);
@@ -333,7 +338,7 @@ void Game::UpdateAlienNests(sf::Time elapsedTime)
 		}
 		else
 		{
-			_score += 250;
+			_score += NEST_SCORE;
 			RemoveObjectFromRegion(_nests[i]);
 			delete _nests[i];
 			_nests.erase(_nests.begin() + i);
@@ -345,16 +350,19 @@ void Game::UpdateAbductors(sf::Time elapsedTime)
 {
 	for (int i = 0; i < _abductors.size(); i++)
 	{
-		/*if (_abductors[i]->getAlive())
+		if (_abductors[i]->getAlive())
 		{
-		_abductors[i]->Update(elapsedTime.asSeconds());
+			_abductors[i]->Update(elapsedTime.asSeconds(), _player->getPosition());
+			UpdateGameObjectBasedOnRegion(_abductors[i]);
 		}
 		else
 		{
-		delete _abductors[i];
-		_abductors.erase(_abductors.begin() + i);
-		i--;
-		}*/
+			_score += ABDUCTOR_SCORE;
+			RemoveObjectFromRegion(_abductors[i]);
+			delete _abductors[i];
+			_abductors.erase(_abductors.begin() + i);
+			i--;
+		}
 	}
 }
 
@@ -418,7 +426,38 @@ void Game::UpdateCamera()
 
 void Game::NukeReleased()
 {
+	for (int i = 0; i < _nests.size(); i++)
+	{
+		ParticleSystemManager::Instance()->CreateParticleSystem(_nests[i]->getPosition(), ParticleType::Death);
 
+		_score += NEST_SCORE;
+		RemoveObjectFromRegion(_nests[i]);
+		delete _nests[i];
+		_nests.erase(_nests.begin() + i);
+		i--;
+	}
+
+	for (int i = 0; i < _abductors.size(); i++)
+	{
+		ParticleSystemManager::Instance()->CreateParticleSystem(_abductors[i]->getPosition(), ParticleType::Death);
+
+		_score += ABDUCTOR_SCORE;
+		RemoveObjectFromRegion(_abductors[i]);
+		delete _abductors[i];
+		_abductors.erase(_abductors.begin() + i);
+		i--;
+	}
+
+	for (int i = 0; i < _mutants.size(); i++)
+	{
+		ParticleSystemManager::Instance()->CreateParticleSystem(_mutants[i]->getPosition(), ParticleType::Death);
+
+		_score += MUTANT_SCORE;
+		RemoveObjectFromRegion(_mutants[i]);
+		delete _mutants[i];
+		_mutants.erase(_mutants.begin() + i);
+		i--;
+	}
 }
 
 void Game::render()
@@ -453,29 +492,8 @@ void Game::DrawMenu()
 }
 void Game::DrawGame()
 {
-	if (_player->getRegion() - 1 >= 0)
-	{
-		_regions[_player->getRegion() - 1]->Draw(_window);
-	}
-
-	if (_player->getRegion() + 1 < _regions.size())
-	{
-		_regions[_player->getRegion() + 1]->Draw(_window);
-	}
-
-	_regions[_player->getRegion()]->Draw(_window);
-
-	/*DrawMeteors();
-
-	DrawAlienNests();
-	DrawAbductors();
-
-	DrawPowerUps();
-
-	DrawProjectiles();
-	DrawInterceptors();
-
-	_window.draw(*_player);*/
+	DrawVisibleRegions();
+	DrawVisibleObjects();
 
 	ParticleSystemManager::Instance()->Draw(_window);
 	_hud->Draw(_window);
@@ -483,52 +501,38 @@ void Game::DrawGame()
 }
 void Game::DrawGameOver()
 {
-
+	
 }
 
 #pragma region Draw Methods
 
-void Game::DrawProjectiles()
+void Game::DrawVisibleRegions()
 {
-	for (int i = 0; i < _projectiles.size(); i++)
+	if (_player->getRegion() - 1 >= 0)
 	{
-		_window.draw(*_projectiles[i]);
+		_regions[_player->getRegion() - 1]->DrawRegion(_window);
 	}
+
+	if (_player->getRegion() + 1 < _regions.size())
+	{
+		_regions[_player->getRegion() + 1]->DrawRegion(_window);
+	}
+
+	_regions[_player->getRegion()]->DrawRegion(_window);
 }
-void Game::DrawInterceptors()
+void Game::DrawVisibleObjects()
 {
-	for (int i = 0; i < _interceptors.size(); i++)
+	if (_player->getRegion() - 1 >= 0)
 	{
-		_window.draw(*_interceptors[i]);
+		_regions[_player->getRegion() - 1]->DrawObjects(_window);
 	}
-}
-void Game::DrawMeteors()
-{
-	for (int i = 0; i < _meteors.size(); i++)
+
+	if (_player->getRegion() + 1 < _regions.size())
 	{
-		_window.draw(*_meteors[i]);
+		_regions[_player->getRegion() + 1]->DrawObjects(_window);
 	}
-}
-void Game::DrawPowerUps()
-{
-	for (int i = 0; i < _powerUps.size(); i++)
-	{
-		_window.draw(*_powerUps[i]);
-	}
-}
-void Game::DrawAlienNests()
-{
-	for (int i = 0; i < _nests.size(); i++)
-	{
-		_window.draw(*_nests[i]);
-	}
-}
-void Game::DrawAbductors()
-{
-	for (int i = 0; i < _abductors.size(); i++)
-	{
-		_window.draw(*_abductors[i]);
-	}
+
+	_regions[_player->getRegion()]->DrawObjects(_window);
 }
 
 void Game::DrawRadar()
@@ -568,24 +572,24 @@ void Game::DrawRadar()
 }
 void Game::DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour)
 {
-	const float RADAR_HIGHT = 150.0f;
-	const float SIZE_SCALAR = 0.20f;
-
 	sf::RectangleShape rectangle = sf::RectangleShape(sf::Vector2f(size.x * SIZE_SCALAR, size.y * SIZE_SCALAR));
-	rectangle.setPosition(sf::Vector2f((position.x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, (position.y / _worldBounds.height) * RADAR_HIGHT));
+	
+	float hightNotUsed = HUD_HEIGHT + (_worldBounds.height * (1 - PLAYER_OFFSET_FROM_GROUND));
+
+	rectangle.setPosition(sf::Vector2f((position.x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, ((position.y - HUD_HEIGHT) / (_worldBounds.height - hightNotUsed)) * RADAR_HIGHT));
 	rectangle.setOrigin(rectangle.getSize() *0.5f);
+	
 	rectangle.setFillColor(colour);
 
 	_window.draw(rectangle);
 }
 void Game::DrawCameraRectangle()
 {
-	const float RADAR_HIGHT = 150.0f;
-	const float CAMERA_RECTANGLE = 2.5f + 2.5f;
+	sf::RectangleShape rectangle = sf::RectangleShape(sf::Vector2f(((_worldView.getSize().x / _worldBounds.width) * _worldView.getSize().x) - RADAR_CAMERA_RECTANGLE, ((_worldView.getSize().y / (_worldBounds.height - HUD_HEIGHT)) * RADAR_HIGHT) - RADAR_CAMERA_RECTANGLE));
 
-	sf::RectangleShape rectangle = sf::RectangleShape(sf::Vector2f(((_worldView.getSize().x / _worldBounds.width) * _worldView.getSize().x) - CAMERA_RECTANGLE, ((_worldView.getSize().y / _worldBounds.height) * RADAR_HIGHT) - CAMERA_RECTANGLE));
+	float hightNotUsed = _worldBounds.height * (1 - PLAYER_OFFSET_FROM_GROUND);
 
-	rectangle.setPosition(sf::Vector2f((_worldView.getCenter().x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, (_worldView.getCenter().y / _worldBounds.height) * RADAR_HIGHT));
+	rectangle.setPosition(sf::Vector2f((_worldView.getCenter().x / _worldBounds.width) * _worldView.getSize().x + _worldView.getCenter().x - _worldView.getSize().x * 0.5f, ((_worldView.getCenter().y - HUD_HEIGHT) / (_worldBounds.height - hightNotUsed)) * RADAR_HIGHT + RADAR_CAMERA_RECTANGLE));
 	rectangle.setOrigin(rectangle.getSize() *0.5f);
 
 	rectangle.setOutlineColor(sf::Color::White);
@@ -602,51 +606,57 @@ void Game::Destroy()
 {
 	delete _player;
 
-	for (int i = 0; i < _projectiles.size(); i++)
+	while (true)
 	{
-		delete _projectiles[i];
+		delete _projectiles[0];
 	}
 	_projectiles.clear();
 
-	for (int i = 0; i < _interceptors.size(); i++)
+	while (true)
 	{
-		delete _interceptors[i];
+		delete _interceptors[0];
 	}
 	_interceptors.clear();
 
-	for (int i = 0; i < _meteors.size(); i++)
+	while (true)
 	{
-		delete _meteors[i];
+		delete _meteors[0];
 	}
 	_meteors.clear();
 
-	for (int i = 0; i < _powerUps.size(); i++)
+	while (true)
 	{
-		delete _powerUps[i];
+		delete _powerUps[0];
 	}
 	_powerUps.clear();
 
-	for (int i = 0; i < _nests.size(); i++)
+	while (true)
 	{
-		delete _nests[i];
+		delete _nests[0];
 	}
 	_nests.clear();
 
-	for (int i = 0; i < _abductors.size(); i++)
+	while (true)
 	{
-		delete _abductors[i];
+		delete _abductors[0];
 	}
 	_abductors.clear();
 
-	for (int i = 0; i < _astronauts.size(); i++)
+	while (true)
 	{
-		delete _astronauts[i];
+		delete _mutants[0];
+	}
+	_mutants.clear();
+
+	while (true)
+	{
+		delete _astronauts[0];
 	}
 	_astronauts.clear();
 
-	for (int i = 0; i < _regions.size(); i++)
+	while (true)
 	{
-		delete _regions[i];
+		delete _regions[0];
 	}
 	_regions.clear();
 

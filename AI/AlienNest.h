@@ -19,8 +19,6 @@ public:
 	void					TakenDamage();
 	void					Die();
 
-	bool					getAlive() const;
-
 private:
 	void					FireRateTimer(float dt);
 	void					SpawnTimer(float dt);
@@ -30,8 +28,9 @@ private:
 
 	void					Move();
 
-	void					Wonder();
-	void					Evade();
+	void					Orientate(int rotateBy, int angleToAdd);
+	void					NormalizeAngle();
+
 	void					AvoidMeteors(std::vector<Meteor*>& meteors);
 
 	void					CheckBorder();
@@ -60,7 +59,6 @@ private:
 
 	bool					_goClockWise;
 	bool					_wondering;
-	bool					_isAlive;
 	bool					_canFire;
 	bool					_canSpawnAbductor;
 };

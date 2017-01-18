@@ -26,10 +26,12 @@ void Region::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(_foregroundTexture, states);
 }
 
-void Region::Draw(sf::RenderWindow& renderWindow)
+void Region::DrawRegion(sf::RenderWindow& renderWindow)
 {
 	renderWindow.draw(*this);
-
+}
+void Region::DrawObjects(sf::RenderWindow& renderWindow)
+{
 	for (int i = 0; i < _gameObjectsWithin.size(); i++)
 	{
 		renderWindow.draw(*_gameObjectsWithin[i]);

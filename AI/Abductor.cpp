@@ -9,14 +9,14 @@ Abductor::~Abductor()
 {
 }
 
-void Abductor::initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
+void Abductor::Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize)
 {
 	GameObject::initialize(position, texture, ObjectType::Abductor);
 
 	_screenSize = sf::Vector2u(screenSize.width, screenSize.height);
 }
 
-void Abductor::update(float dt, sf::Vector2f playerPosition)
+void Abductor::Update(float dt, sf::Vector2f playerPosition)
 {
 
 }

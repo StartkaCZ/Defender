@@ -9,8 +9,8 @@ public:
 							Abductor();
 							~Abductor();
 
-	void					initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
-	void					update(float dt, sf::Vector2f playerPosition);
+	void					Initialize(sf::Vector2f position, sf::Texture &texture, sf::FloatRect screenSize);
+	void					Update(float dt, sf::Vector2f playerPosition);
 
 private:
 	/*

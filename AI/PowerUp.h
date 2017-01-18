@@ -13,10 +13,5 @@ public:
 
 	virtual void	CollisionEnter(GameObject*& objectCollided) override;
 	void			Die();
-
-	bool			getAlive() const;
-
-private:
-	bool			_isAlive;
 };
 

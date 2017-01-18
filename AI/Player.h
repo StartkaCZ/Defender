@@ -21,7 +21,11 @@ public:
 
 	bool					hasNuked() const;
 	int						getLives() const;
+	int						getSuperJumps() const;
 
+	bool					canNuke() const;
+	bool					shieldOn() const;
+	bool					rapidFire() const;
 
 private:
 	void					FireRateTimer(float dt);

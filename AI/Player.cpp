@@ -174,10 +174,14 @@ void Player::MoveLeft()
 	if (_velocity.x > -PLAYER_MAX_SPEED)
 	{
 		_velocity.x -= PLAYER_ACCELERATION;
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x + _size.x *0.875f, getPosition().y + _size.y *0.9f), ParticleType::PlayerTrail);
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x + _size.x *0.875f, getPosition().y - _size.y *0.5f), ParticleType::PlayerTrail);
 	}
 	else
 	{
 		_velocity.x = -PLAYER_MAX_SPEED;
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x + _size.x *0.875f, getPosition().y + _size.y *0.9f), ParticleType::PlayerTrail);
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x + _size.x *0.875f, getPosition().y - _size.y *0.5f), ParticleType::PlayerTrail);
 	}
 }
 void Player::MoveRight()
@@ -192,10 +196,15 @@ void Player::MoveRight()
 	if (_velocity.x < PLAYER_MAX_SPEED)
 	{
 		_velocity.x += PLAYER_ACCELERATION;
-	}
-	else
-	{
-		_velocity.x = PLAYER_MAX_SPEED;
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x - _size.x *0.55f, getPosition().y + _size.y *0.9f), ParticleType::PlayerTrail);
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x - _size.x *0.55f, getPosition().y - _size.y *0.5f), ParticleType::PlayerTrail);
+																										
+	}																									
+	else																								
+	{																									
+		_velocity.x = PLAYER_MAX_SPEED;																	
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x - _size.x *0.55f, getPosition().y + _size.y *0.9f), ParticleType::PlayerTrail);
+		ParticleSystemManager::Instance()->CreateParticleSystem(sf::Vector2f(getPosition().x - _size.x *0.55f, getPosition().y - _size.y *0.5f), ParticleType::PlayerTrail);
 	}
 }
 void Player::Decelerate()
@@ -233,7 +242,7 @@ void Player::MoveDown()
 }
 void Player::MoveUp()
 {
-	if (getPosition().y - _size.y > 0)
+	if (getPosition().y - _size.y > HUD_HEIGHT)
 	{
 		_velocity.y = -PLAYER_VERTICAL_SPEED;
 	}
@@ -290,7 +299,7 @@ void Player::SuperJump()
 	if (_canSuperJump && _superJumpCount > 0)
 	{
 		float x = (rand() % _screenSize.x - _size.x - _size.x) + _size.x;
-		float y = (rand() % _screenSize.y * PLAYER_OFFSET_FROM_GROUND - _size.y - _size.y) + _size.y + _size.y;
+		float y = (rand() % _screenSize.y * PLAYER_OFFSET_FROM_GROUND - HUD_HEIGHT - _size.y - _size.y) + _size.y + _size.y;
 
 		setPosition(x, y);
 
@@ -340,13 +349,13 @@ void Player::CollisionEnter(GameObject*& objectCollided)
 	{
 		TakenDamage();
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleSystemManager::ParticleType::EnemyLazer);
+		ParticleSystemManager::Instance()->CreateParticleSystem((objectCollided->getPosition() + getPosition()) *0.5f, ParticleType::EnemyLazer);
 	}
 	else if (objectCollided->getType() == ObjectType::PowerUp_RapidFire || objectCollided->getType() == ObjectType::PowerUp_Shield || objectCollided->getType() == ObjectType::PowerUp_SuperJump)
 	{
 		CollectedPowerUp(objectCollided->getType());
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::PowerUpCollected);
-		ParticleSystemManager::Instance()->CreateParticleSystem(objectCollided->getPosition(), ParticleSystemManager::ParticleType::PowerUp);
+		ParticleSystemManager::Instance()->CreateParticleSystem(objectCollided->getPosition(), ParticleType::PowerUp);
 	}
 }
 void Player::TakenDamage()
@@ -365,4 +374,24 @@ int Player::getLives() const
 bool Player::hasNuked() const
 {
 	return _hasNuked;
+}
+
+int	Player::getSuperJumps() const
+{
+	return _superJumpCount;
+}
+
+bool Player::canNuke() const
+{
+	return _canNuke;
+}
+
+bool Player::shieldOn() const
+{
+	return _shieldOn;
+}
+
+bool Player::rapidFire() const
+{
+	return _rapidFire;
 }

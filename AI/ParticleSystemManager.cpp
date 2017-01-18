@@ -58,17 +58,20 @@ void ParticleSystemManager::CreateParticleSystem(sf::Vector2f position, Particle
 {
 	switch (type)
 	{
-	case ParticleSystemManager::ParticleType::PlayerLazer:
-		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20));
+	case ParticleType::PlayerLazer:
+		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 10, type));
 		break;
-	case ParticleSystemManager::ParticleType::EnemyLazer:
-		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20));
+	case ParticleType::EnemyLazer:
+		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 10, type));
 		break;
-	case ParticleSystemManager::ParticleType::Death:
-		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20));
+	case ParticleType::Death:
+		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20, type));
 		break;
-	case ParticleSystemManager::ParticleType::PowerUp:
-		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20));
+	case ParticleType::PowerUp:
+		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 20, type));
+		break;
+	case ParticleType::PlayerTrail:
+		_particleSystems.push_back(new ParticleSystem(position, _textures[type], 8, type));
 		break;
 
 	default:

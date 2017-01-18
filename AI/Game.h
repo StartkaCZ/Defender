@@ -70,14 +70,8 @@ private:
 	void						DrawGame();
 	void						DrawGameOver();
 
-	void						DrawProjectiles();
-	void						DrawInterceptors();
-	void						DrawMeteors();
-	void						DrawPowerUps();
-	void						DrawAlienNests();
-	void						DrawAbductors();
-	//void						DrawMutants();
-	//void						DrawAstronauts();
+	void						DrawVisibleRegions();
+	void						DrawVisibleObjects();
 
 	void						DrawRadar();
 	void						DrawRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color colour);
@@ -105,6 +99,7 @@ private:
 	std::vector<PowerUp*>		_powerUps;
 	std::vector<AlienNest*>		_nests;
 	std::vector<Abductor*>		_abductors;
+	std::vector<Mutant*>		_mutants;
 	std::vector<Astronaut*>		_astronauts;
 	std::vector<Region*>		_regions;
 

@@ -5,6 +5,7 @@
 GameObject::GameObject()
 	: _region(-1)
 	, _insideRegion(false)
+	, _isAlive(false)
 {
 }
 
@@ -24,6 +25,8 @@ void GameObject::initialize(sf::Vector2f position, sf::Texture &texture, ObjectT
 	_type = type;
 
 	setPosition(position);
+
+	_isAlive = true;
 }
 
 void GameObject::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -109,4 +112,9 @@ int GameObject::getRegion() const
 bool GameObject::isInsideRegion() const
 {
 	return _insideRegion;
+}
+
+bool GameObject::getAlive() const
+{
+	return _isAlive;
 }

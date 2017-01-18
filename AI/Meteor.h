@@ -16,12 +16,8 @@ public:
 	virtual void	CollisionEnter(GameObject*& objectCollided) override;
 	void			Die();
 
-	bool			getAlive() const;
-
 private:
 	sf::Vector2f	_velocity;
 	sf::Vector2u	_screenSize;
-
-	bool			_isAlive;
 };
 

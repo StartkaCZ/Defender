@@ -32,12 +32,14 @@ namespace Textures
 
 		//HUD
 		HUD,
+		IconNuke,
 
 		//Particles
 		Particle_PlayerLazer,
 		Particle_EnemyLazer,
 		Particle_Death,
 		Particle_PowerUp,
+		Particle_PlayerTrail,
 	};
 }
 

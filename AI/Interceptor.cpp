@@ -64,5 +64,5 @@ void Interceptor::Die()
 	_parentRocketCounter--;
 
 	AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::EnemyLazer);
+	ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::EnemyLazer);
 }

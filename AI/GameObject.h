@@ -43,6 +43,7 @@ public:
 	ObjectType				getType() const;
 	int						getRegion() const;
 	bool					isInsideRegion() const;
+	bool					getAlive() const;
 
 protected:
 	virtual void			initialize(sf::Vector2f position, sf::Texture &texture, ObjectType type);
@@ -57,5 +58,6 @@ protected:
 	
 	int						_region;
 	bool					_insideRegion;
+	bool					_isAlive;
 };
 

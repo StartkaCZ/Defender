@@ -36,7 +36,7 @@ void Meteor::Update(float dt)
 void Meteor::Restart()
 {
 	float x = rand() % (int)(_screenSize.x - _size.x - _size.x - _size.x - _size.x) + _size.x + _size.x;
-	float y = -rand() % (int)(_size.y + _size.y) - _size.y;
+	float y = rand() % (int)(HUD_HEIGHT - _size.y);
 
 	setPosition(x, y);
 
@@ -55,12 +55,12 @@ void Meteor::CollisionEnter(GameObject*& objectCollided)
 	{
 		Die();
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitDestroyed);
-		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleSystemManager::ParticleType::Death);
+		ParticleSystemManager::Instance()->CreateParticleSystem(getPosition(), ParticleType::Death);
 	}
 	else if (objectCollided->getType() == ObjectType::Projetile_Interceptor || objectCollided->getType() == ObjectType::Projetile_PlayerLazer)
 	{
 		AudioManager::Instance()->PlaySound(AudioManager::SoundType::UnitHit);
-		ParticleSystemManager::Instance()->CreateParticleSystem((getPosition() + objectCollided->getPosition()) * 0.5f, ParticleSystemManager::ParticleType::EnemyLazer);
+		ParticleSystemManager::Instance()->CreateParticleSystem((getPosition() + objectCollided->getPosition()) * 0.5f, ParticleType::EnemyLazer);
 	}
 }
 
@@ -69,7 +69,3 @@ void Meteor::Die()
 	_isAlive = false;
 }
 
-bool Meteor::getAlive() const
-{
-	return _isAlive;
-}

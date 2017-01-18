@@ -6,7 +6,7 @@
 class Particle : public sf::Drawable, protected sf::NonCopyable
 {
 public:
-						Particle(float timer, sf::Vector2f dir, float speed, sf::Vector2f position, sf::Texture& texture);
+						Particle(float timer, sf::Vector2f dir, float speed, float initialAlpha, sf::Vector2f position, sf::Texture& texture);
 
 	void				Update(float dt);
 
@@ -18,12 +18,13 @@ protected:
 private:
 	float				_timer;
 	float				_startTimer;
+	float				_initialAlpha;
 	bool				_alive;
 	
 	sf::Sprite			_sprite;
 	sf::Vector2f		_velocity;
 
-	const float			ALPHA = 255.f;
+	const float			SCALE = 0.25f;
 };
 
 

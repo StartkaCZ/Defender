@@ -16,7 +16,8 @@ public:
 
 	void						AddGameObject(GameObject*& gameObject);
 	void						RemoveGameObject(GameObject*& gameObject);
-	void						Draw(sf::RenderWindow& renderWindow);
+	void						DrawRegion(sf::RenderWindow& renderWindow);
+	void						DrawObjects(sf::RenderWindow& renderWindow);
 
 	bool						Teleport(float xPosition);
 	

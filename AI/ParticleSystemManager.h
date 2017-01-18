@@ -9,15 +9,6 @@
 class ParticleSystemManager
 {
 public:
-	enum class ParticleType
-	{
-		PlayerLazer,
-		EnemyLazer,
-		Death,
-		PowerUp,
-	};
-
-public:
 										ParticleSystemManager();
 										~ParticleSystemManager();
 
